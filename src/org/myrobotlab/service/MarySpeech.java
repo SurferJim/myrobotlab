@@ -719,6 +719,7 @@ public class MarySpeech extends Service implements TextListener, SpeechSynthesis
     meta.addDependency("marytts", "5.1.2");
     meta.addDependency("com.sun.speech.freetts", "1.2");
     meta.addDependency("opennlp", "1.6");
+    meta.addDependency("org.apache.commons.io", "2.3.0");
     return meta;
   }
 
