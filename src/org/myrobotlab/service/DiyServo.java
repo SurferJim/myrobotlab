@@ -41,7 +41,13 @@ import org.myrobotlab.service.interfaces.NameProvider;
 import org.myrobotlab.service.interfaces.PinListener;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.service.interfaces.ServoControl;
+import org.myrobotlab.motor.MotorConfig;
+import org.myrobotlab.motor.MotorConfigDualPwm;
+import org.myrobotlab.motor.MotorConfigPulse;
+import org.myrobotlab.motor.MotorConfigSimpleH;
+import org.myrobotlab.sensor.Encoder;
 import org.myrobotlab.service.interfaces.MotorControl;
+import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.PinArrayControl;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.slf4j.Logger;
@@ -71,7 +77,7 @@ import org.slf4j.Logger;
  *         analog feedback.
  */
 
-public class DiyServo extends Service implements ServoControl, PinListener {
+public class DiyServo extends Service implements ServoControl, MotorControl, PinListener {
 
 	/**
 	 * Sweeper
@@ -130,15 +136,18 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 	}
 
 	/**
-	 * MotorUpdater The control loop to update the motor service with new values
-	 * based on the PID calculations
+	 * MotorUpdater The control loop to update the MotorController with new
+	 * values based on the PID calculations
 	 * 
 	 */
 	public class MotorUpdater extends Thread {
 
 		double lastOutput = 0;
-		public MotorUpdater(String name) {
-			super(String.format("%s.MotorUpdater", name));
+		DiyServo mc;
+
+		public MotorUpdater(DiyServo mc) {
+			super(String.format("%s.MotorUpdater", mc.getName()));
+			this.mc = mc;
 		}
 
 		@Override
@@ -151,9 +160,12 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 						if (pid.compute(pidKey)) {
 							double setPoint = pid.getSetpoint(pidKey);
 							double output = pid.getOutput(pidKey);
-							log.debug(String.format("setPoint(%s), processVariable(%s), output(%s)",setPoint, processVariable, output));
-							if (output != lastOutput){
-								controller.move(output);
+							mc.setPowerLevel(output);
+							log.debug(String.format("setPoint(%s), processVariable(%s), output(%s)", setPoint,
+									processVariable, output));
+							if (output != lastOutput) {
+								// controller.move(output);
+								controller.motorMove((MotorControl) mc);
 								lastOutput = output;
 							}
 						}
@@ -169,44 +181,36 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 				}
 			}
 		}
-
 	}
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(DiyServo.class);
 
-	// Controller for the Motor
-	transient MotorControl controller;
+	// MotorController
+	transient MotorController controller;
 	public String controllerName = null;
+	MotorConfig config;
 
-	// Reference to the Analog input service
-	public List<String> pinArrayControls; // List
-											// of
-											// available
-											// services
-											// for
-											// analog
-											// inpt
-	transient PinArrayControl pinArrayControl; // Handle
-												// to
-												// the
-												// selected
-												// analog
-												// input
-												// service
-	public String pinControlName; // Name
-									// of
-									// the
+	/**
+	 * // Reference to the Analog input service
+	 */
+	public List<String> pinArrayControls;
+	/**
+	 * // Handle to the selected analog input service and it's name
+	 */
+	transient PinArrayControl pinArrayControl;
+	public String pinControlName;
 
-	// selected
-	// analog
-	// input
-	// service
-
+	/**
+	 * List of available pins on the analog input service
+	 */
 	public List<Integer> pinList = new ArrayList<Integer>();
 	public Integer pin;
 
+	/**
+	 * mapper to be able to remap input values
+	 */
 	Mapper mapper = new Mapper(0, 180, 0, 180);
 
 	Integer rest = 90;
@@ -227,10 +231,7 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 	 * list of names of possible controllers
 	 */
 	public List<String> controllers;
-	/**
-	 * current speed of the servo
-	 */
-	Double speed = 1.0;
+
 	// FIXME - currently is only computer control - needs to be either
 	// microcontroller or computer
 	boolean isSweeping = false;
@@ -240,10 +241,6 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 
 	int sweepStep = 1;
 	boolean sweepOneWay = false;
-
-	// sweep types
-	// TODO - computer implemented speed control (non-sweep)
-	boolean speedControlOnUC = false;
 
 	transient Thread sweeper = null;
 
@@ -268,8 +265,8 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 	public Pid pid;
 	private String pidKey;
 	private double kp = 0.020;
-	private double ki = 0.001 ;   // 0.020;
-	private double kd = 0.0;    // 0.020;
+	private double ki = 0.001; // 0.020;
+	private double kd = 0.0; // 0.020;
 	public double setPoint = 90; // Intial
 									// setpoint
 									// corresponding
@@ -319,6 +316,12 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 										// process
 	// variable
 	transient MotorUpdater motorUpdater;
+
+	double powerLevel = 0;
+	double maxPower = 1.0;
+	double minPower = -1.0;
+
+	Mapper powerMap = new Mapper(-1.0, 1.0, -255.0, 255.0);
 
 	/**
 	 * Constructor
@@ -400,9 +403,24 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 	@Override
 	// TODO DeActivate the motor and PID
 	public void detach() {
-		controller.move(0);
+		controller.motorStop((MotorControl) this);
 		isAttached = false;
 		broadcastState();
+	}
+
+	/////// config start ////////////////////////
+	public void setPwmPins(int leftPin, int rightPin) {
+		config = new MotorConfigDualPwm(leftPin, rightPin);
+		broadcastState();
+	}
+
+	public void setPwrDirPins(int pwrPin, int dirPin) {
+		config = new MotorConfigSimpleH(pwrPin, dirPin);
+		broadcastState();
+	}
+
+	public MotorConfig getConfig() {
+		return config;
 	}
 
 	/**
@@ -487,7 +505,7 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 		}
 
 		if (motorUpdater == null) {
-			motorUpdater = new MotorUpdater(this.getName());
+			motorUpdater = new MotorUpdater(this);
 			motorUpdater.run();
 		}
 
@@ -522,7 +540,7 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 	 * @return
 	 */
 	public List<String> refreshControllers() {
-		controllers = Runtime.getServiceNamesFromInterface(MotorControl.class);
+		controllers = Runtime.getServiceNamesFromInterface(MotorController.class);
 		return controllers;
 	}
 
@@ -551,7 +569,7 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 		}
 
 		log.info(String.format("%s setController %s", getName(), controller.getName()));
-		this.controller = (MotorControl) controller;
+		this.controller = (MotorController) controller;
 		this.controllerName = controller.getName();
 		broadcastState();
 	}
@@ -581,17 +599,6 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 
 	public void setRest(int rest) {
 		this.rest = rest;
-	}
-
-	public void setSpeed(double speed) {
-		this.speed = speed;
-		// TODO Replace with PID / Motor logic
-		// getController().servoSetSpeed(this);
-	}
-
-	// choose to handle sweep on arduino or in MRL on host computer thread.
-	public void setSpeedControlOnUC(boolean b) {
-		speedControlOnUC = b;
 	}
 
 	public void setSweepDelay(int delay) {
@@ -636,20 +643,12 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 		this.sweepStep = step;
 		this.sweepOneWay = oneWay;
 
-		// FIXME - CONTROLLER TYPE SWITCH
-		// In case PID is implemented in Arduino, this could happen
-		if (speedControlOnUC) {
-			// getController().servoSweepStart(this); // delay &
-			// step
-			// implemented
-		} else {
-			if (isSweeping) {
-				stop();
-			}
-
-			sweeper = new Sweeper(getName());
-			sweeper.start();
+		if (isSweeping) {
+			stop();
 		}
+
+		sweeper = new Sweeper(getName());
+		sweeper.start();
 
 		isSweeping = true;
 		broadcastState();
@@ -700,15 +699,12 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 			Runtime.start("gui", "GUIService");
 			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
 			arduino.connect("COM3");
-			Motor motor = (Motor) Runtime.start("motor", "Motor");
-			motor.setPwmPins(3, 4);
-			motor.attach(arduino);
 
 			Ads1115 ads = (Ads1115) Runtime.start("Ads1115", "Ads1115");
 			ads.setController(arduino, "1", "0x48");
 
 			DiyServo dyiServo = (DiyServo) Runtime.start("DiyServo", "DiyServo");
-			dyiServo.attach(motor);
+			dyiServo.attach(arduino);
 			dyiServo.attach((PinArrayControl) ads, 0); // PIN 14 = A0
 
 			// Servo Servo = (Servo) Runtime.start("Servo", "Servo");
@@ -760,16 +756,11 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 		return targetOutput;
 	}
 
-	@Override
-	public double getSpeed() {
-		return speed;
-	}
-
 	public void attach(String controllerName) throws Exception {
-		attach((MotorControl) Runtime.getService(controllerName));
+		attach((MotorController) Runtime.getService(controllerName));
 	}
 
-	public void attach(MotorControl controller) throws Exception {
+	public void attach(MotorController controller) throws Exception {
 		this.controller = controller;
 		if (controller != null) {
 			controllerName = controller.getName();
@@ -781,15 +772,15 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 	@Override
 	public void detach(String controllerName) {
 		ServiceInterface si = Runtime.getService(controllerName);
-		if (si instanceof MotorControl) {
-			detach((MotorControl) Runtime.getService(controllerName));
+		if (si instanceof MotorController) {
+			detach((MotorController) Runtime.getService(controllerName));
 		}
 		if (si instanceof PinArrayControl) {
 			detach((PinArrayControl) Runtime.getService(controllerName));
 		}
 	}
 
-	public void detach(MotorControl controller) {
+	public void detach(MotorController controller) {
 		if (this.controller == controller) {
 			this.controller = null;
 			isAttached = false;
@@ -861,12 +852,39 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 		broadcastState();
 	}
 
-	//
-	// A bunch of unused methods from ServoControl. Perhaps I should create a
-	// new
+	@Override
+	public int getVelocity() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public double getPowerLevel() {
+		return powerLevel;
+	}
+
+	@Override
+	public void setPowerLevel(double power) {
+		this.powerLevel = power;
+	}
+
+	@Override
+	public double getPowerOutput() {
+		return powerMap.calc(powerLevel);
+	}
+	
+	@Override
+	public int getTargetPos() {
+		return targetPos;
+	}
+	
+	/**
+	// A bunch of unimplemented methods from ServoControl and MotorControl.
+	// Perhaps I should create a new
 	// DiyServoControl interface.
 	// I was hoping to be able to avoid that, but might be a better solution
-
+   */
 	@Override
 	public void attach(ServoController controller, int pin, Integer pos) throws Exception {
 		// TODO Auto-generated method stub
@@ -886,12 +904,6 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 	}
 
 	@Override
-	public int getVelocity() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public void attach(String controllerName, int pin, Integer pos) throws Exception {
 		// TODO Auto-generated method stub
 
@@ -906,6 +918,54 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 	@Override
 	public void attach(String controllerName, int pin, Integer pos, Integer velocity) throws Exception {
 		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void lock() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void move(double power) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void moveTo(int newPos, Double power) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setEncoder(Encoder encoder) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void stopAndLock() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void unlock() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public double getSpeed() {
+		log.error("speed is depreciated, use getVelocity instead");
+		return 0;
+	}
+
+	@Override
+	public void setSpeed(double speed) {
+		log.error("speed is depreciated, use setVelocity instead");
 
 	}
 
@@ -933,4 +993,5 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 		// TODO Auto-generated method stub
 		
 	}
+
 }
