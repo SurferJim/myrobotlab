@@ -26,6 +26,7 @@
 package org.myrobotlab.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.myrobotlab.framework.Service;
@@ -149,7 +150,7 @@ public class Servo extends Service implements ServoControl {
 
 	Mapper mapper = new Mapper(0, 180, 0, 180);
 
-	Integer rest = 90;
+	int rest = 90;
 
 	long lastActivityTime = 0;
 
@@ -217,7 +218,7 @@ public class Servo extends Service implements ServoControl {
 	private boolean isAttached = false;
 	private boolean isControllerSet = false;
 
-  private int velocity = 0;
+  private int velocity = -1;
   
   class IKData {
     String name;
@@ -434,18 +435,13 @@ public class Servo extends Service implements ServoControl {
 		this.controllerName = controller.getName();
 		broadcastState();
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.interfaces.ServoControl#setPin(int)
-	 */
-	/*
-	 * @Override public boolean setPin(int pin) { log.info(String.format(
-	 * "setting %s pin to %d", getName(), pin)); if (isAttached()) { warn(
-	 * "%s can not set pin %d when servo is attached", getName(), pin); return
-	 * false; } this.pin = pin; broadcastState(); return true; }
-	 */
+	
+	@Override
+	public void unsetController(){
+		this.controller = null;
+		this.controllerName = null;
+		broadcastState();
+	}
 
 	public void setInverted(boolean invert) {
 		mapper.setInverted(invert);
@@ -465,6 +461,7 @@ public class Servo extends Service implements ServoControl {
 	/**
 	 * setSpeed is deprecated, new function for speed control is setVelocity()
 	 */
+	@Deprecated
 	public void setSpeed(double speed) {
 	  
 	  // KWATTERS: The realtionship between the old set speed value and actual angular velocity was exponential.
@@ -608,46 +605,6 @@ public class Servo extends Service implements ServoControl {
 		return pin;
 	}
 
-	public static void main(String[] args) throws InterruptedException {
-
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
-		try {
-			Runtime.start("webgui", "WebGui");
-			Runtime.start("gui", "GUIService");
-			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
-			arduino.connect("COM5");
-			Servo servo = (Servo) Runtime.start("servo", "Servo");
-			servo.attach(arduino, 8);
-			// servo.attach(arduino, 8);
-			// servo.attach(
-
-			servo.moveTo(90);
-			servo.setRest(30);
-			servo.moveTo(10);
-			servo.moveTo(90);
-			servo.moveTo(180);
-			servo.rest();
-
-			servo.setMinMax(30, 160);
-
-			servo.moveTo(40);
-			servo.moveTo(140);
-
-			servo.moveTo(180);
-
-			servo.setSpeed(0.5);
-			servo.moveTo(31);
-			servo.setSpeed(0.2);
-			servo.moveTo(90);
-			servo.moveTo(180);
-
-			// servo.test();
-		} catch (Exception e) {
-			Logging.logError(e);
-		}
-
-	}
 
 	@Override
 	public int getSweepMin() {
@@ -689,11 +646,15 @@ public class Servo extends Service implements ServoControl {
     attach((ServoController) Runtime.getService(controllerName), pin, pos, velocity);
   }
 
+  /**
+   * attach will default the position to a default reset position since its not specified
+   */
   @Override
 	public void attach(ServoController controller, int pin) throws Exception {
 		attach(controller, pin, null, null);
 	}
 
+  	
 	 public void attach(ServoController controller, int pin, Integer pos) throws Exception {
 	   attach(controller, pin, pos, null);
 	 }
@@ -703,7 +664,7 @@ public class Servo extends Service implements ServoControl {
 	@Override
 	public void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception {
 		subscribe(controller.getName(), "publishAttachedDevice");
-
+		
 		if (this.controller == controller) {
 			log.info("already attached to controller - nothing to do");
 			return;
@@ -711,40 +672,37 @@ public class Servo extends Service implements ServoControl {
 			log.warn("already attached to controller %s - please detach before attaching to controller %s", this.controller.getName(), controller.getName());
 			return;
 		}
-
+		
 		// ORDER IS IMPORTANT !!!
 		// attach the Control to the Controller first
-		if (velocity == null) velocity = this.velocity;
-		if (pos != null) {
-			targetPos = pos;
-			targetOutput = mapper.calcInt(targetPos);
-			if (rest == null) {
-				rest = pos;
-			}
-			controller.deviceAttach(this, pin, targetOutput, (velocity >> 8) &0xFF, velocity &0xFF);
-		} else {
-			if (rest == null) {
-				rest = 90;
-			}
-			targetPos = rest;
-			targetOutput = mapper.calcInt(targetPos);
-			controller.deviceAttach(this, pin, targetOutput, (velocity >> 8) &0xFF, velocity &0xFF);
+		
+		if (velocity != null) {
+			this.velocity = velocity;
 		}
+		if (pos != null) {
+			targetPos = pos;		
+		} else {
+			targetPos = rest;
+		}
+		
+		targetOutput = mapper.calcInt(targetPos);
+		
+		controller.deviceAttach(this, pin, targetOutput, (this.velocity >> 8) &0xFF, this.velocity &0xFF);
 
 		// SET THE DATA
 		this.pin = pin;
 		this.controller = controller;
-		this.controllerName = controller.getName();
+		this.controllerName = controller.getName();		
+		
+		// block for a while maybe it will attach
 		int count = 0;
-		this.velocity = velocity;
 		while (!isAttached) {
 			count++;
 			sleep(100);
 			if (count > 4)
 				break;
 		}
-		//moveTo(rest);
-		// this.isAttached = true;
+
 		broadcastState();
 	}
 
@@ -831,4 +789,89 @@ public class Servo extends Service implements ServoControl {
   public IKData publishIKServoEvent(IKData data){
     return data;
   }
+  
+	public static void main(String[] args) throws InterruptedException {		
+		try {
+			LoggingFactory.init(Level.INFO);
+			
+			/*
+			int velocity = 259;
+			short[] test = new short[]{(short)(velocity & 0xFF) , (short)((velocity & 0xFF) >> 8)};		
+			short value = (short)(((test[1] & 0xFF) << 8) + (test[0] & 0xFF));
+			log.info("x is " + value);
+			*/
+			
+			// Runtime.start("webgui", "WebGui");
+			// Runtime.start("gui", "GUIService");
+			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
+			arduino.record();
+			// arduino.getSerial().record();
+			
+			log.info("ports {}", Arrays.toString(arduino.getSerial().getPortNames().toArray()));
+			arduino.connect("COM4");
+			
+			log.info("ready here");
+			// arduino.ackEnabled = true;
+			Servo servo = (Servo) Runtime.start("servo", "Servo");
+			
+			
+			servo.attach(arduino, 7);
+			servo.moveTo(90);
+			servo.moveTo(30);
+			
+			servo.attach(9);
+			servo.moveTo(90);
+			servo.setRest(30);
+			
+			// FIXME - JUNIT - test attach - detach - re-attach
+			// servo.detach(arduino); 
+			
+			
+			log.info("servo attach {}", servo.isAttached());
+			
+			arduino.disconnect();
+			arduino.connect("COM4");
+			
+			arduino.reset();
+			
+			log.info("ready here 2");
+			// servo.attach(arduino, 8);
+			// servo.attach(
+			servo.attach(arduino, 7);
+			servo.moveTo(90);
+			servo.moveTo(30);
+			
+			servo.attach(9);
+			servo.moveTo(90);
+			servo.setRest(30);
+			
+			
+			servo.moveTo(90);
+			servo.setRest(30);
+			servo.moveTo(10);
+			servo.moveTo(90);
+			servo.moveTo(180);
+			servo.rest();
+
+			servo.setMinMax(30, 160);
+
+			servo.moveTo(40);
+			servo.moveTo(140);
+
+			servo.moveTo(180);
+
+			servo.setSpeed(0.5);
+			servo.moveTo(31);
+			servo.setSpeed(0.2);
+			servo.moveTo(90);
+			servo.moveTo(180);
+			servo.setSpeed(1.0);
+
+			// servo.test();
+		} catch (Exception e) {
+			Logging.logError(e);
+		}
+
+	}
+
 }

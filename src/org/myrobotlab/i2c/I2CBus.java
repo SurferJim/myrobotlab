@@ -20,6 +20,11 @@ public class I2CBus implements DeviceController, I2CBusControl, SensorDataListen
 	public void setController(DeviceController controller) {
 		this.controller = (I2CBusController) controller;
 	}
+	
+	@Override
+	public void unsetController(){
+		this.controller = null;
+	}
 
 	@Override
 	public DeviceController getController() {

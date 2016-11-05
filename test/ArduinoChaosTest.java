@@ -105,7 +105,7 @@ public class ArduinoChaosTest {
     arduino.enableBoardStatus();
     
     Thread.sleep(1000);
-    arduino.setPWMFrequency(1, 100);
+ 
     // int analogReadPin = 2;
     // arduino.analogReadPollingStart(analogReadPin);
     //  Thread.sleep(1000);
@@ -145,7 +145,7 @@ public class ArduinoChaosTest {
     
     Thread.sleep(1000);
     // TODO: what does "12" mean?  12 hertz?!
-    arduino.setSampleRate(12);
+    // arduino.setSampleRate(12);
     
     
     Thread.sleep(1000);

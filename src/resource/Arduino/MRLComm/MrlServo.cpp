@@ -8,7 +8,7 @@ MrlServo::MrlServo() : Device(DEVICE_TYPE_SERVO) {
   lastUpdate = 0;
   currentPos = 0.0;
   targetPos = 0;
-  velocity = 0;
+  velocity = -1;
 }
 
 MrlServo::~MrlServo() {
@@ -27,22 +27,18 @@ bool MrlServo::deviceAttach(unsigned char config[], int configSize){
     msg.addData(String(F("MrlServo invalid attach config size")));
     return false;
   }
+
   attachDevice();
   pin = config[0];
-  if (configSize == 2) {
-    velocity = 0;
-    //servoWrite(config[1]);
-    servo->write(config[1]);
-    currentPos = config[1];
-    targetPos = config[1];
-  }
-  else if (configSize == 4) {
+
+  servo->write(config[1]);
+  currentPos = config[1];
+  targetPos = config[1];
+
+  if (configSize == 4) {
     velocity = MrlMsg::toInt(config,2);
-    //servoWrite(config[1]);
-    servo->write(config[1]);
-    currentPos = config[1];
-    targetPos = config[1];
   }
+
   servo->attach(pin);
   return true;
 }
@@ -68,7 +64,7 @@ void MrlServo::update() {
       if (isSweeping) {
         step = sweepStep;
       }
-      if (velocity == 0) { // when velocity == 0, it mean full speed ahead
+      if (velocity < 0) { // when velocity < 0, it mean full speed ahead
         step = targetPos - currentPos;
       }
       else if ((int)currentPos > targetPos) {

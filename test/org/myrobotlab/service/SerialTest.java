@@ -102,8 +102,6 @@ public class SerialTest {
       serial.open(vport);
     }
 
-    serial.setCodec("decimal");
-    uart.setCodec("decimal");
 
     serial.addByteListener(catcher);
   }
@@ -522,7 +520,7 @@ public class SerialTest {
 
   @Test
   public final void testIsRecording() throws Exception {
-    serial.record("out");
+    serial.record();
     assertTrue(serial.isRecording());
     int x = 65;
     serial.write(65);
@@ -680,72 +678,23 @@ public class SerialTest {
       return;
     }
 
-    // ==== null codec test ===
-    log.info("codec null test");
-    serial.setCodec(null);
-
-    String rxKey = serial.getRXCodecKey();
-    assertNull(rxKey);
-
-    Codec rxcodec = serial.getRXCodec();
-    assertNull(rxcodec);
-
-    String txKey = serial.getTXCodecKey();
-    assertNull(txKey);
-
-    Codec txcodec = serial.getTXCodec();
-    assertNull(txcodec);
+ 
 
     testReadAndWrite();
 
     // ==== decimal codec test ===
-    serial.setCodec("decimal");
+    // serial.setCodec("decimal");
 
-    rxKey = serial.getRXCodecKey();
-    assertEquals("decimal", rxKey);
-
-    rxcodec = serial.getRXCodec();
-    assertNotNull(rxcodec);
-
-    txKey = serial.getTXCodecKey();
-    assertEquals("decimal", txKey);
-
-    txcodec = serial.getTXCodec();
-    assertNotNull(txcodec);
-
+  
     testReadAndWrite();
 
     // ==== hex codec test ===
-    serial.setCodec("hex");
-
-    rxKey = serial.getRXCodecKey();
-    assertEquals("hex", rxKey);
-
-    rxcodec = serial.getRXCodec();
-    assertNotNull(rxcodec);
-
-    txKey = serial.getTXCodecKey();
-    assertEquals("hex", txKey);
-
-    txcodec = serial.getTXCodec();
-    assertNotNull(txcodec);
+ 
 
     testReadAndWrite();
 
     // ==== ascii codec test ===
-    serial.setCodec("ascii");
-
-    rxKey = serial.getRXCodecKey();
-    assertEquals("ascii", rxKey);
-
-    rxcodec = serial.getRXCodec();
-    assertNotNull(rxcodec);
-
-    txKey = serial.getTXCodecKey();
-    assertEquals("ascii", txKey);
-
-    txcodec = serial.getTXCodec();
-    assertNotNull(txcodec);
+   
 
     testReadAndWrite();
   }

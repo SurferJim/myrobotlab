@@ -3,12 +3,18 @@ package org.myrobotlab.arduino;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.myrobotlab.codec.serial.ArduinoMsgCodec;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.service.interfaces.RecordControl;
 import org.slf4j.Logger;
 
 public class MrlMsg {
 
 	public transient final static Logger log = LoggerFactory.getLogger(MrlMsg.class);
+	
+	static boolean enableText = true;
+	
+	StringBuilder textMsg = new StringBuilder();
 	
 	Integer msgType;
 	/**
@@ -49,6 +55,9 @@ public class MrlMsg {
 
 	public MrlMsg(int msgType) {
 		this.msgType = msgType;
+		if (enableText){
+			textMsg.append(ArduinoMsgCodec.byteToMethod(msgType));
+		}
 	}
 
 	// add msg name or id ???
@@ -57,6 +66,11 @@ public class MrlMsg {
 		this.msgType = msgType;
 		this.id = id;
 		dataBuffer.add(id);
+		if (enableText){
+			textMsg.append(ArduinoMsgCodec.byteToMethod(msgType));
+			textMsg.append("/");
+			textMsg.append(id);
+		}
 	}
 
 	/**
@@ -64,8 +78,13 @@ public class MrlMsg {
 	 * 
 	 * @param data
 	 */
-	public void addData(int data) {
+	public MrlMsg addData(int data) {
 		dataBuffer.add(data & 0xff);
+		if (enableText){
+			textMsg.append("/");
+			textMsg.append(data);
+		}
+		return this;
 	}
 
 	/**
@@ -76,7 +95,7 @@ public class MrlMsg {
 	 * 
 	 * @param data
 	 */
-	public void addData16(int data) {
+	public MrlMsg addData16(int data) {
 		if (data < -32768 || data > 32767){
 			log.warn("addData16 value is {} - if Arduino type is an int data will be lost");
 		}
@@ -86,6 +105,13 @@ public class MrlMsg {
 		}
 		dataBuffer.add((data >> 8) & 0xFF);
 		dataBuffer.add(data & 0xFF);
+		
+		if (enableText){
+			textMsg.append("/16b");
+			textMsg.append(data);
+		}
+		
+		return this;
 	}
 
 	/**
@@ -96,11 +122,16 @@ public class MrlMsg {
 	 * 
 	 * @param data
 	 */
-	public void addData32(int data) {
+	public MrlMsg addData32(int data) {
 		dataBuffer.add((data >> 24) & 0xFF);
 		dataBuffer.add((data >> 16) & 0xFF);
 		dataBuffer.add((data >> 8) & 0xFF);
 		dataBuffer.add(data & 0xFF);
+		if (enableText){
+			textMsg.append("/32b");
+			textMsg.append(data);
+		}
+		return this;
 	}
 
 	/**
@@ -108,24 +139,92 @@ public class MrlMsg {
 	 * 
 	 * @param args
 	 */
-	public void addData(String data) {
+	public MrlMsg addData(String data) {
 		dataBuffer.add(data.length());
 		for (int i = 0; i < data.length(); ++i) {
 			dataBuffer.add((int) data.charAt(i));
 		}
+		
+		if (enableText){
+			textMsg.append("/");
+			textMsg.append(data);
+		}
+		
+		return this;
 	}
 
 	public List<Integer> getList() {
 		return dataBuffer;
 	}
 
+
+	public int getMethod() {
+		return msgType;
+	}
+	
+
+	public MrlMsg addData(byte[] buffer, int size) {
+		for (int i = 0; i < size; i++) {
+			addData(buffer[i] & 0xff);
+		}
+		
+		if (enableText){
+			textMsg.append("/");
+			for (int i = 0; i < size; i++) {
+				textMsg.append(buffer[i] & 0xff);
+				textMsg.append(" ");
+			}
+		}
+		
+		return this;
+	}
+
+	public MrlMsg addData(int[] buffer) {
+		for (int i = 0; i < buffer.length; i++) {
+			addData(buffer[i] & 0xff);
+		}
+		
+		if (enableText){
+			textMsg.append("/");
+			for (int i = 0; i < buffer.length; i++) {
+				textMsg.append(buffer[i] & 0xff);
+				textMsg.append(" ");
+			}
+		}
+		return this;
+	}
+
+	public MrlMsg addData(List<Integer> buffer) {
+		for (int i = 0; i < buffer.size(); i++) {
+			addData(buffer.get(i) & 0xff);
+		}
+		
+		if (enableText){
+			textMsg.append("/");
+			for (int i = 0; i < buffer.size(); i++) {
+				textMsg.append(buffer.get(i) & 0xff);
+				textMsg.append(" ");
+			}
+		}
+		
+		return this;
+	}
+	
+	public String toString(){
+		return textMsg.toString();
+	}
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
 	}
 
-	public int getMethod() {
-		return msgType;
+	static public void enableText() throws Exception {
+		enableText = true;
+	}
+
+	static public void disableText() {
+		enableText = false;
 	}
 
 }

@@ -8,7 +8,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -19,8 +18,6 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 import org.myrobotlab.codec.serial.ArduinoMsgCodec;
-import org.myrobotlab.codec.serial.Codec;
-import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -39,15 +36,15 @@ public class ArduinoTest {
 
 	public final static Logger log = LoggerFactory.getLogger(ArduinoTest.class);
 
-	static boolean testVirtual = false;
+	static boolean userVirtualHardware = true;
+	
+	static String port = "COM4";
 
 	static Arduino arduino = null;
 	static Serial serial = null;
-	static TestCatcher catcher = null;
 
 	static VirtualDevice virtual = null;
 	static Python logic = null;
-	static String vport = "vport";
 	static Serial uart = null;
 
 	int servoPin = 9;
@@ -61,36 +58,26 @@ public class ArduinoTest {
 	public static void setUpBeforeClass() throws Exception {
 		log.info("setUpBeforeClass");
 
-		// Runtime.start("gui", "GUIService");
-
 		arduino = (Arduino) Runtime.start("arduino", "Arduino");
 		serial = arduino.getSerial();
 
-		catcher = (TestCatcher) Runtime.start("catcher", "TestCatcher");
-		virtual = (VirtualDevice) Runtime.start("virtual", "VirtualDevice");
 		// FIXME - needs a seemless switch
-		if (testVirtual){
-			virtual.createVirtualArduino(vport);
+		if (userVirtualHardware) {
+			
+			virtual = (VirtualDevice) Runtime.start("virtual", "VirtualDevice");
+			
+			virtual.createVirtualArduino(port);
+
+			logic = virtual.getLogic();
+
+			uart = virtual.getUart(port);
+	
+			codec.setTimeout(1000);
+			uart.setTimeout(100); // don't want to hang when decoding results...
+
 		}
-		logic = virtual.getLogic();
 
-		catcher.subscribe(arduino.getName(), "publishError");
-
-		uart = virtual.getUart(vport);
-		uart.setCodec("arduino");
-		Codec codec = uart.getRXCodec();
-		codec.setTimeout(1000);
-		uart.setTimeout(100); // don't want to hang when decoding results...
-
-		arduino.setBoardMega();
-		arduino.connect(vport);
-
-		// serial.removeListener("onByte", serviceName, inMethod);
-
-		Service.sleep(500);
-		// nice to be able to check messages
-		// uart.addByteListener(catcher);
-		log.info("here");
+		// arduino.connect(port);
 
 	}
 
@@ -100,23 +87,20 @@ public class ArduinoTest {
 
 	@Before
 	public void setUp() throws Exception {
-		catcher.clear();
-		catcher.isLocal = true;
-
+		
+		// expected state of arduino is no devices ?
+		// & connected ?
+		// arduino.connect(port);
+		
 		serial.clear();
 		serial.setTimeout(100);
 
 		uart.clear();
 		uart.setTimeout(100);
-
-		/*
-		 * arduino.clearLastError(); arduino.hasError();
-		 */
 	}
-
-	@After
-	public void tearDown() throws Exception {
-	}
+	
+	///////// begin generated /////////////////////
+	
 
 	@Test
 	public void testReleaseService() {
@@ -133,77 +117,68 @@ public class ArduinoTest {
 		// fail("Not yet implemented");
 	}
 
-	/*
-	 * not a good test
-	 * 
-	 * @Test public void testArduino() { // fail("Not yet implemented"); }
-	 */
-
 	@Test
-	public void testAddCustomMsgListener() {
+	public void testGetMetaData() {
 		// fail("Not yet implemented");
 	}
 
 	@Test
-	public void testAnalogReadPollingStart() {
+	public void testIntsToStringIntArray() {
 		// fail("Not yet implemented");
 	}
 
 	@Test
-	public void testAnalogReadPollingStop() {
+	public void testIntsToStringIntArrayInt() {
 		// fail("Not yet implemented");
 	}
 
 	@Test
-	public final void testAnalogWrite() throws InterruptedException, IOException {
-		log.info("testAnalogWrite");
-
-		arduino.analogWrite(10, 0);
-		String decoded = uart.decode();
-		assertEquals("analogWrite/10/0\n", decoded);
-
-		arduino.analogWrite(10, 127);
-		decoded = uart.decode();
-		assertEquals("analogWrite/10/127\n", decoded);
-
-		arduino.analogWrite(10, 128);
-		decoded = uart.decode();
-		assertEquals("analogWrite/10/128\n", decoded);
-
-		arduino.analogWrite(10, 255);
-		decoded = uart.decode();
-		assertEquals("analogWrite/10/255\n", decoded);
-
-		arduino.error("test");
-
-		log.info(String.format("errors %b", catcher.hasError()));
-
-		// Runtime.clearErrors();
-		/*
-		 * if (Runtime.hasErrors()){ ArrayList<Status> errors =
-		 * Runtime.getErrors(); //throw new IOException("problem with errors");
-		 * }
-		 */
-
-		/*
-		 * uart.decode(); codec.decode(newByte)
-		 * 
-		 * catcher.checkMsg("bla");
-		 */
+	public void testIntsToStringIntArrayIntInt() {
+		// fail("Not yet implemented");
 	}
 
 	@Test
-	public final void testConnect() throws IOException {
-		log.info("testConnect - begin");
-		arduino.disconnect();
-		arduino.connect(vport);
-		assertTrue(arduino.isConnected());
-		assertEquals(ArduinoMsgCodec.MRLCOMM_VERSION, arduino.getVersion().intValue());
-		log.info("testConnect - end");
+	public void testArduino() {
+		// fail("Not yet implemented");
 	}
 
 	@Test
-	public void testConnectVirtualUART() {
+	public void testAttachPinArrayListener() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testAttachPinListenerInt() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testAttachStringInt() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testConnectArduinoString() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testConnectString() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testConnectStringIntIntIntInt() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testControllerAttach() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testCreateI2cDevice() {
 		// fail("Not yet implemented");
 	}
 
@@ -213,43 +188,83 @@ public class ArduinoTest {
 	}
 
 	@Test
-	public void testDigitalReadPollingStart() {
+	public void testCustomMsg() {
 		// fail("Not yet implemented");
 	}
 
 	@Test
-	public void testDigitalReadPollingStop() {
+	public void testDeviceAttach() {
 		// fail("Not yet implemented");
 	}
 
 	@Test
-	public final void testDigitalWrite() {
-		log.info("testDigitalWrite");
-		arduino.digitalWrite(10, 1);
-		assertEquals("digitalWrite/10/1\n", uart.decode());
-		arduino.digitalWrite(10, 0);
-		assertEquals("digitalWrite/10/0\n", uart.decode());
-		// arduino.digitalWrite(10, 255);
-		// assertEquals("digitalWrite/10/0", uart.decode());
+	public void testDeviceDetach() {
+		// fail("Not yet implemented");
 	}
 
 	@Test
-	public final void testDisconnect() throws IOException {
-		log.info("testDisconnect");
-		arduino.disconnect();
-		assertTrue(!arduino.isConnected());
-		arduino.digitalWrite(10, 1);
-		assertEquals(0, uart.available());
-		arduino.connect(vport);
-		assertTrue(arduino.isConnected());
-		uart.clear();
-		arduino.digitalWrite(10, 1);
-		assertEquals("digitalWrite/10/1\n", uart.decode());
+	public void testDisableBoardStatus() {
+		// fail("Not yet implemented");
 	}
 
 	@Test
-	public void testGetBoardType() {
-		// arduino.setBoardMega()
+	public void testDisablePin() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testDisablePins() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testEnableBoardStatus() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testEnableBoardStatusInt() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testEnabledHeartbeat() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testEnablePinInt() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testEnablePinIntInt() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetBoardInfo() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetController() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetDeviceIdDeviceControl() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetDeviceIdString() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetMrlPinType() {
+		// fail("Not yet implemented");
 	}
 
 	@Test
@@ -258,26 +273,44 @@ public class ArduinoTest {
 	}
 
 	@Test
-	public void testGetSerial() {
+	public void testGetPortName() {
 		// fail("Not yet implemented");
 	}
 
 	@Test
-	public final void testGetSketch() {
-		log.info("testGetSketch");
-		Sketch sketch = arduino.getSketch();
-		assertNotNull(sketch);
-		assertTrue(sketch.data.length() > 0);
-		arduino.setSketch(null);
-		assertNull(arduino.getSketch());
-		arduino.setSketch(sketch);
-		assertEquals(sketch, arduino.getSketch());
+	public void testGetSerial() {
+		// fail("Not yet implemented");
+	}
+
+
+	@Test
+	public void testHeartbeat() {
+		// fail("Not yet implemented");
 	}
 
 	@Test
-	public final void testGetVersion() {
-		log.info("testGetVersion");
-		assertEquals(ArduinoMsgCodec.MRLCOMM_VERSION, arduino.getVersion().intValue());
+	public void testI2cRead() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testI2cReturnData() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testI2cWrite() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testI2cWriteRead() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testIsAttached() {
+		// fail("Not yet implemented");
 	}
 
 	@Test
@@ -286,22 +319,7 @@ public class ArduinoTest {
 	}
 
 	@Test
-	public void testMotorAttach() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testAttach() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testDetach() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testMotorDetach() {
+	public void testIsRecording() {
 		// fail("Not yet implemented");
 	}
 
@@ -316,7 +334,27 @@ public class ArduinoTest {
 	}
 
 	@Test
+	public void testMotorReset() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
 	public void testMotorStop() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testMsgRoute() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testNeoPixelSetAnimation() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testNeoPixelWriteMatrix() {
 		// fail("Not yet implemented");
 	}
 
@@ -331,11 +369,6 @@ public class ArduinoTest {
 	}
 
 	@Test
-	public void testGetPortName() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
 	public void testOnCustomMsg() {
 		// fail("Not yet implemented");
 	}
@@ -346,17 +379,38 @@ public class ArduinoTest {
 	}
 
 	@Test
-	public final void testPinModeIntString() {
-		log.info("testPinModeIntString");
-		arduino.pinMode(8, "OUTPUT");
-		assertEquals("pinMode/8/1\n", uart.decode());
+	public void testOnSensorData() {
+		// fail("Not yet implemented");
 	}
 
 	@Test
-	public final void testPinModeIntegerInteger() {
-		log.info("testPinModeIntegerInteger");
-		arduino.pinMode(8, Arduino.OUTPUT);
-		assertEquals("pinMode/8/1\n", uart.decode());
+	public void testPinModeIntInt() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPinModeStringString() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPinNameToAddress() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPublishAttachedDevice() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPublishBoardInfo() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPublishBoardStatus() {
+		// fail("Not yet implemented");
 	}
 
 	@Test
@@ -365,7 +419,12 @@ public class ArduinoTest {
 	}
 
 	@Test
-	public void testPublishLoadTimingEvent() {
+	public void testPublishDebug() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPublishMessageAck() {
 		// fail("Not yet implemented");
 	}
 
@@ -376,6 +435,31 @@ public class ArduinoTest {
 
 	@Test
 	public void testPublishPin() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPublishPinArray() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPublishPinDefinition() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPublishPulse() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPublishPulseStop() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testPublishSensorData() {
 		// fail("Not yet implemented");
 	}
 
@@ -420,22 +504,52 @@ public class ArduinoTest {
 	}
 
 	@Test
-	public void testPublishPulse() {
+	public void testReadInt() {
 		// fail("Not yet implemented");
 	}
 
 	@Test
-	public void testPublishPulseStop() {
+	public void testReadString() {
 		// fail("Not yet implemented");
 	}
 
 	@Test
-	public void testSendMsg() {
+	public void testRecord() {
 		// fail("Not yet implemented");
 	}
 
 	@Test
-	public void testSensorAttach() {
+	public void testRefresh() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testReleaseI2cDevice() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSendMsgIntIntArray() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSendMsgIntListOfInteger() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSendMsgMrlMsg() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSensorActivate() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSensorDeactivate() {
 		// fail("Not yet implemented");
 	}
 
@@ -450,71 +564,22 @@ public class ArduinoTest {
 	}
 
 	@Test
-	public final void testServoAttachServoInteger() throws Exception {
-		log.info("testServoAttachServoInteger");
-		Servo servo = (Servo) Runtime.start("servo", "Servo");
-
-		// NOT THE WAY TO ATTACH SERVOS !!
-		// isAttached will not get set
-		// dont know a good fix - asside from not using it !
-		// arduino.servoAttach(servo, servoPin);
-		// re-entrant test
-		// arduino.servoAttach(servo, servoPin);
-
-		// common way
-		arduino.servoAttach(servo, servoPin);
-
-		// another way
-		// servo.setPin(servoPin);
-		// servo.setController(arduino);
-
-		assertTrue(servo.isAttached());
-
-		// re-entrant test
-		arduino.servoAttach(servo, servoPin);
-
-		assertTrue(servo.isAttached());
-		// assertEquals(servoPin, servo.getPin().intValue());
-		assertEquals(arduino.getName(), servo.getController());
-
-		assertEquals("servoAttach/7/9/5/115/101/114/118/111\n", uart.decode());
-		servo.moveTo(0);
-		assertEquals("servoWrite/7/0\n", uart.decode());
-		servo.moveTo(90);
-		assertEquals("servoWrite/7/90\n", uart.decode());
-		servo.moveTo(180);
-		assertEquals("servoWrite/7/180\n", uart.decode());
-		servo.moveTo(0);
-		assertEquals("servoWrite/7/0\n", uart.decode());
-
-		// detach
-		servo.detach();
-		assertEquals("servoDetach/7/0\n", uart.decode());
-
-		servo.moveTo(10);
-		String shouldBeNull = uart.decode();
-		assertNull(shouldBeNull);
-
-		// re-attach
-		servo.attach();
-		assertEquals("servoAttach/7/9/5/115/101/114/118/111\n", uart.decode());
-		assertTrue(servo.isAttached());
-		// assertEquals(servoPin, servo.getPin().intValue());
-		assertEquals(arduino.getName(), servo.getController());
-
-		servo.moveTo(90);
-		assertEquals("servoWrite/7/90\n", uart.decode());
-
-		servo.releaseService();
-	}
-
-	@Test
-	public void testServoAttachServo() {
+	public void testServoAttach() {
 		// fail("Not yet implemented");
 	}
 
 	@Test
 	public void testServoDetach() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testServoSetMaxVelocity() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testServoSetVelocity() {
 		// fail("Not yet implemented");
 	}
 
@@ -542,6 +607,265 @@ public class ArduinoTest {
 	public void testSetBoard() {
 		// fail("Not yet implemented");
 	}
+
+
+	@Test
+	public void testSetBoardMegaADK() {
+		// fail("Not yet implemented");
+	}
+
+
+	@Test
+	public void testSetController() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testUnsetController() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSetDebounce() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSetDebug() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSetDigitalTriggerOnly() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSetPWMFrequency() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSetSerialRate() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSetSketch() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSetTriggerIntInt() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSetTriggerIntIntInt() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testSoftReset() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testReset() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testStopRecording() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testUploadSketchString() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testUploadSketchStringString() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testUploadSketchStringStringString() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testWrite() {
+		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testMain() {
+		// fail("Not yet implemented");
+	}
+	
+	////////  end generated ///////////////////////
+
+
+	@Test
+	public final void testAnalogWrite() throws InterruptedException, IOException {
+		log.info("testAnalogWrite");
+
+		uart.startRecording();
+		arduino.analogWrite(10, 0);
+		// assertEquals("analogWrite/10/0\n", decoded);
+
+		arduino.analogWrite(10, 127);
+
+		// assertEquals("analogWrite/10/127\n", decoded);
+
+		arduino.analogWrite(10, 128);
+		// assertEquals("analogWrite/10/128\n", decoded);
+
+		arduino.analogWrite(10, 255);
+		// assertEquals("analogWrite/10/255\n", decoded);
+
+		arduino.error("test");
+	}
+
+	@Test
+	public final void testConnect() throws IOException {
+		log.info("testConnect - begin");
+		arduino.disconnect();
+		arduino.connect(port);
+		assertTrue(arduino.isConnected());
+		assertEquals(ArduinoMsgCodec.MRLCOMM_VERSION, arduino.getVersion().intValue());
+		log.info("testConnect - end");
+	}
+
+	@Test
+	public final void testDigitalWrite() {
+		log.info("testDigitalWrite");
+		arduino.digitalWrite(10, 1);
+		// assertEquals("digitalWrite/10/1\n", uart.decode());
+		arduino.digitalWrite(10, 0);
+		// assertEquals("digitalWrite/10/0\n", uart.decode());
+		// arduino.digitalWrite(10, 255);
+		// assertEquals("digitalWrite/10/0", uart.decode());
+	}
+
+	@Test
+	public final void testDisconnect() throws IOException {
+		log.info("testDisconnect");
+		arduino.disconnect();
+		assertTrue(!arduino.isConnected());
+		arduino.digitalWrite(10, 1);
+		assertEquals(0, uart.available());
+		arduino.connect(port);
+		assertTrue(arduino.isConnected());
+		uart.clear();
+		arduino.digitalWrite(10, 1);
+		// assertEquals("digitalWrite/10/1\n", uart.decode());
+	}
+
+	@Test
+	public void testGetBoardType() {
+		// arduino.setBoardMega()
+	}
+
+	@Test
+	public final void testGetSketch() {
+		log.info("testGetSketch");
+		Sketch sketch = arduino.getSketch();
+		assertNotNull(sketch);
+		assertTrue(sketch.data.length() > 0);
+		arduino.setSketch(null);
+		assertNull(arduino.getSketch());
+		arduino.setSketch(sketch);
+		assertEquals(sketch, arduino.getSketch());
+	}
+
+	@Test
+	public final void testGetVersion() {
+		log.info("testGetVersion");
+		assertEquals(ArduinoMsgCodec.MRLCOMM_VERSION, arduino.getVersion().intValue());
+	}
+
+
+
+	@Test
+	public final void testPinModeIntString() {
+		log.info("testPinModeIntString");
+		arduino.pinMode(8, "OUTPUT");
+		// assertEquals("pinMode/8/1\n", uart.decode());
+	}
+
+	@Test
+	public final void testPinModeIntegerInteger() {
+		log.info("testPinModeIntegerInteger");
+		arduino.pinMode(8, Arduino.OUTPUT);
+		// assertEquals("pinMode/8/1\n", uart.decode());
+	}
+
+
+
+	@Test
+	public final void testServoAttachServoInteger() throws Exception {
+		log.info("testServoAttachServoInteger");
+		Servo servo = (Servo) Runtime.start("servo", "Servo");
+		arduino.record();
+		arduino.connect(port);
+		// NOT THE WAY TO ATTACH SERVOS !!
+		// isAttached will not get set
+		// dont know a good fix - asside from not using it !
+		// arduino.servoAttach(servo, servoPin);
+		// re-entrant test
+		// arduino.servoAttach(servo, servoPin);
+
+		// common way
+		// arduino.servoAttach(servo, servoPin);
+		// servo.attach(); // TEST ME WITHOUT PREVIOUS
+		servo.attach(arduino, servoPin);
+
+		// another way
+		// servo.setPin(servoPin);
+		// servo.setController(arduino);
+
+		assertTrue(servo.isAttached());
+
+		// re-entrant test
+		arduino.servoAttach(servo, servoPin);
+
+		assertTrue(servo.isAttached());
+		// assertEquals(servoPin, servo.getPin().intValue());
+		assertEquals(arduino.getName(), servo.getController().getName());
+
+		// assertEquals("servoAttach/7/9/5/115/101/114/118/111\n", uart.decode());
+		servo.moveTo(0);
+		// assertEquals("servoWrite/7/0\n", uart.decode());
+		servo.moveTo(90);
+		// assertEquals("servoWrite/7/90\n", uart.decode());
+		servo.moveTo(180);
+		// assertEquals("servoWrite/7/180\n", uart.decode());
+		servo.moveTo(0);
+		// assertEquals("servoWrite/7/0\n", uart.decode());
+
+		// detach
+		servo.detach();
+		// assertEquals("servoDetach/7/0\n", uart.decode());
+
+		servo.moveTo(10);
+		
+
+		// re-attach
+		servo.attach();
+		// assertEquals("servoAttach/7/9/5/115/101/114/118/111\n", uart.decode());
+		assertTrue(servo.isAttached());
+		// // assertEquals(servoPin, servo.getPin().intValue());
+		assertEquals(arduino.getName(), servo.getController());
+
+		servo.moveTo(90);
+		// assertEquals("servoWrite/7/90\n", uart.decode());
+
+		servo.releaseService();
+	}
+
 
 	@Test
 	public void testSetBoardMega() {
@@ -573,105 +897,6 @@ public class ArduinoTest {
 		arduino.setBoard(boardType);
 	}
 
-	@Test
-	public void testSetDebounce() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetDigitalTriggerOnly() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetLoadTimingEnabled() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetPWMFrequency() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetSampleRate() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetSerialRate() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testServoEventsEnabled() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetServoSpeed() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetSketch() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetTriggerIntInt() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetTriggerIntIntInt() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSoftReset() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testPublishSensorData() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testMotorReset() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testMain() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testUpdate() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetDataSinkType() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetSensorType() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetSensorConfig() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetMetaData() {
-		// fail("Not yet implemented");
-	}
 
 	public static class JUnitListener extends RunListener {
 
@@ -706,27 +931,33 @@ public class ArduinoTest {
 
 	public static void main(String[] args) {
 		try {
-
-			LoggingFactory.init(Level.INFO);
-
 			
-			ArduinoTest.setUpBeforeClass();
+			// FIXME - Test service started or reference retrieved
+			// FIXME - subscribe to publishError
+			// FIXME - check for any error
+			// FIXME - basic design - expected state is connected and ready - between classes it
+			// should connect - also dumping serial comm at different levels so virtual arduino in 
+			// Python can model "real" serial comm
+
+			LoggingFactory.init(Level.INFO);	
+			// Runtime.start("webgui", "WebGui");
+			// Runtime.start("gui", "GUIService");
+
+			// test a "real" arduino
+			userVirtualHardware = false;
+			// vport = "COM5"; 
+			port = "COM4";
+			
 			ArduinoTest test = new ArduinoTest();
-			test.testConnect();
+			ArduinoTest.setUpBeforeClass();
 			
+			// test specific method 
+			test.testServoAttachServoInteger();
 
+			// run junit as java app
 			JUnitCore junit = new JUnitCore();
-			// junit.addListener(listener);
 			Result result = junit.run(ArduinoTest.class);
 			log.info("Result was: {}", result);
-			// WebGui gui = (WebGui) Runtime.start("webgui", "WebGui");
-			// ServiceInterface gui = Runtime.start("gui", "GUIService");
-
-			Runtime.dump();
-
-			log.info("here");
-			// serial.removeByteListener(gui.getName());
-			// uart.removeByteListener(gui.getName());
 
 			Runtime.dump();
 

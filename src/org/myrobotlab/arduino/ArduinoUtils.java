@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.myrobotlab.io.FileIO;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.Arduino;
 import org.slf4j.Logger;
 
 import com.sun.jna.Platform;
@@ -31,6 +30,10 @@ public class ArduinoUtils {
 	static public String getExeName() {
 		if (Platform.isMac()) {
 			return "Arduino";
+		}
+		
+		if (Platform.isLinux()){
+			return "arduino";
 		}
 
 		return "arduino_debug";
@@ -59,6 +62,7 @@ public class ArduinoUtils {
 		ArrayList<String> args = new ArrayList<String>();
 		args.add("--upload");
 		args.add("--port");
+		//args.add("--verify");
 		args.add(port);
 		args.add("--board");
 		args.add("arduino:avr:" + board);

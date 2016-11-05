@@ -25,7 +25,7 @@ class MrlServo : public Device {
     int min;
     int max;
     unsigned long lastUpdate;
-    unsigned int velocity; // in deg/sec
+    int velocity; // in deg/sec  |  velocity < 0 == no speed control
     int sweepStep;
     unsigned int maxVelocity;
   public:

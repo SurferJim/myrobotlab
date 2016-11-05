@@ -31,5 +31,8 @@ public interface DeviceControl extends NameProvider {
 	 * @return
 	 */
 	public boolean isAttached();
+	
+	// public void unsetController(DeviceController controller);
+	public void unsetController();
 
 }

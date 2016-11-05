@@ -26,41 +26,47 @@
 package org.myrobotlab.service.interfaces;
 
 public interface ServoControl extends DeviceControl {
-	
-	
-  // FIXME - do we want to support this & what do we expect from
+
+	// FIXME - do we want to support this & what do we expect from
 	// 1. should it be energized when initially attached?
 	// 2. should the position be set initially on attach ?
-	// 3. should rest be set by pos if its not set already .. ie .. is the pos passed in on attach the "rest" position of the servo ?
-	// 4. should we 'please' rename servo.attach(pin) to servo.energize(pin) !!!!
+	// 3. should rest be set by pos if its not set already .. ie .. is the pos
+	// passed in on attach the "rest" position of the servo ?
+	// 4. should we 'please' rename servo.attach(pin) to servo.energize(pin)
+	// !!!!
 	void attach(ServoController controller, int pin) throws Exception;
-	
+
 	// preferred - sets control
 	void attach(ServoController controller, int pin, Integer pos) throws Exception;
 
+	// should this be in Device Control - its not "ServoControl" specific
 	void detach(ServoController controller);
-	
+
 	// added since it's used by the ServoGUI
 	void attach(String controllerName, int pin) throws Exception;
-  void detach(String controllerName);
+
+	void detach(String controllerName);
+
 	/**
-	 * Re-attaches (re-energizes) the servo on its current pin
-	 * FIXME - should be renamed to energize
+	 * Re-attaches (re-energizes) the servo on its current pin FIXME - should be
+	 * renamed to energize
 	 * 
 	 * @return
 	 */
 	public void attach();
 
 	/**
-	 * Re-attaches (re-energizes) the servo on its current pin
-	 * FIXME - should be renamed to energize(pin)
+	 * Re-attaches (re-energizes) the servo on its current pin FIXME - should be
+	 * renamed to energize(pin)
+	 * 
 	 * @return
 	 */
 	public void attach(int pin);
 
 	/**
-	 * calls Servo.detach() on MRLComm
-	 * FIXME - should be renamed to de-energize (heh .. hyphons :P)
+	 * calls Servo.detach() on MRLComm FIXME - should be renamed to de-energize
+	 * (heh .. hyphons :P)
+	 * 
 	 * @return
 	 */
 	public void detach();
@@ -82,8 +88,7 @@ public interface ServoControl extends DeviceControl {
 	public void setMinMax(int min, int max);
 
 	/**
-	 * fractional speed settings
-	 * 0.0 to 1.0 
+	 * fractional speed settings 0.0 to 1.0
 	 * 
 	 * @param speed
 	 */
@@ -94,7 +99,6 @@ public interface ServoControl extends DeviceControl {
 	 * incremental speed for a stop to work (setSpeed < 1.0)
 	 */
 	public void stop();
-
 
 	/**
 	 * configuration method - a method the controller will call when the servo
@@ -109,35 +113,36 @@ public interface ServoControl extends DeviceControl {
 	 * @return
 	 */
 	public Integer getPin();
-	
+
 	/**
 	 * a default position for the servo
+	 * 
 	 * @param rest
 	 */
 	public void setRest(int rest);
-	
+
 	/**
 	 * command to move to the rest position
 	 */
 	public void rest();
 
 	/**
-	 * minimal sweep position
-	 * sweep data need for the controller
+	 * minimal sweep position sweep data need for the controller
+	 * 
 	 * @return
 	 */
 	public int getSweepMin();
 
 	/**
-	 * max sweep position
-	 * sweep data need for the controller
+	 * max sweep position sweep data need for the controller
+	 * 
 	 * @return
 	 */
 	public int getSweepMax();
 
 	/**
-	 * sweep step
-	 * sweep data need for the controller
+	 * sweep step sweep data need for the controller
+	 * 
 	 * @return
 	 */
 	public int getSweepStep();
@@ -149,14 +154,14 @@ public interface ServoControl extends DeviceControl {
 
 	public double getSpeed();
 
-  public int getMaxVelocity();
+	public int getMaxVelocity();
 
-  int getVelocity();
+	int getVelocity();
 
-  void attach(String controllerName, int pin, Integer pos) throws Exception;
+	void attach(String controllerName, int pin, Integer pos) throws Exception;
 
-  void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception;
+	void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception;
 
-  void attach(String controllerName, int pin, Integer pos, Integer velocity) throws Exception;
+	void attach(String controllerName, int pin, Integer pos, Integer velocity) throws Exception;
 
 }

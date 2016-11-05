@@ -43,4 +43,14 @@ public static String getLogFileName() {
 	return "myrobotlab.log";
 }
 
+
+public static void configure() {
+	getInstance().configure();
+}
+
+
+public static void setLevel(String level) {
+	getInstance().setLevel(level);
+}
+
 }

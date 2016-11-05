@@ -103,11 +103,13 @@ int MrlComm::getFreeRam() {
  * Publish the MRLComm message
  * MAGIC_NUMBER|2|MRLCOMM_VERSION
  */
+/*
 void MrlComm::publishVersion() {
 	MrlMsg msg(PUBLISH_VERSION);
 	msg.addData(MRLCOMM_VERSION);
 	msg.sendMsg();
 }
+*/
 /**
  * publishBoardInfo()
  * MAGIC_NUMBER|2|PUBLISH_BOARD_INFO|BOARD
@@ -115,6 +117,7 @@ void MrlComm::publishVersion() {
  */
 void MrlComm::publishBoardInfo() {
 	MrlMsg msg(PUBLISH_BOARD_INFO);
+	msg.addData(MRLCOMM_VERSION);
 	msg.addData(BOARD);
 	msg.sendMsg();
 }
@@ -152,6 +155,11 @@ void MrlComm::readCommand() {
 			}
 		}
 	}
+}
+
+
+void MrlComm::setSerialRate(long rate){
+	mrlCmd[0]->setSerialRate(rate);
 }
 
 // This function will switch the current command and call
@@ -272,9 +280,11 @@ void MrlComm::processCommand(int ioType) {
 	case DISABLE_BOARD_STATUS:
 		enableBoardStatus = false;
 		break;
+		/*
 	case SET_PWMFREQUENCY:
 		setPWMFrequency(ioCmd[1], ioCmd[2]);
 		break;
+		*/
 	case PULSE:
 		//((MrlPulse*)getDevice(ioCmd[1]))->pulse(ioCmd);
 		break;
@@ -291,14 +301,13 @@ void MrlComm::processCommand(int ioType) {
 		//setDigitalTriggerOnly();
 		break;
 	case SET_SERIAL_RATE:
-		setSerialRate();
+		setSerialRate(MrlMsg::toLong(ioCmd,2));
 		break;
+		/*
 	case GET_VERSION:
 		publishVersion();
 		break;
-	case SET_SAMPLE_RATE:
-		//setSampleRate();
-		break;
+		*/
 	case SOFT_RESET:
 		softReset();
 		break;
@@ -350,11 +359,11 @@ void MrlComm::processCommand(int ioType) {
 		break;
 	}
 	case SERVO_SET_MAX_VELOCITY: {
-		((MrlServo*) getDevice(ioCmd[1]))->setMaxVelocity(MrlMsg::toInt(ioCmd,3));
+		((MrlServo*) getDevice(ioCmd[1]))->setMaxVelocity(MrlMsg::toInt(ioCmd,2));
 		break;
 	}
 	case SERVO_SET_VELOCITY: {
-		((MrlServo*) getDevice(ioCmd[1]))->setVelocity(MrlMsg::toInt(ioCmd,3));
+		((MrlServo*) getDevice(ioCmd[1]))->setVelocity(MrlMsg::toInt(ioCmd,2));
 		break;
 	}
 	case HEARTBEAT: {
@@ -390,6 +399,9 @@ void MrlComm::processCommand(int ioType) {
  */
 
 // SET_PWMFREQUENCY
+// DEPRECATED - issues compiling timer references on different boards
+// Must be a better way to adjust pwm rate for motor noise
+/*
 void MrlComm::setPWMFrequency(int address, int prescalar) {
 	// FIXME - different boards have different timers
 	// sets frequency of pwm of analog
@@ -407,12 +419,7 @@ void MrlComm::setPWMFrequency(int address, int prescalar) {
 		TCCR2B |= prescalar;
 	}
 }
-
-// SET_SERIAL_RATE
-void MrlComm::setSerialRate() {
-	//mrlCmd->end();
-	//mrlCmd->begin(MRL_IO_SERIAL_0,mrlCmd->getIoCmd(1));
-}
+*/
 
 /**********************************************************************
  * ATTACH DEVICES BEGIN

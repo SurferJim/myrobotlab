@@ -167,7 +167,7 @@ public class Adafruit16CServoDriverTest {
 
 		Serial uart = virtual.getUart("v1");
 		uart.open("v1");
-		uart.record("test/Adafruit16CServoDriver/test");
+		uart.record();
 		arduino.connect("v0");
 
 		driver.setServo(0, SERVOMIN);

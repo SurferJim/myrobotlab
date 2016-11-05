@@ -11,7 +11,7 @@ package org.myrobotlab.service;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.myrobotlab.framework.MRLException;
+import org.myrobotlab.arduino.MrlMsg;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceType;
 import org.myrobotlab.logging.Level;
@@ -282,7 +282,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
   // StepperController begin ----
 
   public void setSpeed(Integer motorPortNumber, Integer speed) {
-    arduino.sendMsg(AF_DCMOTOR_SET_SPEED, motorPortNumber - 1, speed);
+    arduino.sendMsg(new MrlMsg(AF_DCMOTOR_SET_SPEED).addData(motorPortNumber - 1).addData(speed));
   }
 
   // VENDOR SPECIFIC LIBRARY METHODS BEGIN /////

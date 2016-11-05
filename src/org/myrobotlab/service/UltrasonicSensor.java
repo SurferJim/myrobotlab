@@ -254,6 +254,13 @@ public class UltrasonicSensor extends Service implements RangeListener, SensorCo
 	@Override
 	public void setController(DeviceController controller) {
 		this.controller = (SensorController)controller;
+		broadcastState();
+	}
+	
+	@Override
+	public void unsetController(){
+		this.controller = null;
+		broadcastState();
 	}
 
 	@Override

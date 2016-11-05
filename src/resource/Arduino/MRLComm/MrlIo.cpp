@@ -42,6 +42,10 @@ bool MrlIo::begin(int _ioType, long speed) {
 	return true;
 }
 
+void MrlIo::setSerialRate(long rate){
+	serial->begin(rate);
+}
+
 void MrlIo::write(unsigned char value) {
 	if(!(openIo & (1 << ioType))){
 		//port close

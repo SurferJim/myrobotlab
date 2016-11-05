@@ -12,7 +12,7 @@
 #include "Pin.h"
 
 // TODO - standard convention of dev versions are odd release is even ?
-#define MRLCOMM_VERSION         40
+#define MRLCOMM_VERSION         41
 
 /***********************************************************************
  * Class MrlComm -
@@ -63,8 +63,8 @@ class MrlComm{
     void publishError(int type, String message);
     void publishCommandAck(int function);
     void publishAttachedDevice(int id, int nameSize, unsigned char* name);
-    void setPWMFrequency(int address, int prescalar);
-    void setSerialRate();
+    // void setPWMFrequency(int address, int prescalar);
+    void setSerialRate(long rate);
     void deviceAttach(unsigned char* ioCmd);
     void deviceDetach(int id);
     Device* getDevice(int id);

@@ -159,6 +159,9 @@ public class ArduinoBindingsGenerator {
     exclude.add("publishVersion");
     exclude.add("publishMRLCommError");
     
+    exclude.add("getBoardInfo");
+    exclude.add("publishBoardInfo");
+    
     // except.add("E");
 
     // getter & setters
@@ -201,9 +204,11 @@ public class ArduinoBindingsGenerator {
     ++index;
     createBindingsFor("publishMRLCommError", index);
     ++index;
-    createBindingsFor("getVersion", index);
+    // createBindingsFor("getVersion", index);
+    createBindingsFor("getBoardInfo", index);
     ++index;
-    createBindingsFor("publishVersion", index);
+    // createBindingsFor("publishVersion", index);
+    createBindingsFor("publishBoardInfo", index);
     ++index;
 
     for (String key : sorted.keySet()) {

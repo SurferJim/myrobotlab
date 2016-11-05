@@ -70,10 +70,22 @@ void setup() {
   // to run, we should consider some additional logic here like a "publishReset"
   // publish version on startup so it's immediately available for mrl.
   // TODO: see if we can purge the current serial port buffers
-  mrlComm.publishVersion();
+  // mrlComm.publishVersion(); - deprecated
   // publish the board type (uno/mega)
-  mrlComm.publishBoardInfo();
 
+  while (!Serial) {
+	    ; // wait for serial port to connect. Needed for native USB
+  }
+
+  // reset the board - so we are 'fresh'
+  // mrlComm.softReset();
+
+  Serial.flush();
+  for (int i = 0; i < 3; ++i){
+	  // announce yourself 3 times !
+	  mrlComm.publishBoardInfo(); // version is now in BoardInfo
+	  Serial.flush();
+  }
 }
 
 /**

@@ -927,4 +927,10 @@ public class DiyServo extends Service implements ServoControl, PinListener {
 
 		return meta;
 	}
+
+	@Override
+	public void unsetController() {
+		// TODO Auto-generated method stub
+		
+	}
 }

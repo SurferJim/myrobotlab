@@ -341,6 +341,11 @@ public class NeoPixel extends Service implements NeoPixelControl {
     controllerName = this.controller.getName();
   }
   
+	@Override
+	public void unsetController() {
+		detach();
+	}
+  
   public void detach(){
     detach(controller);
   }

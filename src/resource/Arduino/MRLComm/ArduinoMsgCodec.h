@@ -9,10 +9,10 @@
 ///// INO GENERATED DEFINITION BEGIN //////
 // {publishMRLCommError Integer} 
 #define PUBLISH_MRLCOMM_ERROR		1
-// {getVersion} 
-#define GET_VERSION		2
-// {publishVersion Integer} 
-#define PUBLISH_VERSION		3
+// {getBoardInfo} 
+#define GET_BOARD_INFO		2
+// {publishBoardInfo BoardInfo} 
+#define PUBLISH_BOARD_INFO		3
 // {analogWrite int int} 
 #define ANALOG_WRITE		4
 // {controllerAttach Arduino int} 
@@ -35,7 +35,7 @@
 #define DISABLE_PINS		13
 // {enableBoardStatus int} 
 #define ENABLE_BOARD_STATUS		14
-// {enablePin int} 
+// {enablePin int int} 
 #define ENABLE_PIN		15
 // {getMrlPinType PinDefinition} 
 #define GET_MRL_PIN_TYPE		16
@@ -53,28 +53,28 @@
 #define INTS_TO_STRING		22
 // {isAttached} 
 #define IS_ATTACHED		23
+// {isRecording} 
+#define IS_RECORDING		24
 // {motorMove MotorControl} 
-#define MOTOR_MOVE		24
+#define MOTOR_MOVE		25
 // {motorMoveTo MotorControl} 
-#define MOTOR_MOVE_TO		25
+#define MOTOR_MOVE_TO		26
 // {motorReset MotorControl} 
-#define MOTOR_RESET		26
+#define MOTOR_RESET		27
 // {motorStop MotorControl} 
-#define MOTOR_STOP		27
+#define MOTOR_STOP		28
 // {msgRoute} 
-#define MSG_ROUTE		28
+#define MSG_ROUTE		29
 // {neoPixelSetAnimation NeoPixel int int int int int} 
-#define NEO_PIXEL_SET_ANIMATION		29
+#define NEO_PIXEL_SET_ANIMATION		30
 // {neoPixelWriteMatrix NeoPixel List} 
-#define NEO_PIXEL_WRITE_MATRIX		30
+#define NEO_PIXEL_WRITE_MATRIX		31
 // {onSensorData SensorData} 
-#define ON_SENSOR_DATA		31
+#define ON_SENSOR_DATA		32
 // {pinMode int String} 
-#define PIN_MODE		32
+#define PIN_MODE		33
 // {publishAttachedDevice String} 
-#define PUBLISH_ATTACHED_DEVICE		33
-// {publishBoardInfo BoardInfo} 
-#define PUBLISH_BOARD_INFO		34
+#define PUBLISH_ATTACHED_DEVICE		34
 // {publishBoardStatus BoardStatus} 
 #define PUBLISH_BOARD_STATUS		35
 // {publishCustomMsg int[]} 
@@ -103,54 +103,60 @@
 #define PULSE		47
 // {pulseStop} 
 #define PULSE_STOP		48
-// {read int} 
+// {read String} 
 #define READ		49
+// {record} 
+#define RECORD		50
 // {releaseI2cDevice I2CControl int int} 
-#define RELEASE_I2C_DEVICE		50
+#define RELEASE_I2C_DEVICE		51
+// {reset} 
+#define RESET		52
 // {sensorActivate SensorControl Object[]} 
-#define SENSOR_ACTIVATE		51
+#define SENSOR_ACTIVATE		53
 // {sensorDeactivate SensorControl} 
-#define SENSOR_DEACTIVATE		52
+#define SENSOR_DEACTIVATE		54
 // {sensorPollingStart String} 
-#define SENSOR_POLLING_START		53
+#define SENSOR_POLLING_START		55
 // {sensorPollingStop String} 
-#define SENSOR_POLLING_STOP		54
+#define SENSOR_POLLING_STOP		56
 // {servoAttach ServoControl int} 
-#define SERVO_ATTACH		55
+#define SERVO_ATTACH		57
 // {servoDetach ServoControl} 
-#define SERVO_DETACH		56
+#define SERVO_DETACH		58
 // {servoSetMaxVelocity ServoControl} 
-#define SERVO_SET_MAX_VELOCITY		57
+#define SERVO_SET_MAX_VELOCITY		59
 // {servoSetVelocity ServoControl} 
-#define SERVO_SET_VELOCITY		58
+#define SERVO_SET_VELOCITY		60
 // {servoSweepStart ServoControl} 
-#define SERVO_SWEEP_START		59
+#define SERVO_SWEEP_START		61
 // {servoSweepStop ServoControl} 
-#define SERVO_SWEEP_STOP		60
+#define SERVO_SWEEP_STOP		62
 // {servoWrite ServoControl} 
-#define SERVO_WRITE		61
+#define SERVO_WRITE		63
 // {servoWriteMicroseconds ServoControl int} 
-#define SERVO_WRITE_MICROSECONDS		62
+#define SERVO_WRITE_MICROSECONDS		64
 // {setBoardMegaADK} 
-#define SET_BOARD_MEGA_ADK		63
+#define SET_BOARD_MEGA_ADK		65
 // {setDebounce int} 
-#define SET_DEBOUNCE		64
+#define SET_DEBOUNCE		66
 // {setDebug boolean} 
-#define SET_DEBUG		65
+#define SET_DEBUG		67
 // {setDigitalTriggerOnly Boolean} 
-#define SET_DIGITAL_TRIGGER_ONLY		66
-// {setPWMFrequency Integer Integer} 
-#define SET_PWMFREQUENCY		67
-// {setSampleRate int} 
-#define SET_SAMPLE_RATE		68
+#define SET_DIGITAL_TRIGGER_ONLY		68
+// {setFormat String} 
+#define SET_FORMAT		69
 // {setSerialRate int} 
-#define SET_SERIAL_RATE		69
+#define SET_SERIAL_RATE		70
 // {setTrigger int int int} 
-#define SET_TRIGGER		70
+#define SET_TRIGGER		71
 // {softReset} 
-#define SOFT_RESET		71
+#define SOFT_RESET		72
+// {stopRecording} 
+#define STOP_RECORDING		73
+// {unsetController} 
+#define UNSET_CONTROLLER		74
 // {write int int} 
-#define WRITE		72
+#define WRITE		75
 ///// INO GENERATED DEFINITION END //////
 
 
