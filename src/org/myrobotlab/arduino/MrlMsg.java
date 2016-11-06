@@ -14,6 +14,8 @@ public class MrlMsg {
 	
 	static boolean enableText = true;
 	
+	// static HashMap schema = new HashMap
+	
 	StringBuilder textMsg = new StringBuilder();
 	
 	Integer msgType;
@@ -78,7 +80,7 @@ public class MrlMsg {
 	 * 
 	 * @param data
 	 */
-	public MrlMsg addData(int data) {
+	public MrlMsg append(int data) {
 		dataBuffer.add(data & 0xff);
 		if (enableText){
 			textMsg.append("/");
@@ -95,7 +97,7 @@ public class MrlMsg {
 	 * 
 	 * @param data
 	 */
-	public MrlMsg addData16(int data) {
+	public MrlMsg append16(int data) {
 		if (data < -32768 || data > 32767){
 			log.warn("addData16 value is {} - if Arduino type is an int data will be lost");
 		}
@@ -122,7 +124,7 @@ public class MrlMsg {
 	 * 
 	 * @param data
 	 */
-	public MrlMsg addData32(int data) {
+	public MrlMsg append32(int data) {
 		dataBuffer.add((data >> 24) & 0xFF);
 		dataBuffer.add((data >> 16) & 0xFF);
 		dataBuffer.add((data >> 8) & 0xFF);
@@ -139,7 +141,7 @@ public class MrlMsg {
 	 * 
 	 * @param args
 	 */
-	public MrlMsg addData(String data) {
+	public MrlMsg append(String data) {
 		dataBuffer.add(data.length());
 		for (int i = 0; i < data.length(); ++i) {
 			dataBuffer.add((int) data.charAt(i));
@@ -163,9 +165,9 @@ public class MrlMsg {
 	}
 	
 
-	public MrlMsg addData(byte[] buffer, int size) {
+	public MrlMsg append(byte[] buffer, int size) {
 		for (int i = 0; i < size; i++) {
-			addData(buffer[i] & 0xff);
+			append(buffer[i] & 0xff);
 		}
 		
 		if (enableText){
@@ -179,9 +181,9 @@ public class MrlMsg {
 		return this;
 	}
 
-	public MrlMsg addData(int[] buffer) {
+	public MrlMsg append(int[] buffer) {
 		for (int i = 0; i < buffer.length; i++) {
-			addData(buffer[i] & 0xff);
+			append(buffer[i] & 0xff);
 		}
 		
 		if (enableText){
@@ -194,9 +196,9 @@ public class MrlMsg {
 		return this;
 	}
 
-	public MrlMsg addData(List<Integer> buffer) {
+	public MrlMsg append(List<Integer> buffer) {
 		for (int i = 0; i < buffer.size(); i++) {
-			addData(buffer.get(i) & 0xff);
+			append(buffer.get(i) & 0xff);
 		}
 		
 		if (enableText){
@@ -214,10 +216,6 @@ public class MrlMsg {
 		return textMsg.toString();
 	}
 	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
 
 	static public void enableText() throws Exception {
 		enableText = true;
@@ -225,6 +223,11 @@ public class MrlMsg {
 
 	static public void disableText() {
 		enableText = false;
+	}
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

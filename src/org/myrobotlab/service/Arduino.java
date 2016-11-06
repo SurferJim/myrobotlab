@@ -574,7 +574,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	public void analogWrite(int address, int value) {
 		log.info(String.format("analogWrite(%d,%d)", address, value));
-		sendMsg(new MrlMsg(ANALOG_WRITE).addData(address).addData(value));
+		sendMsg(new MrlMsg(ANALOG_WRITE).append(address).append(value));
 	}
 
 	/**
@@ -683,13 +683,9 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 			log.info("waiting for boardInfo lock..........");
 			synchronized (boardInfo) {
-				try {
-					log.info("waiting for board info..........");
-					boardInfo.wait(4500); // max wait 4.5 seconds - for port to open
-					log.info("done waiting for board info..........");
-				} catch (InterruptedException e) {
-					// don't care
-				}
+				try {					
+					boardInfo.wait(4500); // max wait 4.5 seconds - for port to open					
+				} catch (InterruptedException e) {}
 			}
 			
 			// we might be connected now
@@ -714,7 +710,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	public void controllerAttach(Arduino controller, int serialPort) {
 		attachedController.put(serialPort, controller);
-		sendMsg(new MrlMsg(CONTROLLER_ATTACH).addData(serialPort));
+		sendMsg(new MrlMsg(CONTROLLER_ATTACH).append(serialPort));
 	}
 
 	@Override
@@ -808,13 +804,13 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	public void customMsg(int... params) {
 		MrlMsg msg = new MrlMsg(CUSTOM_MSG);
-		msg.addData(params.length);
+		msg.append(params.length);
 		for (int i : params) {
 			if (i > 255) {
 				log.error("customMsg can only accept bytes value (0-255)");
 				return;
 			}
-			msg.addData(i);
+			msg.append(i);
 		}
 		sendMsg(msg);
 	}
@@ -907,21 +903,21 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 		// create msg payload for the specific device in MRLComm
 		// msgBody.add(mrlDeviceType); // DEVICE_TYPE
-		msg.addData(mrlDeviceType); // MRL DEVICE_TYPE !
-		msg.addData(name); // NAME
+		msg.append(mrlDeviceType); // MRL DEVICE_TYPE !
+		msg.append(name); // NAME
 		/*
 		msgBody.add(nameSize); // NAME_SIZE
 		for (int i = 0; i < nameSize; ++i) {
 			msgBody.add((int) name.charAt(i));
 		}*/
 
-		msg.addData(deviceConfigSize); // CONFIG_MSG_SIZE
+		msg.append(deviceConfigSize); // CONFIG_MSG_SIZE
 
 		// move the device config into the msg
 		// DATA0|DATA1 ...|DATA(N)
 		if (config != null) {
 			for (int i = 0; i < config.length; ++i) {
-				msg.addData((int) config[i]);
+				msg.append((int) config[i]);
 			}
 		}
 
@@ -963,7 +959,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	@Override
 	public void deviceDetach(DeviceControl device) {
 		log.info("detaching device {}", device.getName());
-		sendMsg(new MrlMsg(DEVICE_DETACH).addData(getDeviceId(device)));
+		sendMsg(new MrlMsg(DEVICE_DETACH).append(getDeviceId(device)));
 	}
 
 	/**
@@ -975,8 +971,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public void digitalWrite(int address, int value) {
 		log.info("digitalWrite {} {}", address, value);
 		MrlMsg msg = new MrlMsg(DIGITAL_WRITE);
-		msg.addData(address);
-		msg.addData(value);
+		msg.append(address);
+		msg.append(value);
 		sendMsg(msg);
 		PinDefinition pinDef = pinIndex.get(address);
 		invoke("publishPinDefinition", pinDef);
@@ -993,7 +989,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			return;
 		}
 		MrlMsg msg = new MrlMsg(DISABLE_PIN);
-		msg.addData(address);
+		msg.append(address);
 		sendMsg(msg);
 		PinDefinition pinDef = pinIndex.get(address);
 		invoke("publishPinDefinition", pinDef);
@@ -1028,7 +1024,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public void enableBoardStatus(int rate) {
 		this.publishBoardStatusModulus = rate;
 		MrlMsg msg = new MrlMsg(ENABLE_BOARD_STATUS);
-		msg.addData16(rate);
+		msg.append16(rate);
 		sendMsg(msg);
 	}
 
@@ -1052,12 +1048,12 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			return;
 		}
 		MrlMsg msg = new MrlMsg(ENABLE_PIN);
-		msg.addData(address); // ANALOG 1 DIGITAL 0
+		msg.append(address); // ANALOG 1 DIGITAL 0
 		PinDefinition pin = pinIndex.get(address);
 
-		msg.addData(getMrlPinType(pin)); // pinType
+		msg.append(getMrlPinType(pin)); // pinType
 		// TODO - make this Hz so everyone is happy :)
-		msg.addData16(rate); //
+		msg.append16(rate); //
 		sendMsg(msg);
 
 		pin.setEnabled(true);
@@ -1220,9 +1216,9 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		 * deviceAddress; msgBuffer[2] = size; sendMsg(I2C_READ, msgBuffer);
 		 */
 		MrlMsg msg = new MrlMsg(I2C_READ);
-		msg.addData(id);
-		msg.addData(deviceAddress);
-		msg.addData(size);
+		msg.append(id);
+		msg.append(deviceAddress);
+		msg.append(size);
 
 		int retry = 0;
 		int retryMax = 1000; // ( About 1000ms = s)
@@ -1275,10 +1271,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		 * buffer[i] & 0xff; } sendMsg(I2C_WRITE, msgBuffer);
 		 */
 		MrlMsg msg = new MrlMsg(I2C_WRITE);
-		msg.addData(id);
-		msg.addData(deviceAddress);
-		msg.addData(size);
-		msg.addData(buffer, size);
+		msg.append(id);
+		msg.append(deviceAddress);
+		msg.append(size);
+		msg.append(buffer, size);
 		sendMsg(msg);
 	}
 
@@ -1300,10 +1296,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			msgBuffer[2] = readSize;
 			msgBuffer[3] = writeBuffer[0];
 			MrlMsg msg = new MrlMsg(I2C_WRITE_READ);
-			msg.addData(id);
-			msg.addData(deviceAddress);
-			msg.addData(readSize);
-			msg.addData(writeBuffer[0]);
+			msg.append(id);
+			msg.append(deviceAddress);
+			msg.append(readSize);
+			msg.append(writeBuffer[0]);
 			sendMsg(msg);
 			int retry = 0;
 			int retryMax = 1000; // ( About 1000ms = s)
@@ -1397,21 +1393,21 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 		if (MotorConfigSimpleH.class == type) {
 			MotorConfigSimpleH config = (MotorConfigSimpleH) c;
-			MrlMsg msg = new MrlMsg(DIGITAL_WRITE).addData(config.getDirPin()).addData((powerOutput < 0) ? MOTOR_BACKWARD : MOTOR_FORWARD);
+			MrlMsg msg = new MrlMsg(DIGITAL_WRITE).append(config.getDirPin()).append((powerOutput < 0) ? MOTOR_BACKWARD : MOTOR_FORWARD);
 			sendMsg(msg);
-			msg = new MrlMsg(ANALOG_WRITE).addData(config.getPwrPin()).addData((int) Math.abs(powerOutput));
+			msg = new MrlMsg(ANALOG_WRITE).append(config.getPwrPin()).append((int) Math.abs(powerOutput));
 			sendMsg(msg);
 		} else if (MotorConfigDualPwm.class == type) {
 			MotorConfigDualPwm config = (MotorConfigDualPwm) c;
 			if (powerOutput < 0) {
-				sendMsg(new MrlMsg(ANALOG_WRITE).addData(config.getLeftPin()).addData(0));
-				sendMsg(new MrlMsg(ANALOG_WRITE).addData(config.getRightPin()).addData((int) Math.abs(powerOutput)));
+				sendMsg(new MrlMsg(ANALOG_WRITE).append(config.getLeftPin()).append(0));
+				sendMsg(new MrlMsg(ANALOG_WRITE).append(config.getRightPin()).append((int) Math.abs(powerOutput)));
 			} else if (powerOutput > 0) {
-				sendMsg(new MrlMsg(ANALOG_WRITE).addData(config.getRightPin()).addData(0));
-				sendMsg(new MrlMsg(ANALOG_WRITE).addData(config.getLeftPin()).addData((int) Math.abs(powerOutput)));
+				sendMsg(new MrlMsg(ANALOG_WRITE).append(config.getRightPin()).append(0));
+				sendMsg(new MrlMsg(ANALOG_WRITE).append(config.getLeftPin()).append((int) Math.abs(powerOutput)));
 			} else {
-				sendMsg(new MrlMsg(ANALOG_WRITE).addData(config.getLeftPin()).addData(0));
-				sendMsg(new MrlMsg(ANALOG_WRITE).addData(config.getRightPin()).addData(0));
+				sendMsg(new MrlMsg(ANALOG_WRITE).append(config.getLeftPin()).append(0));
+				sendMsg(new MrlMsg(ANALOG_WRITE).append(config.getRightPin()).append(0));
 			}
 		} else if (MotorPulse.class == type) {
 			MotorPulse motor = (MotorPulse) mc;
@@ -1419,7 +1415,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			// 0);
 			// TODO implement with a -1 for "endless" pulses or a different
 			// command parameter :P
-			sendMsg(new MrlMsg(PULSE).addData(motor.getPulsePin()).addData((int) Math.abs(powerOutput)));
+			sendMsg(new MrlMsg(PULSE).append(motor.getPulsePin()).append((int) Math.abs(powerOutput)));
 		} else {
 			error("motorMove for motor type %s not supported", type);
 		}
@@ -1481,14 +1477,14 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 		if (MotorConfigPulse.class == type) {
 			MotorConfigPulse config = (MotorConfigPulse) mc.getConfig();
-			sendMsg(new MrlMsg(PULSE_STOP).addData(config.getPulsePin()));
+			sendMsg(new MrlMsg(PULSE_STOP).append(config.getPulsePin()));
 		} else if (MotorConfigSimpleH.class == type) {
 			MotorConfigSimpleH config = (MotorConfigSimpleH) mc.getConfig();
-			sendMsg(new MrlMsg(ANALOG_WRITE).addData(config.getPwrPin()).addData(0));
+			sendMsg(new MrlMsg(ANALOG_WRITE).append(config.getPwrPin()).append(0));
 		} else if (MotorConfigDualPwm.class == type) {
 			MotorConfigDualPwm config = (MotorConfigDualPwm) mc.getConfig();
-			sendMsg(new MrlMsg(ANALOG_WRITE).addData(config.getLeftPin()).addData(0));
-			sendMsg(new MrlMsg(ANALOG_WRITE).addData(config.getRightPin()).addData(0));
+			sendMsg(new MrlMsg(ANALOG_WRITE).append(config.getLeftPin()).append(0));
+			sendMsg(new MrlMsg(ANALOG_WRITE).append(config.getRightPin()).append(0));
 		}
 	}
 
@@ -1501,13 +1497,13 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	@Override
 	public void neoPixelSetAnimation(NeoPixel neopixel, int animation, int red, int green, int blue, int speed) {
 		MrlMsg msg = new MrlMsg(NEO_PIXEL_SET_ANIMATION);
-		msg.addData(getDeviceId(neopixel));
-		msg.addData(6); // size of the config
-		msg.addData(animation);
-		msg.addData(red);
-		msg.addData(green);
-		msg.addData(blue);
-		msg.addData16(speed);
+		msg.append(getDeviceId(neopixel));
+		msg.append(6); // size of the config
+		msg.append(animation);
+		msg.append(red);
+		msg.append(green);
+		msg.append(blue);
+		msg.append16(speed);
 		sendMsg(msg);
 	}
 
@@ -1520,7 +1516,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		for (int i = 0; i < msg.size(); i++) {
 			buffer[i + 2] = msg.get(i);
 		}
-		sendMsg(new MrlMsg(NEO_PIXEL_WRITE_MATRIX).addData(buffer));
+		sendMsg(new MrlMsg(NEO_PIXEL_WRITE_MATRIX).append(buffer));
 	}
 
 	/**
@@ -1688,7 +1684,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	public void pinMode(int address, int mode) {
-		sendMsg(new MrlMsg(PIN_MODE).addData(address).addData(mode));
+		sendMsg(new MrlMsg(PIN_MODE).append(address).append(mode));
 		PinDefinition pinDef = pinIndex.get(address);
 		invoke("publishPinDefinition", pinDef);
 	}
@@ -2093,7 +2089,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	public void pulse(int pin, int count, int rate, int feedbackRate) {
-		sendMsg(new MrlMsg(PULSE).addData(pin).addData(rate).addData(feedbackRate));
+		sendMsg(new MrlMsg(PULSE).append(pin).append(rate).append(feedbackRate));
 	}
 
 	/**
@@ -2190,9 +2186,9 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		}
 
 		if (rootController != null) {
-			MrlMsg routingMsg = new MrlMsg(MSG_ROUTE).addData(controllerAttachAs).addData(function);
+			MrlMsg routingMsg = new MrlMsg(MSG_ROUTE).append(controllerAttachAs).append(function);
 			for (int i = 0; i < params.length; i++) {
-				routingMsg.addData(params[i]);
+				routingMsg.append(params[i]);
 			}
 			rootController.sendMsg(routingMsg);
 		} else {
@@ -2330,7 +2326,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	 * @param deviceIndex
 	 */
 	public void sensorPollingStart(String name) {
-		sendMsg(new MrlMsg(SENSOR_POLLING_START).addData(getDeviceId(name)));
+		sendMsg(new MrlMsg(SENSOR_POLLING_START).append(getDeviceId(name)));
 	}
 
 	/**
@@ -2341,12 +2337,12 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	 */
 
 	public void sensorPollingStop(String name) {
-		sendMsg(new MrlMsg(SENSOR_POLLING_STOP).addData(getDeviceId(name)));
+		sendMsg(new MrlMsg(SENSOR_POLLING_STOP).append(getDeviceId(name)));
 	}
 
 	@Override
 	public void servoAttach(ServoControl servo, int pin) {
-		sendMsg(new MrlMsg(SERVO_ATTACH).addData(getDeviceId(servo)).addData(pin));
+		sendMsg(new MrlMsg(SERVO_ATTACH).append(getDeviceId(servo)).append(pin));
 	}
 
 	/**
@@ -2356,20 +2352,20 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	@Override
 	public void servoDetach(ServoControl servo) {
 		int id = getDeviceId(servo);
-		sendMsg(new MrlMsg(SERVO_DETACH).addData(getDeviceId(servo)).addData(id));
+		sendMsg(new MrlMsg(SERVO_DETACH).append(getDeviceId(servo)).append(id));
 	}
 
 	@Override
 	public void servoSetMaxVelocity(ServoControl servo) {
 		MrlMsg msg = new MrlMsg(SERVO_SET_MAX_VELOCITY, getDeviceId(servo));
-		msg.addData16(servo.getMaxVelocity());
+		msg.append16(servo.getMaxVelocity());
 		sendMsg(msg);
 	}
 
 	@Override
 	public void servoSetVelocity(ServoControl servo) {
 		MrlMsg msg = new MrlMsg(SERVO_SET_VELOCITY, getDeviceId(servo));
-		msg.addData16(servo.getVelocity());
+		msg.append16(servo.getVelocity());
 		sendMsg(msg);
 	}
 
@@ -2378,7 +2374,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public void servoSweepStart(ServoControl servo) {
 		int id = getDeviceId(servo);
 		log.info(String.format("servoSweep %s id %d min %d max %d step %d", servo.getName(), id, servo.getSweepMin(), servo.getSweepMax(), servo.getSweepStep()));
-		sendMsg(new MrlMsg(SERVO_SWEEP_START).addData(id).addData(servo.getSweepMin()).addData(servo.getSweepMax()).addData(servo.getSweepStep()));
+		sendMsg(new MrlMsg(SERVO_SWEEP_START).append(id).append(servo.getSweepMin()).append(servo.getSweepMax()).append(servo.getSweepStep()));
 	}
 
 	/*
@@ -2390,14 +2386,14 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	@Override
 	public void servoSweepStop(ServoControl servo) {
-		sendMsg(new MrlMsg(SERVO_SWEEP_START).addData(getDeviceId(servo)));
+		sendMsg(new MrlMsg(SERVO_SWEEP_START).append(getDeviceId(servo)));
 	}
 
 	@Override
 	public void servoWrite(ServoControl servo) {
 		int id = getDeviceId(servo);
 		log.info("servoWrite {} {} id {}", servo.getName(), servo.getTargetOutput(), id);
-		sendMsg(new MrlMsg(SERVO_WRITE).addData(id).addData(servo.getTargetOutput().intValue()));
+		sendMsg(new MrlMsg(SERVO_WRITE).append(id).append(servo.getTargetOutput().intValue()));
 	}
 
 	@Override
@@ -2405,7 +2401,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		int id = getDeviceId(servo);
 		log.info(String.format("writeMicroseconds %s %d id %d", servo.getName(), uS, id));
 		MrlMsg msg = new MrlMsg(SERVO_WRITE_MICROSECONDS, id);
-		msg.addData16(uS);
+		msg.append16(uS);
 		sendMsg(msg);
 	}
 
@@ -2467,28 +2463,28 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		if (delay < 0 || delay > 32767) {
 			error(String.format("%d debounce delay must be 0 < delay < 32767", delay));
 		}
-		sendMsg(new MrlMsg(SERVO_WRITE).addData16(delay));
+		sendMsg(new MrlMsg(SERVO_WRITE).append16(delay));
 	}
 
 	public void setDebug(boolean b) {
 		if (b) {
-			sendMsg(new MrlMsg(SET_DEBUG).addData(1));
+			sendMsg(new MrlMsg(SET_DEBUG).append(1));
 		} else {
-			sendMsg(new MrlMsg(SET_DEBUG).addData(0));
+			sendMsg(new MrlMsg(SET_DEBUG).append(0));
 		}
 	}
 
 	public void setDigitalTriggerOnly(Boolean b) {
 		if (!b){
-			sendMsg(new MrlMsg(SET_DIGITAL_TRIGGER_ONLY).addData(FALSE));
+			sendMsg(new MrlMsg(SET_DIGITAL_TRIGGER_ONLY).append(FALSE));
 		} else {
-			sendMsg(new MrlMsg(SET_DIGITAL_TRIGGER_ONLY).addData(TRUE));
+			sendMsg(new MrlMsg(SET_DIGITAL_TRIGGER_ONLY).append(TRUE));
 		}
 
 	}
 
 	public void setSerialRate(int rate) {
-		sendMsg(new MrlMsg(SET_SERIAL_RATE).addData(rate));
+		sendMsg(new MrlMsg(SET_SERIAL_RATE).append(rate));
 	}
 
 	public void setSketch(Sketch sketch) {
@@ -2518,7 +2514,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	 * @return
 	 */
 	public int setTrigger(int pin, int value, int type) {
-		sendMsg(new MrlMsg(SET_TRIGGER).addData(pin).addData(type));		
+		sendMsg(new MrlMsg(SET_TRIGGER).append(pin).append(type));		
 		return pin;
 	}
 

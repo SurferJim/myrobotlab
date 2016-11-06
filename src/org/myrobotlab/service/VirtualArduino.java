@@ -288,7 +288,7 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 		switch (function) {
 		case GET_BOARD_INFO: {
 			MrlMsg msg = new MrlMsg(PUBLISH_BOARD_INFO);
-			msg.addData(boardInfo.getVersion()).addData(boardInfo.getBoardType());
+			msg.append(boardInfo.getVersion()).append(boardInfo.getBoardType());
 			sendMsg(msg);
 			break;
 		}
@@ -323,7 +323,7 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 	public String onConnect(String portName) {
 		for (int i = 0; i < 3; ++i) {
 			MrlMsg msg = new MrlMsg(PUBLISH_BOARD_INFO);
-			msg.addData(boardInfo.getVersion()).addData(boardInfo.getBoardType());
+			msg.append(boardInfo.getVersion()).append(boardInfo.getBoardType());
 			sendMsg(msg);
 		}
 		return portName;
@@ -467,6 +467,7 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 			boolean useVirtual = true;
 
 			Runtime.start("gui", "GUIService");
+			Runtime.start("python", "Python");
 			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
 			arduino.record();
 			log.info("ports " + Arrays.toString(arduino.getSerial().getPortNames().toArray()));

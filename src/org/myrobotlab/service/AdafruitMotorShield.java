@@ -282,7 +282,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
   // StepperController begin ----
 
   public void setSpeed(Integer motorPortNumber, Integer speed) {
-    arduino.sendMsg(new MrlMsg(AF_DCMOTOR_SET_SPEED).addData(motorPortNumber - 1).addData(speed));
+    arduino.sendMsg(new MrlMsg(AF_DCMOTOR_SET_SPEED).append(motorPortNumber - 1).append(speed));
   }
 
   // VENDOR SPECIFIC LIBRARY METHODS BEGIN /////

@@ -67,8 +67,25 @@ public class UltrasonicSensor extends Service implements RangeListener, SensorCo
 	public void addRangeListener(Service service) {
 		addListener("publishRange", service.getName(), "onRange");
 	}
+	
+	public void attach(String port, int trigPin, int echoPin) throws Exception {
+		if (controller == null){
+			// no controller specified - create a default (Arduino) controller 
+			controller = (SensorController)startPeer("controller");			
+		}
+		
+		// FIXME -  make sure we're connected
+		controller.connect(port);
+
+		this.trigPin = trigPin;
+		this.echoPin = echoPin;
+		controller.deviceAttach(this, trigPin, echoPin);
+	}
 
 	public void attach(SensorController controller, int trigPin, int echoPin) throws Exception {
+		if (!controller.isConnected()){
+			error("cannot attach if controller is not connected");
+		}
 		this.controller = controller;
 		this.trigPin = trigPin;
 		this.echoPin = echoPin;
@@ -210,6 +227,7 @@ public class UltrasonicSensor extends Service implements RangeListener, SensorCo
 		ServiceType meta = new ServiceType(UltrasonicSensor.class.getCanonicalName());
 		meta.addDescription("Ranging sensor");
 		meta.addCategory("sensor");
+		meta.addPeer("controller", "Arduino", "default sensor controller will be an Arduino");
 		return meta;
 	}
 
@@ -278,7 +296,7 @@ public class UltrasonicSensor extends Service implements RangeListener, SensorCo
 	@Override
 	public void attach(SensorController controller, Object... conf) {
 		// TODO Auto-generated method stub
-		
+		log.info("here");
 	}
 
 }

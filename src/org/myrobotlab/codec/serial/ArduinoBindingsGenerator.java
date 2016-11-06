@@ -32,6 +32,8 @@ public class ArduinoBindingsGenerator {
   static StringBuilder javaDefines = new StringBuilder("\t///// java ByteToMethod generated definition - DO NOT MODIFY - Begin //////\n");
   static StringBuilder javaBindingsInit = new StringBuilder();
   static StringBuilder javaFunctionToString = new StringBuilder();
+  
+  static StringBuilder idl = new StringBuilder();
 
   /**
    * called for each method - java method is the "source" of reflected data so
@@ -65,6 +67,8 @@ public class ArduinoBindingsGenerator {
     javaBindingsInit.append(String.format("\t\tmethodToByte.put(\"%s\",%s);\n\n", method.getName(), underscore));
     
     javaFunctionToString.append(String.format("\tcase ArduinoMsgCodec.%s:{\n\t\treturn \"%s\";\n\n\t}\n", underscore ,underscore));
+    
+    idl.append(String.format("%s/\n", method.getName()));
   
   }
 
@@ -255,6 +259,8 @@ public class ArduinoBindingsGenerator {
     FileIO.toFile(String.format("ArduinoMsgCodec.%d.py", ts), python);
     FileIO.toFile("src/org/myrobotlab/codec/serial/" + String.format("ArduinoMsgCodec.java", ts), java);
     FileIO.toFile(String.format("src/resource/Arduino/MRLComm/ArduinoMsgCodec.h", ts), MRLComm);
+    
+    FileIO.toFile(String.format("arduinoMsg.%d.schema", System.currentTimeMillis()), idl.toString());
 
     // String ret = String.format("%s\n\n%s", ino.toString(),
     // java.toString());
