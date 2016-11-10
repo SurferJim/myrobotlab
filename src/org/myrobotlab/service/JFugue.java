@@ -104,7 +104,7 @@ public class JFugue extends Service {
     ServiceType meta = new ServiceType(JFugue.class.getCanonicalName());
     meta.addDescription("service wrapping Jfugue, used for music and sound generation");
     meta.addCategory("sound");
-    meta.addDependency("org.jfugue.music", "5.0");
+    meta.addDependency("org.jfugue.music", "4.0.3");
     return meta;
   }
 
