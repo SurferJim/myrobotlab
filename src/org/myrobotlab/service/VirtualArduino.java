@@ -119,6 +119,7 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.serial.PortQueue;
 import org.myrobotlab.service.interfaces.RecordControl;
 import org.myrobotlab.service.interfaces.SerialDataListener;
+import org.myrobotlab.service.interfaces.SerialDevice;
 import org.slf4j.Logger;
 
 public class VirtualArduino extends Service implements SerialDataListener, RecordControl {
@@ -187,7 +188,7 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 		return meta;
 	}
 
-	public Serial connectVirtualUart(String myPort, String uartPort) throws IOException {
+	public SerialDevice connectVirtualUart(String myPort, String uartPort) throws IOException {
 
 		BlockingQueue<Integer> left = new LinkedBlockingQueue<Integer>();
 		BlockingQueue<Integer> right = new LinkedBlockingQueue<Integer>();

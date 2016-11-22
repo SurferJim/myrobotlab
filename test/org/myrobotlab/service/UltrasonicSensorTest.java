@@ -14,6 +14,7 @@ import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.interfaces.SerialDevice;
 import org.slf4j.Logger;
 
 //TODO: re-enable this test when we figure out why it fails from the
@@ -26,7 +27,7 @@ public class UltrasonicSensorTest {
   static UltrasonicSensor sensor = null;
 
   static Arduino arduino = null;
-  static Serial serial = null;
+  static SerialDevice serial = null;
   static TestCatcher catcher = null;
 
   static VirtualDevice virtual = null;

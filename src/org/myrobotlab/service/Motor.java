@@ -336,8 +336,8 @@ public class Motor extends Service implements MotorControl, SensorDataListener, 
 			m1.moveTo(250);
 			m1.moveTo(250);
 
-			arduino.enableBoardStatus();
-			arduino.disableBoardStatus();
+			arduino.enableBoardStatus(true);
+			arduino.enableBoardStatus(false);
 			m1.stop();
 			m1.move(0.5);
 			m1.moveTo(200);

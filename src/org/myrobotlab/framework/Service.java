@@ -2106,7 +2106,7 @@ public abstract class Service extends MessageService implements Runnable, Serial
   /**
    * set status broadcasts an formatted info string to any subscribers
    * 
-   * @param msg
+   * @param ioCmd
    */
   @Override
   public Status info(String format, Object... args) {
@@ -2117,7 +2117,7 @@ public abstract class Service extends MessageService implements Runnable, Serial
    * error only channel publishing point versus publishStatus which handles
    * info, warn & error
    * 
-   * @param msg
+   * @param ioCmd
    * @return
    */
   public Status publishError(Status status) {

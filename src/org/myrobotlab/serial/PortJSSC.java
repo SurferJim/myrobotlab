@@ -54,7 +54,6 @@ public class PortJSSC extends Port implements SerialControl, SerialPortEventList
 		if (port != null) {
 			return port.isOpened();
 		}
-
 		return false;
 	}
 

@@ -46,4 +46,6 @@ public interface ServoController extends DeviceController {
 
   void servoSetVelocity(ServoControl servo);
 
+void servoAttach(ServoControl servo, int pin, Integer targetOutput, Integer velocity);
+
 }

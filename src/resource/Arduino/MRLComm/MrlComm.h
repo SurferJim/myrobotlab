@@ -2,17 +2,16 @@
 #define MrlComm_h
 
 #include "ArduinoMsgCodec.h"
-#include "MrlMsg.h"
-#include "MrlCmd.h"
-#include "LinkedList.h"
-#include "MrlServo.h"
-#include "Device.h"
-#include "MrlI2cBus.h"
-#include "MrlNeopixel.h"
-#include "Pin.h"
 
 // TODO - standard convention of dev versions are odd release is even ?
 #define MRLCOMM_VERSION         41
+
+// forward defines to break circular dependency
+class Device;
+class Msg;
+class MrlComm;
+class Pin;
+
 
 /***********************************************************************
  * Class MrlComm -
@@ -44,32 +43,106 @@ class MrlComm{
     bool debug;
     int byteCount;
     int msgSize;
-    bool enableBoardStatus;
+    bool boardStatusEnabled;
     unsigned int publishBoardStatusModulus; // the frequency in which to report the load timing metrics (in number of main loops)
     unsigned long lastMicros; // timestamp of last loop (if stats enabled.)
-#if defined(ARDUINO_AVR_MEGA2560) || defined(ARDUINO_AVR_ADK)
-    MrlCmd* mrlCmd[4];
-#else
-    MrlCmd* mrlCmd[1];
-#endif
-    bool heartbeat;
-    bool heartbeatEnabled;
+
+    bool heartbeatEnabled = false;
     unsigned long lastHeartbeatUpdate;
-    unsigned int customMsg[MAX_MSG_SIZE];
+
+    byte customMsgBuffer[MAX_MSG_SIZE];
     int customMsgSize;
-    void softReset();
+
+    // handles all messages to and from pc
+    Msg* msg;
+
+public:
+    // utility methods
     int getFreeRam();
-    void publishError(int type);
+    Device* getDevice(int id);
+
+    // linkage to idl methods
     void publishError(int type, String message);
     void publishCommandAck(int function);
     void publishAttachedDevice(int id, int nameSize, unsigned char* name);
     // void setPWMFrequency(int address, int prescalar);
-    void setSerialRate(long rate);
-    void deviceAttach(unsigned char* ioCmd);
-    void deviceDetach(int id);
-    Device* getDevice(int id);
+    // void deviceAttach(unsigned char* ioCmd);
+    // void deviceDetach(int id);
+
     void addDevice(Device* device);
     void update();
+
+    // Below are generated callbacks controlled by
+    // arduinoMsgs.schema
+    // <generatedCallBacks>
+	// > getBoardInfo
+	void getBoardInfo();
+	// > enableBoardStatus/bool enabled
+	void enableBoardStatus( boolean enabled);
+	// > enableHeartbeat/bool enabled
+	void enableHeartbeat( boolean enabled);
+	// > enablePin/address/type/b16 rate
+	void enablePin( byte address,  byte type,  int rate);
+	// > heartbeat
+	void heartbeat();
+	// > setDebug/bool enabled
+	void setDebug( boolean enabled);
+	// > setSerialRate/b32 rate
+	void setSerialRate( long rate);
+	// > softReset/
+	void softReset();
+	// > echo/bu32 sInt
+	void echo( unsigned long sInt);
+	// > controllerAttach/serialPort
+	void controllerAttach( byte serialPort);
+	// > customMsg/[] msg
+	void customMsg( byte msgSize, const byte*msg);
+	// > deviceDetach/deviceId
+	void deviceDetach( byte deviceId);
+	// > i2cAttach/deviceId/i2cBus/deviceType/deviceAddress
+	void i2cAttach( byte deviceId,  byte i2cBus,  byte deviceType,  byte deviceAddress);
+	// > i2cRead/deviceId/deviceAddress/size
+	void i2cRead( byte deviceId,  byte deviceAddress,  byte size);
+	// > i2cWrite/deviceId/deviceAddress/[] data
+	void i2cWrite( byte deviceId,  byte deviceAddress,  byte dataSize, const byte*data);
+	// > i2cWriteRead/deviceId/deviceAddress/readSize/writeValue
+	void i2cWriteRead( byte deviceId,  byte deviceAddress,  byte readSize,  byte writeValue);
+	// > neoPixelAttach/deviceId/pin/b32 numPixels
+	void neoPixelAttach( byte deviceId,  byte pin,  long numPixels);
+	// > neoPixelSetAnimation/deviceId/animation/red/green/blue/b16 speed
+	void neoPixelSetAnimation( byte deviceId,  byte animation,  byte red,  byte green,  byte blue,  int speed);
+	// > neoPixelWriteMatrix/deviceId/[] buffer
+	void neoPixelWriteMatrix( byte deviceId,  byte bufferSize, const byte*buffer);
+	// > disablePin/pin
+	void disablePin( byte pin);
+	// > disablePins
+	void disablePins();
+	// > setTrigger/pin/triggerValue
+	void setTrigger( byte pin,  byte triggerValue);
+	// > setDebounce/pin/delay
+	void setDebounce( byte pin,  byte delay);
+	// > serialRelay/deviceId/serialPort/[] relayData
+	void serialRelay( byte deviceId,  byte serialPort,  byte relayDataSize, const byte*relayData);
+	// > servoAttach/deviceId/pin/initPos/b16 initVelocity
+	void servoAttach( byte deviceId,  byte pin,  byte initPos,  int initVelocity);
+	// > servoEnablePwm/deviceId/pin
+	void servoEnablePwm( byte deviceId,  byte pin);
+	// > servoDisablePwm/deviceId
+	void servoDisablePwm( byte deviceId);
+	// > servoSetMaxVelocity/deviceId/b16 maxVelocity
+	void servoSetMaxVelocity( byte deviceId,  int maxVelocity);
+	// > servoSetVelocity/deviceId/b16 velocity
+	void servoSetVelocity( byte deviceId,  int velocity);
+	// > servoSweepStart/deviceId/min/max/step
+	void servoSweepStart( byte deviceId,  byte min,  byte max,  byte step);
+	// > servoSweepStop/deviceId
+	void servoSweepStop( byte deviceId);
+	// > servoWrite/deviceId/target
+	void servoWrite( byte deviceId,  byte target);
+	// > servoWriteMicroseconds/deviceId/b16 ms
+	void servoWriteMicroseconds( byte deviceId,  int ms);
+    // </generatedCallBacks>
+    // end
 
   public:
     unsigned long loopCount; // main loop count
@@ -78,11 +151,13 @@ class MrlComm{
     void publishBoardStatus();
     void publishVersion();
     void publishBoardInfo();
-    void readCommand();
+    void processCommand();
     void processCommand(int ioType);
     void updateDevices();
     unsigned int getCustomMsg();
     int getCustomMsgSize();
+    void begin(HardwareSerial& serial);
+    bool readMsg();
 };
-
+  
 #endif

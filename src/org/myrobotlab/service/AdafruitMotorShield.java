@@ -282,7 +282,8 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
   // StepperController begin ----
 
   public void setSpeed(Integer motorPortNumber, Integer speed) {
-    arduino.sendMsg(new MrlMsg(AF_DCMOTOR_SET_SPEED).append(motorPortNumber - 1).append(speed));
+	// TODO - fix 
+    // arduino.sendMsg(new MrlMsg(AF_DCMOTOR_SET_SPEED).append(motorPortNumber - 1).append(speed));
   }
 
   // VENDOR SPECIFIC LIBRARY METHODS BEGIN /////
@@ -348,19 +349,11 @@ public class AdafruitMotorShield extends Service implements MotorController, Ard
     return meta;
   }
 
-
-@Override
-public void deviceAttach(DeviceControl device, Object... conf) throws Exception {
-	// TODO Auto-generated method stub
-	
-}
-
 @Override
 public void deviceDetach(DeviceControl device) {
 	// TODO Auto-generated method stub
 	
 }
-
 
 
 }

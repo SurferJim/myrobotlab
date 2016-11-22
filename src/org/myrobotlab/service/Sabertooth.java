@@ -17,6 +17,7 @@ import org.myrobotlab.service.interfaces.Microcontroller;
 import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.SerialDataListener;
+import org.myrobotlab.service.interfaces.SerialDevice;
 import org.slf4j.Logger;
 
 /**
@@ -216,7 +217,7 @@ public class Sabertooth extends Service implements Microcontroller, MotorControl
 		// serial.addByteListener(this);
 	}
 
-	public Serial getSerial() {
+	public SerialDevice getSerial() {
 		return serial;
 	}
 
@@ -434,15 +435,8 @@ public class Sabertooth extends Service implements Microcontroller, MotorControl
 	}
 
 	@Override
-	public void deviceAttach(DeviceControl device, Object... conf) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void deviceDetach(DeviceControl device) {
-		// TODO Auto-generated method stub
-		
+		// TODO remove device
 	}
 
 

@@ -260,7 +260,7 @@ public class ArduinoBindingsGenerator {
     FileIO.toFile("src/org/myrobotlab/codec/serial/" + String.format("ArduinoMsgCodec.java", ts), java);
     FileIO.toFile(String.format("src/resource/Arduino/MRLComm/ArduinoMsgCodec.h", ts), MRLComm);
     
-    FileIO.toFile(String.format("arduinoMsg.%d.schema", System.currentTimeMillis()), idl.toString());
+    // FileIO.toFile(String.format("arduinoMsg.%d.schema", System.currentTimeMillis()), idl.toString());
 
     // String ret = String.format("%s\n\n%s", ino.toString(),
     // java.toString());

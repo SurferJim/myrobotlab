@@ -247,7 +247,7 @@ public class OledSsd1306 extends Service implements I2CControl {
 	 */
 	boolean createDevice() {
 		if (controller != null) {
-			controller.createI2cDevice(this, Integer.parseInt(deviceBus), Integer.decode(deviceAddress));
+			controller.i2cAttach(this, Integer.parseInt(deviceBus), Integer.decode(deviceAddress));
 		}
 
 		log.info(String.format("Creating device on bus: %s address %s", deviceBus, deviceAddress));

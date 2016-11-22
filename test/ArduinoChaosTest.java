@@ -100,9 +100,9 @@ public class ArduinoChaosTest {
     Thread.sleep(1000);
     arduino.servoDetach(servo);
     Thread.sleep(1000);
-    arduino.enableBoardStatus();
+    arduino.enableBoardStatus(true);
     Thread.sleep(1000);
-    arduino.enableBoardStatus();
+    arduino.enableBoardStatus(false);
     
     Thread.sleep(1000);
  
@@ -120,20 +120,20 @@ public class ArduinoChaosTest {
     Thread.sleep(1000);
 
     int pulsePin = 1;
-    arduino.pulse(pulsePin);
+    // // arduino.pulse(pulsePin);
     Thread.sleep(1000);
     // TODO: what is this?
-    arduino.pulseStop();
+    // // arduino.pulseStop();
     Thread.sleep(1000);
     arduino.setTrigger(3, 122);
     Thread.sleep(1000);
     // TODO: which pin are we debouncing?
-    arduino.setDebounce(10);
+    arduino.setDebounce(5, 10);
     // TODO: what is this for?
     Thread.sleep(1000);
-    arduino.setDigitalTriggerOnly(true);
+    // arduino.setDigitalTriggerOnly(true);
     Thread.sleep(1000);
-    arduino.setDigitalTriggerOnly(false);
+    // arduino.setDigitalTriggerOnly(false);
     
     Thread.sleep(1000);
     arduino.setSerialRate(Serial.BAUD_RATE_57600);
@@ -159,7 +159,7 @@ public class ArduinoChaosTest {
     // ?!
     // arduino.sensorPollingStart("A0", 123);
     Thread.sleep(1000);
-    arduino.sensorPollingStop("A0");
+    // arduino.sensorPollingStop("A0");
     
     // TODO: add the
     // AF_BEGIN
@@ -197,7 +197,7 @@ public class ArduinoChaosTest {
     System.out.println("Press the any key to continue.");
     System.in.read();
     
-    arduino.enableBoardStatus();
+    arduino.enableBoardStatus(true);
     
     
     Motor motor = (Motor)Runtime.createAndStart("motor", "Motor");

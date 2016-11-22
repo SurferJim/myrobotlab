@@ -4,13 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.Logging;
-import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.service.Arduino;
-import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.Serial;
 import org.myrobotlab.service.interfaces.LoggingSink;
 import org.python.netty.handler.codec.CodecException;
 import org.slf4j.Logger;

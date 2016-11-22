@@ -6,16 +6,16 @@ package org.myrobotlab.arduino;
  * memory of the Microcontroller
  */
 public class BoardStatus {
-	public Integer deviceCount; // deviceList with types
+	public int[] deviceSummary; // deviceList with types
 	// FIXME - list of current devices ids & their types ?
 	// ie the deviceList
 	// List<Integer, Integer>
 	public Integer sram;
-	public Long us;
+	public Integer us;
 
-	public BoardStatus(Long us, Integer sram, Integer deviceCount) {
+	public BoardStatus(Integer us, Integer sram, int[] deviceSummary) {
 		this.us = us;
 		this.sram = sram;
-		this.deviceCount = deviceCount;
+		this.deviceSummary = deviceSummary;
 	}
 }

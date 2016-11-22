@@ -32,6 +32,7 @@ import org.myrobotlab.serial.SerialControl;
 import org.myrobotlab.service.interfaces.QueueSource;
 import org.myrobotlab.service.interfaces.RecordControl;
 import org.myrobotlab.service.interfaces.SerialDataListener;
+import org.myrobotlab.service.interfaces.SerialDevice;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
@@ -40,7 +41,7 @@ import org.slf4j.Logger;
  * Serial - a service that allows reading and writing to a serial port device.
  *
  */
-public class Serial extends Service implements SerialControl, QueueSource, SerialDataListener, RecordControl {
+public class Serial extends Service implements SerialControl, QueueSource, SerialDataListener, RecordControl, SerialDevice {
 
 	/**
 	 * general read timeout - 0 is infinite > 0 is number of milliseconds to
@@ -319,6 +320,10 @@ public class Serial extends Service implements SerialControl, QueueSource, Seria
 		setParams(baudRate, dataBits, stopBits, parity);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.SerialDevice#open(java.lang.String)
+	 */
+	@Override
 	public void open(String name) throws IOException {
 		open(name, baudrate, databits, stopbits, parity);
 	}
@@ -740,21 +745,10 @@ public class Serial extends Service implements SerialControl, QueueSource, Seria
 		return data;
 	}
 
-	/**
-	 * FIXME - make like http://pyserial.sourceforge.net/pyserial_api.html with
-	 * blocking & timeout InputStream like interface - but regrettably
-	 * InputStream IS NOT A F#(@!! INTERFACE !!!!
-	 * 
-	 * WORTHLESS INPUTSTREAM FUNCTION !! -- because if the size of the buffer is
-	 * ever bigger than the read and no end of stream has occurred it will block
-	 * forever :P
-	 * 
-	 * pass through to the serial device
-	 * 
-	 * @param temp
-	 * @return
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.SerialDevice#read()
 	 */
+	@Override
 	public int read() throws IOException, InterruptedException {
 
 		if (timeoutMS == null) {
@@ -1005,6 +999,10 @@ public class Serial extends Service implements SerialControl, QueueSource, Seria
 	}
 
 	// write(byte[] b) IOException
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.SerialDevice#write(byte[])
+	 */
+	@Override
 	public void write(byte[] data) throws Exception {
 		for (int i = 0; i < data.length; ++i) {
 			write(data[i] & 0xff); // recently removed - & 0xFF
@@ -1013,7 +1011,7 @@ public class Serial extends Service implements SerialControl, QueueSource, Seria
 
 	// TODO: remove this method use write(int[] b) instead
 	public void write(int b) throws Exception {
-		// int newByte = data & 0xFF;
+
 
 		if (connectedPorts.size() == 0) {
 			error("can not write to a closed port!");
@@ -1030,7 +1028,7 @@ public class Serial extends Service implements SerialControl, QueueSource, Seria
 		++txCount;
 		if (recordTx != null){
 			recordTx.write(String.format(" %02X", b).getBytes());
-		}
+		}		
 	}
 
 	public void write(int[] data) throws Exception {

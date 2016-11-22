@@ -32,18 +32,42 @@ public interface ServoControl extends DeviceControl {
 	// 2. should the position be set initially on attach ?
 	// 3. should rest be set by pos if its not set already .. ie .. is the pos
 	// passed in on attach the "rest" position of the servo ?
-	// 4. should we 'please' rename servo.attach(pin) to servo.energize(pin)
+	// 4. should we 'please' rename servo.attach(pin) to servo.enablePwm(pin)
+	// servo.disablePwm(pin)
 	// !!!!
-	void attach(ServoController controller, int pin) throws Exception;
+
+	/**
+	 * The point of the 'attach' is a concept to the user of the Servo. A simple
+	 * concept across all services where the "minimal" amount of
+	 * complexity/parameters are needed to 'attach'
+	 * 
+	 * @param controller
+	 * @param pin
+	 * @throws Exception
+	 */
+	
 
 	// preferred - sets control
+	void attach(ServoController controller, int pin) throws Exception;
 	void attach(ServoController controller, int pin, Integer pos) throws Exception;
+	void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception;
+
+	/**
+	 * String interface for controller is important because it allows an simple interface
+	 * for remote requests - in Java 8 interfaces are allowed to have implementations
+	 * and this should be implemented in the inteface - where it gets the controller by
+	 * name and does the attach(ServoController, pin)
+	 * 
+	 * @param controllerName
+	 * @param pin
+	 * @throws Exception
+	 */
+	void attach(String controllerName, int pin) throws Exception;
+	void attach(String controllerName, int pin, Integer pos) throws Exception;
+	void attach(String controllerName, int pin, Integer pos, Integer velocity) throws Exception;
 
 	// should this be in Device Control - its not "ServoControl" specific
 	void detach(ServoController controller);
-
-	// added since it's used by the ServoGUI
-	void attach(String controllerName, int pin) throws Exception;
 
 	void detach(String controllerName);
 
@@ -158,10 +182,5 @@ public interface ServoControl extends DeviceControl {
 
 	int getVelocity();
 
-	void attach(String controllerName, int pin, Integer pos) throws Exception;
-
-	void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception;
-
-	void attach(String controllerName, int pin, Integer pos, Integer velocity) throws Exception;
 
 }

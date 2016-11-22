@@ -1,10 +1,6 @@
 #ifndef MrlUltrasonic_h
 #define MrlUltrasonic_h
 
-#include "Device.h"
-#include "LinkedList.h"
-#include "MrlMsg.h"
-
 /**
  * Ultrasonic Sensor
  * TODO: add a description about this device, what is it? what does it do?

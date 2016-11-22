@@ -40,16 +40,7 @@ public class I2CBus implements DeviceController, I2CBusControl, SensorDataListen
 	public String getName() {
 		return name;
 	}
-	@Override
-	public void deviceAttach(DeviceControl device, Object... conf) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void deviceDetach(DeviceControl device) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 	@Override
 	public void onSensorData(SensorData data) {
 		// This is where the data read from the i2c bus gets returned 
@@ -61,6 +52,11 @@ public class I2CBus implements DeviceController, I2CBusControl, SensorDataListen
 	@Override
 	public boolean isLocal() {
 		return true;
+	}
+	
+	@Override
+	public void deviceDetach(DeviceControl device) {
+		// detach / cleanup if necessary
 	}
 		
 }

@@ -16,6 +16,11 @@ public class BoardInfo {
 	public BoardInfo() {
 		setType(-1);
 	}
+	
+	public BoardInfo(int version, int boardId){
+		this.version = version;
+		this.boardId = boardId;
+	}
 
 	public String getName() {
 		return boardName;

@@ -16,7 +16,7 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.data.SensorData;
 import org.myrobotlab.service.interfaces.DeviceController;
 import org.myrobotlab.service.interfaces.RangeListener;
-import org.myrobotlab.service.interfaces.SensorControl;
+import org.myrobotlab.service.interfaces.UltrasonicSensorControl;
 import org.myrobotlab.service.interfaces.SensorController;
 import org.slf4j.Logger;
 
@@ -26,7 +26,7 @@ import org.slf4j.Logger;
  * connected to an android.
  *
  */
-public class UltrasonicSensor extends Service implements RangeListener, SensorControl {
+public class UltrasonicSensor extends Service implements RangeListener, UltrasonicSensorControl {
 
 	private static final long serialVersionUID = 1L;
 
@@ -79,7 +79,7 @@ public class UltrasonicSensor extends Service implements RangeListener, SensorCo
 
 		this.trigPin = trigPin;
 		this.echoPin = echoPin;
-		controller.deviceAttach(this, trigPin, echoPin);
+		controller.sensorAttach(this, trigPin, echoPin);
 	}
 
 	public void attach(SensorController controller, int trigPin, int echoPin) throws Exception {
@@ -89,7 +89,8 @@ public class UltrasonicSensor extends Service implements RangeListener, SensorCo
 		this.controller = controller;
 		this.trigPin = trigPin;
 		this.echoPin = echoPin;
-		controller.deviceAttach(this, trigPin, echoPin);
+		// FIXME - controller.ultrasonicSensorAttach(this, trigPin, echoPin);
+		// controller.deviceAttach(this, trigPin, echoPin);
 	}
 
 	// FIXME - should be MicroController Interface ..
@@ -151,17 +152,17 @@ public class UltrasonicSensor extends Service implements RangeListener, SensorCo
 
 	// ---- part of interfaces end -----
 
+	@Override
 	public void startRanging() {
 		startRanging(10); // 10000 uS = 10 ms
 	}
 
+	@Override
 	public void startRanging(int timeoutMS) {
-		// controller.sensorPollingStart(getName(), timeoutMS); ?? FIXME - add
-		// timeoutMs as part of attach config or
-		// setting in a command method
 		controller.sensorActivate(this, timeoutMS);
 	}
 
+	@Override
 	public void stopRanging() {
 		controller.sensorDeactivate(this);
 	}
@@ -171,48 +172,6 @@ public class UltrasonicSensor extends Service implements RangeListener, SensorCo
 		return b[3] & 0xFF | (b[2] & 0xFF) << 8 | (b[1] & 0xFF) << 16 | (b[0] & 0xFF) << 24;
 	}
 
-	public static void main(String[] args) {
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
-
-		try {
-
-			// Runtime.start("gui", "GUIService");
-
-			/*
-			 * int [] config = new int[]{1,2}; int [] payload = new
-			 * int[config.length + 2]; payload = Arrays.copyOfRange(config, 0,
-			 * 2);
-			 */
-
-			Runtime.start("srf05", "UltrasonicSensor");
-			Runtime.start("python", "Python");
-			Runtime.start("gui", "GUIService");
-			/*
-			 * srf05.attach("COM9", 7);
-			 * 
-			 * Runtime.start("webgui", "WebGui");
-			 * 
-			 * Arduino arduino = srf05.getController(); arduino.digitalWrite(13,
-			 * 1); arduino.digitalWrite(13, 0); arduino.digitalWrite(13, 1);
-			 * arduino.digitalWrite(13, 0); arduino.digitalWrite(13, 1); Integer
-			 * version = arduino.getVersion(); log.info("version {}", version);
-			 * version = arduino.getVersion(); log.info("version {}", version);
-			 * version = arduino.getVersion(); log.info("version {}", version);
-			 * 
-			 * srf05.startRanging();
-			 * 
-			 * srf05.stopRanging();
-			 * 
-			 * int x = srf05.range();
-			 */
-
-			log.info("here");
-
-		} catch (Exception e) {
-			Logging.logError(e);
-		}
-	}
 
 	/**
 	 * This static method returns all the details of the class without it having
@@ -282,21 +241,52 @@ public class UltrasonicSensor extends Service implements RangeListener, SensorCo
 	}
 
 	@Override
-	public void activate(Object... conf) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void deactivate() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void attach(SensorController controller, Object... conf) {
 		// TODO Auto-generated method stub
 		log.info("here");
+	}
+	
+	public static void main(String[] args) {
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
+
+		try {
+
+			// Runtime.start("gui", "GUIService");
+
+			/*
+			 * int [] config = new int[]{1,2}; int [] payload = new
+			 * int[config.length + 2]; payload = Arrays.copyOfRange(config, 0,
+			 * 2);
+			 */
+
+			Runtime.start("srf05", "UltrasonicSensor");
+			Runtime.start("python", "Python");
+			Runtime.start("gui", "GUIService");
+			/*
+			 * srf05.attach("COM9", 7);
+			 * 
+			 * Runtime.start("webgui", "WebGui");
+			 * 
+			 * Arduino arduino = srf05.getController(); arduino.digitalWrite(13,
+			 * 1); arduino.digitalWrite(13, 0); arduino.digitalWrite(13, 1);
+			 * arduino.digitalWrite(13, 0); arduino.digitalWrite(13, 1); Integer
+			 * version = arduino.getVersion(); log.info("version {}", version);
+			 * version = arduino.getVersion(); log.info("version {}", version);
+			 * version = arduino.getVersion(); log.info("version {}", version);
+			 * 
+			 * srf05.startRanging();
+			 * 
+			 * srf05.stopRanging();
+			 * 
+			 * int x = srf05.range();
+			 */
+
+			log.info("here");
+
+		} catch (Exception e) {
+			Logging.logError(e);
+		}
 	}
 
 }

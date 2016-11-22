@@ -313,7 +313,7 @@ public class NeoPixel extends Service implements NeoPixelControl {
 
     //setController(controller);
 
-    controller.deviceAttach(this, pin, numPixel);
+    controller.neoPixelAttach(this, pin, numPixel);
     int count = 0;
     while(!isAttached){
       count++;

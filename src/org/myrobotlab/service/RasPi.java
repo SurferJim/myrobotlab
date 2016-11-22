@@ -130,7 +130,7 @@ public class RasPi extends Service implements I2CController {
 
 	// FIXME - create low level I2CDevice
 	@Override
-	public void createI2cDevice(I2CControl control, int busAddress, int deviceAddress) {
+	public void i2cAttach(I2CControl control, int busAddress, int deviceAddress) {
 
 		try {
 			I2CDevice device = i2c.getDevice(deviceAddress);
@@ -311,16 +311,8 @@ public class RasPi extends Service implements I2CController {
 	}
 
 	@Override
-	public void deviceAttach(DeviceControl device, Object... conf) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void deviceDetach(DeviceControl device) {
-		// TODO Auto-generated method stub
-		
+		// clean up if necessary
 	}
-
 
 }
