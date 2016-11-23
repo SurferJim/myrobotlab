@@ -1334,16 +1334,19 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	@Override
+	// > neoPixelAttach/deviceId/pin/b32 numPixels
 	public void neoPixelAttach(NeoPixel neopixel, int pin, int numPixels) {
 		msg.neoPixelAttach(getDeviceId(neopixel)/*byte*/, pin/*byte*/, numPixels/*b32*/);
 	}
 
 	@Override
+	// > neoPixelSetAnimation/deviceId/animation/red/green/blue/b16 speed
 	public void neoPixelSetAnimation(NeoPixel neopixel, int animation, int red, int green, int blue, int speed) {
 		msg.neoPixelSetAnimation(getDeviceId(neopixel), animation, red, green, blue, speed);
 	}
 
 	@Override
+	// > neoPixelWriteMatrix/deviceId/[] buffer
 	public void neoPixelWriteMatrix(NeoPixel neopixel, List<Integer> data) {
 		int id = getDeviceId(neopixel);
 		int[] buffer = new int[data.size() + 2];
