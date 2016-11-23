@@ -936,6 +936,7 @@ public class Msg {
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
 			servo01.attach(arduino, 8);
 			
+			servo01.sweep();
 			servo01.moveTo(30);
 			servo01.moveTo(130);
 

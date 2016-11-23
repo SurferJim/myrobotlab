@@ -194,7 +194,7 @@ public class Servo extends Service implements ServoControl {
 	boolean isSweeping = false;
 	int sweepMin = 0;
 	int sweepMax = 180;
-	int sweepDelay = 1;
+	int sweepDelay = 100;
 
 	int sweepStep = 1;
 	boolean sweepOneWay = false;
@@ -534,7 +534,7 @@ public class Servo extends Service implements ServoControl {
 	public void sweep() {
 		int min = mapper.getMinX().intValue();
 		int max = mapper.getMaxX().intValue();
-		sweep(min, max, 1, 1);
+		sweep(min, max, 50, 1);
 	}
 
 	public void sweep(int min, int max) {
