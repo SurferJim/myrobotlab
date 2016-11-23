@@ -139,6 +139,10 @@ import org.slf4j.Logger;
 public class Arduino extends Service implements Microcontroller, PinArrayControl, I2CBusController, I2CController, SerialDataListener, ServoController, MotorController,
 		NeoPixelController, SensorDataPublisher, DeviceController, SensorController, SensorDataListener, RecordControl {
 
+	public static class AckLock {
+		volatile boolean acknowledged = false;
+	}
+
 	public static class I2CDeviceMap {
 		public int busAddress;
 		public transient I2CControl control;
@@ -155,18 +159,16 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			this.data = data;
 		}
 	}
-
+	public transient static final int BOARD_TYPE_ID_ADK_MEGA = 3;
+	public transient static final int BOARD_TYPE_ID_MEGA = 1;
 	// MrlComm definition
 	public transient static final int BOARD_TYPE_ID_UNKNOWN = 0;
-	public transient static final int BOARD_TYPE_ID_MEGA = 1;
-	public transient static final int BOARD_TYPE_ID_UNO = 2;
-	public transient static final int BOARD_TYPE_ID_ADK_MEGA = 3;
 
-	public transient static final String BOARD_TYPE_UNO = "uno";
+	public transient static final int BOARD_TYPE_ID_UNO = 2;
 	public transient static final String BOARD_TYPE_MEGA = "mega";
 	public transient static final String BOARD_TYPE_MEGA_ADK = "megaADK";
 
-	boolean ackEnabled = false;
+	public transient static final String BOARD_TYPE_UNO = "uno";
 
 	/**
 	 * FIXME ! - these processor types ! - something we are not interested in
@@ -248,9 +250,75 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return new String(b);
 	}
 
-	public static class AckLock {
-		volatile boolean acknowledged = false;
+	public static void main(String[] args) {
+		try {
+
+			LoggingFactory.init(Level.INFO);
+
+			/*
+			 * InMoov i01 = (InMoov)Runtime.start("i01", "InMoov");
+			 * VirtualDevice virtual = (VirtualDevice)Runtime.start("virtual",
+			 * "VirtualDevice"); virtual.createVirtualSerial("COM7");
+			 * 
+			 * String leftPort = "COM5"; String rightPort = "COM7";
+			 * i01.startAll(leftPort, rightPort);
+			 * 
+			 * InMoovTorso torso = i01.startTorso(leftPort);
+			 * i01.torso.topStom.detach(); i01.torso.topStom.attach("i01.left",
+			 * 49);
+			 */
+
+			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
+			Serial serial = arduino.getSerial();
+			// Runtime.start("gui", "GUIService");
+			List<String> ports = serial.getPortNames();
+			log.info(Arrays.toString(ports.toArray()));
+			arduino.setBoardMega();
+			// log.info(arduino.getBoardType());
+			// if connect - possibly you can set the board type correctly
+			arduino.getBoardInfo();
+			arduino.connect("COM4");
+
+			arduino.uploadSketch("C:\\tools\\arduino-1.6.9");
+
+			Servo servo = (Servo) Runtime.start("servo", "Servo");
+			Runtime.start("gui", "GUIService");
+			servo.attach(arduino, 7);
+			// servo.detach(arduino);
+			servo.attach(9);
+
+			// servo.detach(arduino);
+			// arduino.servoDetach(servo); Arduino power save - "detach()"
+
+			servo.moveTo(0);
+			servo.moveTo(180);
+			servo.setInverted(true);
+			servo.moveTo(0);
+			servo.moveTo(180);
+			servo.setInverted(true);
+			servo.moveTo(0);
+			servo.moveTo(180);
+			// arduino.attachDevice(servo, null);
+			// servo.attach();
+			int angle = 0;
+			int max = 5000;
+			while (true) {
+				// System.out.println(angle);
+				angle++;
+				servo.moveTo(angle % 180);
+				if (angle > max) {
+					break;
+				}
+			}
+			System.out.println("done with loop..");
+			log.info("here");
+
+		} catch (Exception e) {
+			Logging.logError(e);
+		}
 	}
+
+	boolean ackEnabled = false;
 
 	// make sure this is sync'd across threads,
 	transient final private AckLock ackLock = new AckLock();
@@ -263,6 +331,13 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	transient HashMap<Integer, Arduino> attachedController = new HashMap<Integer, Arduino>();
 
 	/**
+	 * board info "from" MrlComm - which can be different from what the user
+	 * say's it is - if there is a difference the "user" should be notified -
+	 * but not forced to use the mrlBoardInfo.
+	 */
+	final BoardInfo boardInfo = new BoardInfo();
+
+	/**
 	 * board type - UNO Mega etc..
 	 * 
 	 * if the user 'connects' first then the info could come from the board ..
@@ -272,10 +347,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public String boardType = null;
 
 	int byteCount;
-
 	transient ArduinoMsgCodec codec = new ArduinoMsgCodec();
 
 	public transient int controllerAttachAs = MRL_IO_NOT_DEFINED;
+
 	/**
 	 * number of ms to pause after sending a message to the Arduino
 	 */
@@ -410,20 +485,13 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	I2CBus i2cBus;
 
 	volatile byte[] i2cData = new byte[64];
-
 	// i2c This needs to be volatile because it will be updated in a different
 	// threads
 	volatile boolean i2cDataReturned = false;
 
 	volatile int i2cDataSize;
-	HashMap<String, I2CDeviceMap> i2cDevices = new HashMap<String, I2CDeviceMap>();
 
-	/**
-	 * board info "from" MrlComm - which can be different from what the user
-	 * say's it is - if there is a difference the "user" should be notified -
-	 * but not forced to use the mrlBoardInfo.
-	 */
-	final BoardInfo boardInfo = new BoardInfo();
+	HashMap<String, I2CDeviceMap> i2cDevices = new HashMap<String, I2CDeviceMap>();
 
 	transient int[] ioCmd = new int[MAX_MSG_SIZE];
 
@@ -431,11 +499,13 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	public int msgSize;
 
-	private int numAck = 0;
+	Integer nextDeviceId = 0;
 
+	private int numAck = 0;
 	transient Map<String, PinArrayListener> pinArrayListeners = new HashMap<String, PinArrayListener>();
 
 	int pinEventsDefaultRate = 8000;
+
 	/**
 	 * the definitive sequence of pins - "true address"
 	 */
@@ -450,18 +520,17 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	 * pin named map of all the pins on the board
 	 */
 	Map<String, PinDefinition> pinMap = null;
-
 	/**
 	 * the map of pins which the pin listeners are listening too - if the set is
 	 * null they are listening to "any" published pin
 	 */
 	Map<String, Set<Integer>> pinSets = new HashMap<String, Set<Integer>>();
-
 	transient FileOutputStream record = null;
 	// for debuging & developing - need synchronized - both send & recv threads
 	transient StringBuffer recordRxBuffer = new StringBuffer();
 	transient StringBuffer recordTxBuffer = new StringBuffer();
 	public int retryConnectDelay = 1500;
+
 	// parameters for testing the getVersion retry stuff.
 	// TODO: some way to do this more synchronously
 	// perhaps when we connect to the serial port, MRLComm can just have the
@@ -476,7 +545,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public Sketch sketch;
 
 	public String uploadSketchResult;
-	Integer nextDeviceId = 0;
 
 	public Arduino(String n) {
 		super(n);
@@ -539,6 +607,16 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	@Override
 	public void attach(String listener, int address) {
 		attach((PinListener) Runtime.getService(listener), address);
+	}
+
+	synchronized private Integer attachDevice(DeviceControl device, Object[] attachConfig) {
+		DeviceMapping map = new DeviceMapping(this, attachConfig);
+		map.setId(nextDeviceId);
+		deviceList.put(device.getName(), map);
+		deviceIndex.put(0, map);
+		device.setController(this);
+		++nextDeviceId;
+		return map.getId();
 	}
 
 	// this allow to connect a controller to another controller with Serial1,
@@ -641,40 +719,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		msg.controllerAttach(serialPort);
 	}
 
-	@Override
-	public void i2cAttach(I2CControl control, int busAddress, int deviceAddress) {
-		// TODO Auto-generated method stub - I2C
-		// Create the i2c bus device in MRLComm the first time this method is
-		// invoked.
-		// Add the i2c device to the list of i2cDevices
-		// Pattern: deviceAttach(device, Object... config)
-		// To add the i2c bus to the deviceList I need an device that represents
-		// the i2c bus here and in MRLComm
-		// This will only handle the creation of i2cBus.
-		if (i2cBus == null) {
-			i2cBus = new I2CBus(String.format("I2CBus%s", busAddress));
-		}
-
-		// deviceAttach(i2cBus, getMrlDeviceType(i2cBus), busAddress);
-		// msg.i2cAttach(deviceId, getMrlDeviceType(i2cBus), deviceAddress);
-		Integer deviceId = attachDevice(control, new Object[] { busAddress, deviceAddress });
-		msg.i2cAttach(deviceId, busAddress, getMrlDeviceType(i2cBus), deviceAddress);
-
-		// This part adds the service to the mapping between
-		// busAddress||DeviceAddress
-		// and the service name to be able to send data back to the invoker
-		String key = String.format("%d.%d", busAddress, deviceAddress);
-		I2CDeviceMap devicedata = new I2CDeviceMap();
-		if (i2cDevices.containsKey(key)) {
-			log.error(String.format("Device %s %s %s already exists.", busAddress, deviceAddress, control.getName()));
-		} else {
-			devicedata.busAddress = busAddress;
-			devicedata.deviceAddress = deviceAddress;
-			devicedata.control = control;
-			i2cDevices.put(key, devicedata);
-		}
-	}
-
 	public Map<String, PinDefinition> createPinList() {
 		pinMap = new HashMap<String, PinDefinition>();
 		pinIndex = new HashMap<Integer, PinDefinition>();
@@ -738,6 +782,41 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		msg.customMsg(params);
 	}
 
+	public synchronized void deviceControlAttach(DeviceControl device) {
+
+		String name = device.getName();
+
+		// check to see if we are already attached as the device controller
+		// btw - this potentially will be a problem if its operating in a
+		// different
+		// process - the controller will probably be transient
+		DeviceController dc = device.getController();
+		if (dc == this) {
+			log.info(String.format("%s already attached at device level - nothing to do", device.getName()));
+			return;
+		}
+
+		// check to see if this device is already attached
+		if (this != device.getController()) {
+			device.setController(this);
+		}
+
+		// ??
+		if (deviceList.containsKey(name)) {
+			DeviceMapping map = deviceList.get(name);
+			if (map.getId() == null) {
+				log.error("oh no !  the device %s record is in place, but we do not have a device id - something wrong in mrlcomm?", name);
+				log.error("mrlcomm is in an unknown state");
+				throw new IllegalArgumentException("half attached device - name already defined, no id");
+			}
+		}
+
+	}
+
+	/*
+	 * public void disableBoardStatus() { msg.disableBoardStatus(); }
+	 */
+
 	@Override
 	public void deviceDetach(DeviceControl device) {
 		log.info("detaching device {}", device.getName());
@@ -756,10 +835,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		PinDefinition pinDef = pinIndex.get(pin); // why ?
 		invoke("publishPinDefinition", pinDef);
 	}
-
-	/*
-	 * public void disableBoardStatus() { msg.disableBoardStatus(); }
-	 */
 
 	public void disablePin(int address) {
 		if (!isConnected()) {
@@ -980,6 +1055,40 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	@Override
+	public void i2cAttach(I2CControl control, int busAddress, int deviceAddress) {
+		// TODO Auto-generated method stub - I2C
+		// Create the i2c bus device in MRLComm the first time this method is
+		// invoked.
+		// Add the i2c device to the list of i2cDevices
+		// Pattern: deviceAttach(device, Object... config)
+		// To add the i2c bus to the deviceList I need an device that represents
+		// the i2c bus here and in MRLComm
+		// This will only handle the creation of i2cBus.
+		if (i2cBus == null) {
+			i2cBus = new I2CBus(String.format("I2CBus%s", busAddress));
+		}
+
+		// deviceAttach(i2cBus, getMrlDeviceType(i2cBus), busAddress);
+		// msg.i2cAttach(deviceId, getMrlDeviceType(i2cBus), deviceAddress);
+		Integer deviceId = attachDevice(control, new Object[] { busAddress, deviceAddress });
+		msg.i2cAttach(deviceId, busAddress, getMrlDeviceType(i2cBus), deviceAddress);
+
+		// This part adds the service to the mapping between
+		// busAddress||DeviceAddress
+		// and the service name to be able to send data back to the invoker
+		String key = String.format("%d.%d", busAddress, deviceAddress);
+		I2CDeviceMap devicedata = new I2CDeviceMap();
+		if (i2cDevices.containsKey(key)) {
+			log.error(String.format("Device %s %s %s already exists.", busAddress, deviceAddress, control.getName()));
+		} else {
+			devicedata.busAddress = busAddress;
+			devicedata.deviceAddress = deviceAddress;
+			devicedata.control = control;
+			i2cDevices.put(key, devicedata);
+		}
+	}
+
+	@Override
 	public int i2cRead(I2CControl control, int busAddress, int deviceAddress, byte[] buffer, int size) {
 		i2cDataReturned = false;
 		// Get the device index to the MRL i2c bus
@@ -1156,6 +1265,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	}
 
+	// ========== pulsePin begin =============
+
 	@Override
 	public void motorMoveTo(MotorControl mc) {
 		// speed parameter?
@@ -1222,7 +1333,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		}
 	}
 
-	// ========== pulsePin begin =============
+	@Override
+	public void neoPixelAttach(NeoPixel neopixel, int pin, int numPixels) {
+		msg.neoPixelAttach(getDeviceId(neopixel)/*byte*/, pin/*byte*/, numPixels/*b32*/);
+	}
 
 	@Override
 	public void neoPixelSetAnimation(NeoPixel neopixel, int animation, int red, int green, int blue, int speed) {
@@ -1424,6 +1538,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		}
 	}
 
+	/*
+	 * public BoardInfo publishBoardInfo(BoardInfo info) { return info; }
+	 */
+
 	/**
 	 * With Arduino we want to be able to do pinMode("D7", "INPUT"), but it
 	 * should not be part of the PinArrayControl interface - because when it
@@ -1452,6 +1570,31 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	// This is called when a valid message is received from the serial port.
 	private void processMessage(int[] message) {
 		msg.processCommand(message);
+	}
+
+	public String publishAttachedDevice(int deviceId/* byte */, String deviceName/* str */) {
+
+		if (record != null) {
+			recordRxBuffer.append("/");
+			recordRxBuffer.append(deviceId);
+			recordRxBuffer.append("/");
+			recordRxBuffer.append(deviceName);
+		}
+
+		if (!deviceList.containsKey(deviceName)) {
+			error("PUBLISH_ATTACHED_DEVICE deviceName %s not found !", deviceName);
+		}
+
+		DeviceMapping deviceMapping = deviceList.get(deviceName);
+		deviceMapping.setId(deviceId);
+		deviceIndex.put(deviceId, deviceList.get(deviceName));
+
+		// REMOVE
+		invoke("publishAttachedDevice", deviceName);
+
+		info("==== ATTACHED DEVICE %s WITH MRLDEVICE %d ====", deviceName, deviceId);
+
+		return deviceName;
 	}
 
 	public BoardInfo publishBoardInfo(int version/* byte */, int boardType/* byte */) {
@@ -1485,12 +1628,48 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return boardInfo;
 	}
 
-	/*
-	 * public BoardInfo publishBoardInfo(BoardInfo info) { return info; }
-	 */
-
 	public BoardStatus publishBoardStatus(BoardStatus status) {
 		return status;
+	}
+
+	// public BoardInfo publishBoardInfo(int version/* byte */, int boardType/*
+	// byte */) {
+	public void publishBoardStatus(int b16i/* b16 */, int b32i/* b32 */, long bu32i/* bu32 */, String name2/* str */) {
+		log.info(" testMsg deviceType {} name {} config {}", bu32i, name2);
+		// return new BoardInfo(version, boardType);
+	}
+
+	public BoardStatus publishBoardStatus(Integer microsPerLoop/* b16 */, Integer sram/* b16 */, int[] deviceSummary/* byte */) {
+		log.info("publishBoardStatus {} us, {} sram, {} devices", microsPerLoop, sram, deviceSummary);
+		return new BoardStatus(microsPerLoop, sram, deviceSummary);
+	}
+
+	public int[] publishCustomMsg(int[] msg/* [] */) {
+		return msg;
+	}
+
+	public String publishDebug(String debugMsg/* str */) {
+		log.info("publishDebug {}", debugMsg);
+		return debugMsg;
+	}
+
+	// public void publishEcho(String name1, int b8, long bui32, int bi32, int
+	// b9, String name2, int[] config, long bui322) {
+	// public void publishEcho(String name1/*str*/, int b8/*byte*/, Long
+	// bui32/*bu32*/, int bi32/*b32*/, int b9/*byte*/, String name2/*str*/,
+	// int[] config/*[]*/, Long bui322/*bu32*/){
+	public void publishEcho(Long b32) {
+		log.info("b32 {} ", b32);
+	}
+
+	public void publishMessageAck(int function/* byte */) {
+	}
+
+	// ============== GENERATED CALLBACKS BEGIN - non MrlObjects
+	// ======================
+	public String publishMRLCommError(String errorMsg/* str */) {
+		log.error(errorMsg);
+		return errorMsg;
 	}
 
 	/**
@@ -1539,12 +1718,18 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return currentCount;
 	}
 
+	public void publishSensorData(int deviceId/* byte */, int[] data/* [] */) {
+	}
+
 	/**
 	 * SensorDataPublisher.publishSensorData - publishes SensorData
 	 */
 	@Override
 	public SensorData publishSensorData(SensorData data) {
 		return data;
+	}
+
+	public void publishServoEvent(int deviceId/* byte */, int eventType/* byte */, int currentPos/* byte */, int targetPos/* byte */) {
 	}
 
 	public int publishServoEvent(Integer pos) {
@@ -1604,9 +1789,38 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		disconnect();
 	}
 
+	/**
+	 * resets both MrlComm-land & Java-land
+	 */
+	public void reset() {
+		log.info("reset - resetting all devices");
+
+		// reset MrlComm-land
+		softReset();
+
+		for (String name : deviceList.keySet()) {
+			DeviceMapping dmap = deviceList.get(name);
+			DeviceControl device = dmap.getDevice();
+			log.info("unsetting device {}", name);
+			device.unsetController();
+		}
+
+		// reset Java-land
+		deviceIndex.clear();
+		deviceList.clear();
+		error_mrl_to_arduino_rx_cnt = 0;
+		error_arduino_to_mrl_rx_cnt = 0;
+	}
+
 	// FIXME -
 	@Override
 	public void sensorActivate(UltrasonicSensorControl sensor, Object... conf) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void sensorAttach(UltrasonicSensorControl sensor, int trigPin, int echoPin) {
 		// TODO Auto-generated method stub
 
 	}
@@ -1620,6 +1834,12 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	@Override
 	public void servoAttach(ServoControl servo, int pin) {
 		msg.servoEnablePwm(getDeviceId(servo), pin);
+	}
+
+	@Override
+	public void servoAttach(ServoControl servo, int pin, Integer targetOutput, Integer velocity) {
+		Integer deviceId = attachDevice(servo, new Object[] { pin, targetOutput, velocity });
+		msg.servoAttach(deviceId, pin, targetOutput, velocity);
 	}
 
 	/**
@@ -1707,11 +1927,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// Not sure what to do here. I don't want to create an infinite loop
 	}
 
-	@Override
-	public void unsetController() {
-
-	}
-
 	/**
 	 * Debounce ensures that only a single signal will be acted upon for a
 	 * single opening or closing of a contact. the delay is the min number of pc
@@ -1763,29 +1978,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		msg.softReset();
 	}
 
-	/**
-	 * resets both MrlComm-land & Java-land
-	 */
-	public void reset() {
-		log.info("reset - resetting all devices");
-
-		// reset MrlComm-land
-		softReset();
-
-		for (String name : deviceList.keySet()) {
-			DeviceMapping dmap = deviceList.get(name);
-			DeviceControl device = dmap.getDevice();
-			log.info("unsetting device {}", name);
-			device.unsetController();
-		}
-
-		// reset Java-land
-		deviceIndex.clear();
-		deviceList.clear();
-		error_mrl_to_arduino_rx_cnt = 0;
-		error_arduino_to_mrl_rx_cnt = 0;
-	}
-
 	@Override
 	public void startService() {
 		super.startService();
@@ -1817,6 +2009,31 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public void stopService() {
 		super.stopService();
 		disconnect();
+	}
+
+	public void test() {
+		int[] config = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		for (int i = 0; i < 10000; ++i) {
+			// msg.echo("name1", 8, 999999999, 121212, 254, "name2", config,
+			// 5454545);
+			// b32 long int 4 bytes -2,147,483,648 to 2,147,483, 647
+			// bu32 unsigned long long 0 to 4,294,967,295
+
+			// 2147483647
+			// 2139062143
+			// msg.echo(2147483647, "hello", 33, 2147483647L, 32767, 25, "oink
+			// oink", config, 2147483647L);
+			msg.echo(4294967296L);
+			// msg.echo(32767, "hello 1", 127, 2147418111, 32767, 8, "name 2 is
+			// here", config, 534332);
+			// 2147418111
+			// 2147352575
+		}
+	}
+
+	@Override
+	public void unsetController() {
+
 	}
 
 	public void uploadSketch(String arduinoPath) throws IOException {
@@ -1895,230 +2112,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		}
 		// cache value
 		pinDef.setValue(value);
-	}
-
-	public static void main(String[] args) {
-		try {
-
-			LoggingFactory.init(Level.INFO);
-
-			/*
-			 * InMoov i01 = (InMoov)Runtime.start("i01", "InMoov");
-			 * VirtualDevice virtual = (VirtualDevice)Runtime.start("virtual",
-			 * "VirtualDevice"); virtual.createVirtualSerial("COM7");
-			 * 
-			 * String leftPort = "COM5"; String rightPort = "COM7";
-			 * i01.startAll(leftPort, rightPort);
-			 * 
-			 * InMoovTorso torso = i01.startTorso(leftPort);
-			 * i01.torso.topStom.detach(); i01.torso.topStom.attach("i01.left",
-			 * 49);
-			 */
-
-			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
-			Serial serial = arduino.getSerial();
-			// Runtime.start("gui", "GUIService");
-			List<String> ports = serial.getPortNames();
-			log.info(Arrays.toString(ports.toArray()));
-			arduino.setBoardMega();
-			// log.info(arduino.getBoardType());
-			// if connect - possibly you can set the board type correctly
-			arduino.getBoardInfo();
-			arduino.connect("COM4");
-
-			arduino.uploadSketch("C:\\tools\\arduino-1.6.9");
-
-			Servo servo = (Servo) Runtime.start("servo", "Servo");
-			Runtime.start("gui", "GUIService");
-			servo.attach(arduino, 7);
-			// servo.detach(arduino);
-			servo.attach(9);
-
-			// servo.detach(arduino);
-			// arduino.servoDetach(servo); Arduino power save - "detach()"
-
-			servo.moveTo(0);
-			servo.moveTo(180);
-			servo.setInverted(true);
-			servo.moveTo(0);
-			servo.moveTo(180);
-			servo.setInverted(true);
-			servo.moveTo(0);
-			servo.moveTo(180);
-			// arduino.attachDevice(servo, null);
-			// servo.attach();
-			int angle = 0;
-			int max = 5000;
-			while (true) {
-				// System.out.println(angle);
-				angle++;
-				servo.moveTo(angle % 180);
-				if (angle > max) {
-					break;
-				}
-			}
-			System.out.println("done with loop..");
-			log.info("here");
-
-		} catch (Exception e) {
-			Logging.logError(e);
-		}
-	}
-
-	@Override
-	public void setFormat(String format) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	// ============== GENERATED CALLBACKS BEGIN - non MrlObjects
-	// ======================
-	public String publishMRLCommError(String errorMsg/* str */) {
-		log.error(errorMsg);
-		return errorMsg;
-	}
-
-	// public BoardInfo publishBoardInfo(int version/* byte */, int boardType/*
-	// byte */) {
-	public void publishBoardStatus(int b16i/* b16 */, int b32i/* b32 */, long bu32i/* bu32 */, String name2/* str */) {
-		log.info(" testMsg deviceType {} name {} config {}", bu32i, name2);
-		// return new BoardInfo(version, boardType);
-	}
-
-	public String publishAttachedDevice(int deviceId/* byte */, String deviceName/* str */) {
-
-		if (record != null) {
-			recordRxBuffer.append("/");
-			recordRxBuffer.append(deviceId);
-			recordRxBuffer.append("/");
-			recordRxBuffer.append(deviceName);
-		}
-
-		if (!deviceList.containsKey(deviceName)) {
-			error("PUBLISH_ATTACHED_DEVICE deviceName %s not found !", deviceName);
-		}
-
-		DeviceMapping deviceMapping = deviceList.get(deviceName);
-		deviceMapping.setId(deviceId);
-		deviceIndex.put(deviceId, deviceList.get(deviceName));
-
-		// REMOVE
-		invoke("publishAttachedDevice", deviceName);
-
-		info("==== ATTACHED DEVICE %s WITH MRLDEVICE %d ====", deviceName, deviceId);
-
-		return deviceName;
-	}
-
-	public BoardStatus publishBoardStatus(Integer microsPerLoop/* b16 */, Integer sram/* b16 */, int[] deviceSummary/* byte */) {
-		log.info("publishBoardStatus {} us, {} sram, {} devices", microsPerLoop, sram, deviceSummary);
-		return new BoardStatus(microsPerLoop, sram, deviceSummary);
-	}
-
-	public int[] publishCustomMsg(int[] msg/* [] */) {
-		return msg;
-	}
-
-	public String publishDebug(String debugMsg/* str */) {
-		log.info("publishDebug {}", debugMsg);
-		return debugMsg;
-	}
-
-	public void publishMessageAck(int function/* byte */) {
-	}
-
-	public void publishSensorData(int deviceId/* byte */, int[] data/* [] */) {
-	}
-
-	public void publishServoEvent(int deviceId/* byte */, int eventType/* byte */, int currentPos/* byte */, int targetPos/* byte */) {
-	}
-
-	@Override
-	public void servoAttach(ServoControl servo, int pin, Integer targetOutput, Integer velocity) {
-		Integer deviceId = attachDevice(servo, new Object[] { pin, targetOutput, velocity });
-		msg.servoAttach(deviceId, pin, targetOutput, velocity);
-	}
-
-	synchronized private Integer attachDevice(DeviceControl device, Object[] attachConfig) {
-		DeviceMapping map = new DeviceMapping(this, attachConfig);
-		map.setId(nextDeviceId);
-		deviceList.put(device.getName(), map);
-		deviceIndex.put(0, map);
-		device.setController(this);
-		++nextDeviceId;
-		return map.getId();
-	}
-
-	@Override
-	public void sensorAttach(UltrasonicSensorControl sensor, int trigPin, int echoPin) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void neoPixelAttach(NeoPixel neopixel, int pin, int numberOfPixels) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public synchronized void deviceControlAttach(DeviceControl device) {
-
-		String name = device.getName();
-
-		// check to see if we are already attached as the device controller
-		// btw - this potentially will be a problem if its operating in a
-		// different
-		// process - the controller will probably be transient
-		DeviceController dc = device.getController();
-		if (dc == this) {
-			log.info(String.format("%s already attached at device level - nothing to do", device.getName()));
-			return;
-		}
-
-		// check to see if this device is already attached
-		if (this != device.getController()) {
-			device.setController(this);
-		}
-
-		// ??
-		if (deviceList.containsKey(name)) {
-			DeviceMapping map = deviceList.get(name);
-			if (map.getId() == null) {
-				log.error("oh no !  the device %s record is in place, but we do not have a device id - something wrong in mrlcomm?", name);
-				log.error("mrlcomm is in an unknown state");
-				throw new IllegalArgumentException("half attached device - name already defined, no id");
-			}
-		}
-
-	}
-
-	// public void publishEcho(String name1, int b8, long bui32, int bi32, int
-	// b9, String name2, int[] config, long bui322) {
-	// public void publishEcho(String name1/*str*/, int b8/*byte*/, Long
-	// bui32/*bu32*/, int bi32/*b32*/, int b9/*byte*/, String name2/*str*/,
-	// int[] config/*[]*/, Long bui322/*bu32*/){
-	public void publishEcho(Long b32) {
-		log.info("b32 {} ", b32);
-	}
-
-	public void test() {
-		int[] config = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-		for (int i = 0; i < 10000; ++i) {
-			// msg.echo("name1", 8, 999999999, 121212, 254, "name2", config,
-			// 5454545);
-			// b32 long int 4 bytes -2,147,483,648 to 2,147,483, 647
-			// bu32 unsigned long long 0 to 4,294,967,295
-
-			// 2147483647
-			// 2139062143
-			// msg.echo(2147483647, "hello", 33, 2147483647L, 32767, 25, "oink
-			// oink", config, 2147483647L);
-			msg.echo(4294967296L);
-			// msg.echo(32767, "hello 1", 127, 2147418111, 32767, 8, "name 2 is
-			// here", config, 534332);
-			// 2147418111
-			// 2147352575
-		}
 	}
 
 	// ============== GENERATED CALLBACKS END - non MrlObjects

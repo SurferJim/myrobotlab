@@ -24,7 +24,7 @@ MrlServo::~MrlServo() {
 // this method "may" be called with a pin or pin & pos depending on
 // config size
 bool MrlServo::attach(byte pin, byte initPos, int initVelocity){
-  msg->publishDebug("MrlServo.deviceAttach !!!");
+  // msg->publishDebug("MrlServo.deviceAttach !!!");
   servo->write(initPos);
   currentPos = initPos;
   targetPos = initPos;

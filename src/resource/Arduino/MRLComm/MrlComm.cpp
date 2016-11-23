@@ -232,7 +232,6 @@ void MrlComm::getBoardInfo() {
 }
 
 // > echo/str name1/b8/bu32 bui32/b32 bi32/b9/str name2/[] config/bu32 bui322
-
 /*
 void MrlComm::echo(long sInt, byte name1Size, const char*name1, byte b8,
 		unsigned long bui32, long bi32, byte b9, byte name2Size,
@@ -240,12 +239,7 @@ void MrlComm::echo(long sInt, byte name1Size, const char*name1, byte b8,
 		unsigned long bui322) {
 */
 void MrlComm::echo( unsigned long b32){
-// void MrlComm::echo( byte name1Size, const char*name1,  byte b8){
-	msg->publishError("signed long =" + String(b32));
-	// msg->publishEcho(b32, name1, name1Size, b8, bui32, bi32, b9, name2, name2Size, config, configSize,  bui322);
 	msg->publishEcho(b32);
-	// msg->publishError("here " + String(name1Size));
-	// msg->publishEcho(name1, name1Size, b8);
 }
 
 // > controllerAttach/serialPort

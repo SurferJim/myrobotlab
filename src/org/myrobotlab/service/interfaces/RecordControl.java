@@ -7,7 +7,5 @@ public interface RecordControl {
 	public void stopRecording();
 	
 	public boolean isRecording();
-	
-	public void setFormat(String format) throws Exception;
 
 }

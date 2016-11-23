@@ -424,12 +424,6 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 		return record != null;
 	}
 
-	@Override
-	public void setFormat(String format) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
 	public String setBoard(String board) {
 		log.info("setting board to type {}", board);
 
