@@ -251,73 +251,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return new String(b);
 	}
 
-	public static void main(String[] args) {
-		try {
-
-			LoggingFactory.init(Level.INFO);
-
-			/*
-			 * InMoov i01 = (InMoov)Runtime.start("i01", "InMoov");
-			 * VirtualDevice virtual = (VirtualDevice)Runtime.start("virtual",
-			 * "VirtualDevice"); virtual.createVirtualSerial("COM7");
-			 * 
-			 * String leftPort = "COM5"; String rightPort = "COM7";
-			 * i01.startAll(leftPort, rightPort);
-			 * 
-			 * InMoovTorso torso = i01.startTorso(leftPort);
-			 * i01.torso.topStom.detach(); i01.torso.topStom.attach("i01.left",
-			 * 49);
-			 */
-
-			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
-			Serial serial = arduino.getSerial();
-			// Runtime.start("gui", "GUIService");
-			List<String> ports = serial.getPortNames();
-			log.info(Arrays.toString(ports.toArray()));
-			arduino.setBoardMega();
-			// log.info(arduino.getBoardType());
-			// if connect - possibly you can set the board type correctly
-			arduino.getBoardInfo();
-			arduino.connect("COM4");
-
-			arduino.uploadSketch("C:\\tools\\arduino-1.6.9");
-
-			Servo servo = (Servo) Runtime.start("servo", "Servo");
-			Runtime.start("gui", "GUIService");
-			servo.attach(arduino, 7);
-			// servo.detach(arduino);
-			servo.attach(9);
-
-			// servo.detach(arduino);
-			// arduino.servoDetach(servo); Arduino power save - "detach()"
-
-			servo.moveTo(0);
-			servo.moveTo(180);
-			servo.setInverted(true);
-			servo.moveTo(0);
-			servo.moveTo(180);
-			servo.setInverted(true);
-			servo.moveTo(0);
-			servo.moveTo(180);
-			// arduino.attachDevice(servo, null);
-			// servo.attach();
-			int angle = 0;
-			int max = 5000;
-			while (true) {
-				// System.out.println(angle);
-				angle++;
-				servo.moveTo(angle % 180);
-				if (angle > max) {
-					break;
-				}
-			}
-			System.out.println("done with loop..");
-			log.info("here");
-
-		} catch (Exception e) {
-			Logging.logError(e);
-		}
-	}
 
 	boolean ackEnabled = false;
 
@@ -2179,5 +2112,82 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public void publishI2cData(Integer deviceId, int[] data) {
 		log.info("publishI2cData");
 	}
+	
+	public static void main(String[] args) {
+		try {
+
+			LoggingFactory.init(Level.INFO);
+
+			/*
+			 * InMoov i01 = (InMoov)Runtime.start("i01", "InMoov");
+			 * VirtualDevice virtual = (VirtualDevice)Runtime.start("virtual",
+			 * "VirtualDevice"); virtual.createVirtualSerial("COM7");
+			 * 
+			 * String leftPort = "COM5"; String rightPort = "COM7";
+			 * i01.startAll(leftPort, rightPort);
+			 * 
+			 * InMoovTorso torso = i01.startTorso(leftPort);
+			 * i01.torso.topStom.detach(); i01.torso.topStom.attach("i01.left",
+			 * 49);
+			 */
+
+			Runtime.start("webgui", "WebGui");
+			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
+			Serial serial = arduino.getSerial();
+			// Runtime.start("gui", "GUIService");
+			List<String> ports = serial.getPortNames();
+			log.info(Arrays.toString(ports.toArray()));
+			arduino.setBoardMega();
+			// log.info(arduino.getBoardType());
+			// if connect - possibly you can set the board type correctly
+			// arduino.getBoardInfo();
+			arduino.setBoardMega();
+			arduino.connect("COM4");
+			arduino.enablePin(54);
+			
+			boolean done = true;
+			if (done){
+				return;
+			}
+
+			// arduino.uploadSketch("C:\\tools\\arduino-1.6.9");
+
+			Servo servo = (Servo) Runtime.start("servo", "Servo");
+			// Runtime.start("gui", "GUIService");
+			servo.attach(arduino, 7);
+			// servo.detach(arduino);
+			servo.attach(9);
+
+			// servo.detach(arduino);
+			// arduino.servoDetach(servo); Arduino power save - "detach()"
+
+			servo.moveTo(0);
+			servo.moveTo(180);
+			servo.setInverted(true);
+			servo.moveTo(0);
+			servo.moveTo(180);
+			servo.setInverted(true);
+			servo.moveTo(0);
+			servo.moveTo(180);
+			// arduino.attachDevice(servo, null);
+			// servo.attach();
+			int angle = 0;
+			int max = 5000;
+			while (true) {
+				// System.out.println(angle);
+				angle++;
+				servo.moveTo(angle % 180);
+				if (angle > max) {
+					break;
+				}
+			}
+			System.out.println("done with loop..");
+			log.info("here");
+
+		} catch (Exception e) {
+			Logging.logError(e);
+		}
+	}
+
 
 }
