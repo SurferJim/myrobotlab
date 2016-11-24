@@ -72,10 +72,6 @@ int MrlComm::getFreeRam() {
 	return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
 
-void MrlComm::publishCommandAck(int function) {
-	msg->publishMessageAck(function);
-}
-
 /**
  * getDevice - this method will look up a device by it's id in the device list.
  * it returns null if the device isn't found.
@@ -188,6 +184,13 @@ int MrlComm::getCustomMsgSize() {
 
 void MrlComm::processCommand() {
 	msg->processCommand();
+	if (ackEnabled){
+		msg->publishAck(1);
+	}
+}
+
+void MrlComm::enableAck( bool enabled ){
+	ackEnabled = enabled;
 }
 
 bool MrlComm::readMsg() {

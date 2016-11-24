@@ -781,13 +781,6 @@ public class Servo extends Service implements ServoControl {
 		try {
 			LoggingFactory.init(Level.INFO);
 
-			/*
-			 * int velocity = 259; short[] test = new short[]{(short)(velocity &
-			 * 0xFF) , (short)((velocity & 0xFF) >> 8)}; short value =
-			 * (short)(((test[1] & 0xFF) << 8) + (test[0] & 0xFF)); log.info(
-			 * "x is " + value);
-			 */
-
 			// Runtime.start("webgui", "WebGui");
 			// Runtime.start("gui", "GUIService");
 			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
@@ -795,13 +788,17 @@ public class Servo extends Service implements ServoControl {
 			// arduino.getSerial().record();
 
 			log.info("ports {}", Arrays.toString(arduino.getSerial().getPortNames().toArray()));
-			arduino.connect("COM4");
+			arduino.connect("COM10");
 
 			log.info("ready here");
 			// arduino.ackEnabled = true;
 			Servo servo = (Servo) Runtime.start("servo", "Servo");
-
+			
 			servo.attach(arduino, 7);
+			servo.moveTo(90);
+			servo.setRest(30);
+			
+			servo.attach(8);
 			servo.moveTo(90);
 			servo.moveTo(30);
 

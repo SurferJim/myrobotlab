@@ -87,6 +87,7 @@ public class ArduinoMsgGenerator {
 		StringBuilder javaGeneratedCallBacks = new StringBuilder();
 		StringBuilder javaDefines = new StringBuilder();
 
+		StringBuilder methodToString = new StringBuilder();
 		StringBuilder hMethods = new StringBuilder();
 		StringBuilder cppMethods = new StringBuilder();
 		StringBuilder javaMethods = new StringBuilder();
@@ -125,6 +126,8 @@ public class ArduinoMsgGenerator {
 
 			Map<String, String> methodData = perMsgMethod(methodIndex, line, dir, name, Arrays.copyOfRange(parts, 1, parts.length));
 
+			methodToString.append("\t\tcase "+CodecUtils.toUnderScore(name)+":{\n\t\t\treturn \""+name+"\";\n\t\t}\n");
+		
 			// mux out
 			hMethods.append(methodData.get("hMethod"));
 			defines.append(methodData.get("define"));
@@ -144,6 +147,7 @@ public class ArduinoMsgGenerator {
 		fileSnr.put("%hMethods%", hMethods.toString());
 		fileSnr.put("%cppMethods%", cppMethods.toString());
 		fileSnr.put("%javaMethods%", javaMethods.toString());
+		fileSnr.put("%methodToString%", methodToString.toString());		
 		fileSnr.put("%cppHandleCases%", cppHandleCases.toString());
 		fileSnr.put("%javaHandleCases%", javaHandleCases.toString());
 		// simple string additions
@@ -306,7 +310,7 @@ public class ArduinoMsgGenerator {
 		StringBuilder javaCaseHeader = new StringBuilder("\t\tcase " + CodecUtils.toUnderScore(name) + ": {\n");
 		StringBuilder javaCaseArduinoMethod = new StringBuilder("\n\t\t\tarduino.invoke(\"" + name + "\"");
 		// compiler check
-		StringBuilder javaCaseArduinoMethodComment = new StringBuilder("\n\t\t\t // arduino." + name + "(");
+		StringBuilder javaCaseArduinoMethodComment = new StringBuilder("\n\t\t\t arduino." + name + "(");
 		if (paramaters.length > 0) {
 			javaCaseArduinoMethod.append(", ");
 		}

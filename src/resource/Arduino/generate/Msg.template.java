@@ -115,12 +115,21 @@ public class Msg {
 		switch (method) {
 %javaHandleCases%		
 		}
-
 	}
 	
 
 	// Java-land --to--> MrlComm
 %javaMethods%
+
+	public static String methodToString(int method) {
+		switch (method) {
+%methodToString%
+		default: {
+			return "ERROR UNKNOWN METHOD (" + Integer.toString(method) + ")";
+
+		} // default
+		}
+	}
 
 	public String str(int[] buffer, int start, int size) {
 		byte[] b = new byte[size];
@@ -221,6 +230,8 @@ public class Msg {
 			write(array[i]);
 		}
 	}
+	
+
 
 	public static void main(String[] args) {
 		try {
@@ -244,16 +255,29 @@ public class Msg {
 			*/
 			
 			Arduino arduino = (Arduino)Runtime.start("arduino","Arduino");
-			arduino.connect(port);
-			arduino.enableBoardStatus(true);
-			arduino.enableBoardStatus(false);
-			// arduino.test();
-			
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
+			arduino.connect(port);
+			
+			// test pins
+			arduino.enablePin(5);
+			
+			arduino.disablePin(5);
+			
+			// test status list enabled
+			arduino.enableBoardStatus(true);
+			
 			servo01.attach(arduino, 8);
 			
 			servo01.moveTo(30);
 			servo01.moveTo(130);
+			
+			arduino.enableBoardStatus(false);
+			
+			// test ack
+			
+			// test heartbeat
+			
+			
 
 		} catch (Exception e) {
 			log.error("main threw", e);

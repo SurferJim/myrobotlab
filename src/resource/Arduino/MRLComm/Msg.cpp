@@ -62,18 +62,20 @@ Msg* Msg::getInstance() {
 	void getBoardInfo();
 	// > enableBoardStatus/bool enabled
 	void enableBoardStatus( boolean enabled);
-	// > enableHeartbeat/bool enabled
-	void enableHeartbeat( boolean enabled);
 	// > enablePin/address/type/b16 rate
 	void enablePin( byte address,  byte type,  int rate);
-	// > heartbeat
-	void heartbeat();
 	// > setDebug/bool enabled
 	void setDebug( boolean enabled);
 	// > setSerialRate/b32 rate
 	void setSerialRate( long rate);
-	// > softReset/
+	// > softReset
 	void softReset();
+	// > enableAck/bool enabled
+	void enableAck( boolean enabled);
+	// > enableHeartbeat/bool enabled
+	void enableHeartbeat( boolean enabled);
+	// > heartbeat
+	void heartbeat();
 	// > echo/bu32 sInt
 	void echo( unsigned long sInt);
 	// > controllerAttach/serialPort
@@ -147,10 +149,27 @@ void Msg::publishBoardInfo( byte version,  byte boardType) {
   reset();
 }
 
+void Msg::publishAck( byte function) {
+  write(MAGIC_NUMBER);
+  write(1 + 1); // size
+  write(PUBLISH_ACK); // msgType = 10
+  write(function);
+  flush();
+  reset();
+}
+
+void Msg::publishHeartbeat() {
+  write(MAGIC_NUMBER);
+  write(1); // size
+  write(PUBLISH_HEARTBEAT); // msgType = 13
+  flush();
+  reset();
+}
+
 void Msg::publishEcho( unsigned long sInt) {
   write(MAGIC_NUMBER);
   write(1 + 4); // size
-  write(PUBLISH_ECHO); // msgType = 12
+  write(PUBLISH_ECHO); // msgType = 15
   writebu32(sInt);
   flush();
   reset();
@@ -159,7 +178,7 @@ void Msg::publishEcho( unsigned long sInt) {
 void Msg::publishCustomMsg(const byte* msg,  byte msgSize) {
   write(MAGIC_NUMBER);
   write(1 + (1 + msgSize)); // size
-  write(PUBLISH_CUSTOM_MSG); // msgType = 15
+  write(PUBLISH_CUSTOM_MSG); // msgType = 18
   write((byte*)msg, msgSize);
   flush();
   reset();
@@ -168,7 +187,7 @@ void Msg::publishCustomMsg(const byte* msg,  byte msgSize) {
 void Msg::publishAttachedDevice( byte deviceId, const char* deviceName,  byte deviceNameSize) {
   write(MAGIC_NUMBER);
   write(1 + 1 + (1 + deviceNameSize)); // size
-  write(PUBLISH_ATTACHED_DEVICE); // msgType = 29
+  write(PUBLISH_ATTACHED_DEVICE); // msgType = 32
   write(deviceId);
   write((byte*)deviceName, deviceNameSize);
   flush();
@@ -178,7 +197,7 @@ void Msg::publishAttachedDevice( byte deviceId, const char* deviceName,  byte de
 void Msg::publishBoardStatus( int microsPerLoop,  int sram, const byte* deviceSummary,  byte deviceSummarySize) {
   write(MAGIC_NUMBER);
   write(1 + 2 + 2 + (1 + deviceSummarySize)); // size
-  write(PUBLISH_BOARD_STATUS); // msgType = 30
+  write(PUBLISH_BOARD_STATUS); // msgType = 33
   writeb16(microsPerLoop);
   writeb16(sram);
   write((byte*)deviceSummary, deviceSummarySize);
@@ -189,39 +208,17 @@ void Msg::publishBoardStatus( int microsPerLoop,  int sram, const byte* deviceSu
 void Msg::publishDebug(const char* debugMsg,  byte debugMsgSize) {
   write(MAGIC_NUMBER);
   write(1 + (1 + debugMsgSize)); // size
-  write(PUBLISH_DEBUG); // msgType = 31
+  write(PUBLISH_DEBUG); // msgType = 34
   write((byte*)debugMsg, debugMsgSize);
   flush();
   reset();
 }
 
-void Msg::publishMessageAck( byte function) {
+void Msg::publishPinArray(const byte* data,  byte dataSize) {
   write(MAGIC_NUMBER);
-  write(1 + 1); // size
-  write(PUBLISH_MESSAGE_ACK); // msgType = 32
-  write(function);
-  flush();
-  reset();
-}
-
-void Msg::publishSensorData( byte deviceId, const byte* data,  byte dataSize) {
-  write(MAGIC_NUMBER);
-  write(1 + 1 + (1 + dataSize)); // size
-  write(PUBLISH_SENSOR_DATA); // msgType = 33
-  write(deviceId);
+  write(1 + (1 + dataSize)); // size
+  write(PUBLISH_PIN_ARRAY); // msgType = 35
   write((byte*)data, dataSize);
-  flush();
-  reset();
-}
-
-void Msg::publishServoEvent( byte deviceId,  byte eventType,  byte currentPos,  byte targetPos) {
-  write(MAGIC_NUMBER);
-  write(1 + 1 + 1 + 1 + 1); // size
-  write(PUBLISH_SERVO_EVENT); // msgType = 34
-  write(deviceId);
-  write(eventType);
-  write(currentPos);
-  write(targetPos);
   flush();
   reset();
 }
@@ -243,12 +240,6 @@ void Msg::processCommand() {
 			mrlComm->enableBoardStatus( enabled);
 			break;
 	}
-	case ENABLE_HEARTBEAT: { // enableHeartbeat
-			boolean enabled = (ioCmd[startPos+1]);
-			startPos += 1;
-			mrlComm->enableHeartbeat( enabled);
-			break;
-	}
 	case ENABLE_PIN: { // enablePin
 			byte address = ioCmd[startPos+1]; // bu8
 			startPos += 1;
@@ -257,10 +248,6 @@ void Msg::processCommand() {
 			int rate = b16(ioCmd, startPos+1);
 			startPos += 2; //b16
 			mrlComm->enablePin( address,  type,  rate);
-			break;
-	}
-	case HEARTBEAT: { // heartbeat
-			mrlComm->heartbeat();
 			break;
 	}
 	case SET_DEBUG: { // setDebug
@@ -277,6 +264,22 @@ void Msg::processCommand() {
 	}
 	case SOFT_RESET: { // softReset
 			mrlComm->softReset();
+			break;
+	}
+	case ENABLE_ACK: { // enableAck
+			boolean enabled = (ioCmd[startPos+1]);
+			startPos += 1;
+			mrlComm->enableAck( enabled);
+			break;
+	}
+	case ENABLE_HEARTBEAT: { // enableHeartbeat
+			boolean enabled = (ioCmd[startPos+1]);
+			startPos += 1;
+			mrlComm->enableHeartbeat( enabled);
+			break;
+	}
+	case HEARTBEAT: { // heartbeat
+			mrlComm->heartbeat();
 			break;
 	}
 	case ECHO: { // echo
@@ -529,7 +532,7 @@ void Msg::processCommand() {
 	  // ack that we got a command (should we ack it first? or after we process the command?)
 
 	lastHeartbeatUpdate = millis();
-	publishCommandAck(ioCmd[0]);
+	publishAck(ioCmd[0]);
 
 } // process Command
 
@@ -557,22 +560,12 @@ int Msg::b16(const byte* buffer, const int start/*=0*/) {
 }
 
 long Msg::b32(const byte* buffer, const int start/*=0*/) {
-	/*
-	Msg* msg = Msg::getInstance();
-	msg->publishError("b0=" + String(buffer[start + 0]));
-	msg->publishError("b1=" + String(buffer[start + 1]));
-	msg->publishError("b2=" + String(buffer[start + 2]));
-	msg->publishError("b3=" + String(buffer[start + 3]));
-	*/
-
     long result = 0;
     for (int i = 0; i < 4; i++) {
         result <<= 8;
         result |= (buffer[start + i] & 0xFF);
     }
-    // msg->publishError("returning " + String(result));
     return result;
-
 }
 
 unsigned long Msg::bu32(const byte* buffer, const int start/*=0*/) {
@@ -592,10 +585,6 @@ void Msg::publishError(const String& message) {
 void Msg::publishDebug(const String& message) {
 	// instance->publishDebug(message.c_str(), message.length()-1);
 	publishDebug(message.c_str(), message.length());
-}
-
-void Msg::publishCommandAck(int function) {
-	publishMessageAck(function);
 }
 
 bool Msg::readMsg() {

@@ -61,13 +61,7 @@ public:
     int getFreeRam();
     Device* getDevice(int id);
 
-    // linkage to idl methods
-    void publishError(int type, String message);
-    void publishCommandAck(int function);
-    void publishAttachedDevice(int id, int nameSize, unsigned char* name);
-    // void setPWMFrequency(int address, int prescalar);
-    // void deviceAttach(unsigned char* ioCmd);
-    // void deviceDetach(int id);
+    bool ackEnabled = false;
 
     void addDevice(Device* device);
     void update();
@@ -79,18 +73,20 @@ public:
 	void getBoardInfo();
 	// > enableBoardStatus/bool enabled
 	void enableBoardStatus( boolean enabled);
-	// > enableHeartbeat/bool enabled
-	void enableHeartbeat( boolean enabled);
 	// > enablePin/address/type/b16 rate
 	void enablePin( byte address,  byte type,  int rate);
-	// > heartbeat
-	void heartbeat();
 	// > setDebug/bool enabled
 	void setDebug( boolean enabled);
 	// > setSerialRate/b32 rate
 	void setSerialRate( long rate);
-	// > softReset/
+	// > softReset
 	void softReset();
+	// > enableAck/bool enabled
+	void enableAck( boolean enabled);
+	// > enableHeartbeat/bool enabled
+	void enableHeartbeat( boolean enabled);
+	// > heartbeat
+	void heartbeat();
 	// > echo/bu32 sInt
 	void echo( unsigned long sInt);
 	// > controllerAttach/serialPort

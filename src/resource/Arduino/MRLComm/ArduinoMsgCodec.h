@@ -24,90 +24,92 @@
 #define PUBLISH_BOARD_INFO 3
 // > enableBoardStatus/bool enabled
 #define ENABLE_BOARD_STATUS 4
-// > enableHeartbeat/bool enabled
-#define ENABLE_HEARTBEAT 5
 // > enablePin/address/type/b16 rate
-#define ENABLE_PIN 6
-// > heartbeat
-#define HEARTBEAT 7
+#define ENABLE_PIN 5
 // > setDebug/bool enabled
-#define SET_DEBUG 8
+#define SET_DEBUG 6
 // > setSerialRate/b32 rate
-#define SET_SERIAL_RATE 9
-// > softReset/
-#define SOFT_RESET 10
+#define SET_SERIAL_RATE 7
+// > softReset
+#define SOFT_RESET 8
+// > enableAck/bool enabled
+#define ENABLE_ACK 9
+// < publishAck/function
+#define PUBLISH_ACK 10
+// > enableHeartbeat/bool enabled
+#define ENABLE_HEARTBEAT 11
+// > heartbeat
+#define HEARTBEAT 12
+// < publishHeartbeat
+#define PUBLISH_HEARTBEAT 13
 // > echo/bu32 sInt
-#define ECHO 11
+#define ECHO 14
 // < publishEcho/bu32 sInt
-#define PUBLISH_ECHO 12
+#define PUBLISH_ECHO 15
 // > controllerAttach/serialPort
-#define CONTROLLER_ATTACH 13
+#define CONTROLLER_ATTACH 16
 // > customMsg/[] msg
-#define CUSTOM_MSG 14
+#define CUSTOM_MSG 17
 // < publishCustomMsg/[] msg
-#define PUBLISH_CUSTOM_MSG 15
+#define PUBLISH_CUSTOM_MSG 18
 // > deviceDetach/deviceId
-#define DEVICE_DETACH 16
+#define DEVICE_DETACH 19
 // > i2cAttach/deviceId/i2cBus/deviceType/deviceAddress
-#define I2C_ATTACH 17
+#define I2C_ATTACH 20
 // > i2cRead/deviceId/deviceAddress/size
-#define I2C_READ 18
+#define I2C_READ 21
 // > i2cWrite/deviceId/deviceAddress/[] data
-#define I2C_WRITE 19
+#define I2C_WRITE 22
 // > i2cWriteRead/deviceId/deviceAddress/readSize/writeValue
-#define I2C_WRITE_READ 20
+#define I2C_WRITE_READ 23
 // > neoPixelAttach/deviceId/pin/b32 numPixels
-#define NEO_PIXEL_ATTACH 21
+#define NEO_PIXEL_ATTACH 24
 // > neoPixelSetAnimation/deviceId/animation/red/green/blue/b16 speed
-#define NEO_PIXEL_SET_ANIMATION 22
+#define NEO_PIXEL_SET_ANIMATION 25
 // > neoPixelWriteMatrix/deviceId/[] buffer
-#define NEO_PIXEL_WRITE_MATRIX 23
+#define NEO_PIXEL_WRITE_MATRIX 26
 // > analogWrite/pin/value
-#define ANALOG_WRITE 24
+#define ANALOG_WRITE 27
 // > digitalWrite/pin/value
-#define DIGITAL_WRITE 25
+#define DIGITAL_WRITE 28
 // > disablePin/pin
-#define DISABLE_PIN 26
+#define DISABLE_PIN 29
 // > disablePins
-#define DISABLE_PINS 27
+#define DISABLE_PINS 30
 // > pinMode/pin/mode
-#define PIN_MODE 28
+#define PIN_MODE 31
 // < publishAttachedDevice/deviceId/str deviceName
-#define PUBLISH_ATTACHED_DEVICE 29
+#define PUBLISH_ATTACHED_DEVICE 32
 // < publishBoardStatus/b16 microsPerLoop/b16 sram/[] deviceSummary
-#define PUBLISH_BOARD_STATUS 30
+#define PUBLISH_BOARD_STATUS 33
 // < publishDebug/str debugMsg
-#define PUBLISH_DEBUG 31
-// < publishMessageAck/function
-#define PUBLISH_MESSAGE_ACK 32
-// < publishSensorData/deviceId/[] data
-#define PUBLISH_SENSOR_DATA 33
-// < publishServoEvent/deviceId/eventType/currentPos/targetPos
-#define PUBLISH_SERVO_EVENT 34
+#define PUBLISH_DEBUG 34
+// < publishPinArray/[] data
+#define PUBLISH_PIN_ARRAY 35
 // > setTrigger/pin/triggerValue
-#define SET_TRIGGER 35
+#define SET_TRIGGER 36
 // > setDebounce/pin/delay
-#define SET_DEBOUNCE 36
+#define SET_DEBOUNCE 37
 // > serialRelay/deviceId/serialPort/[] relayData
-#define SERIAL_RELAY 37
+#define SERIAL_RELAY 38
 // > servoAttach/deviceId/pin/initPos/b16 initVelocity
-#define SERVO_ATTACH 38
+#define SERVO_ATTACH 39
 // > servoEnablePwm/deviceId/pin
-#define SERVO_ENABLE_PWM 39
+#define SERVO_ENABLE_PWM 40
 // > servoDisablePwm/deviceId
-#define SERVO_DISABLE_PWM 40
+#define SERVO_DISABLE_PWM 41
 // > servoSetMaxVelocity/deviceId/b16 maxVelocity
-#define SERVO_SET_MAX_VELOCITY 41
+#define SERVO_SET_MAX_VELOCITY 42
 // > servoSetVelocity/deviceId/b16 velocity
-#define SERVO_SET_VELOCITY 42
+#define SERVO_SET_VELOCITY 43
 // > servoSweepStart/deviceId/min/max/step
-#define SERVO_SWEEP_START 43
+#define SERVO_SWEEP_START 44
 // > servoSweepStop/deviceId
-#define SERVO_SWEEP_STOP 44
+#define SERVO_SWEEP_STOP 45
 // > servoWrite/deviceId/target
-#define SERVO_WRITE 45
+#define SERVO_WRITE 46
 // > servoWriteMicroseconds/deviceId/b16 ms
-#define SERVO_WRITE_MICROSECONDS 46
+#define SERVO_WRITE_MICROSECONDS 47
 
 
 

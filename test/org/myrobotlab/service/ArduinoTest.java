@@ -23,6 +23,8 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.Arduino.Sketch;
+import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.interfaces.PinArrayListener;
 import org.myrobotlab.service.interfaces.PinDefinition;
 import org.slf4j.Logger;
 
@@ -32,7 +34,7 @@ import org.slf4j.Logger;
  *
  */
 
-public class ArduinoTest {
+public class ArduinoTest implements PinArrayListener {
 
 	public final static Logger log = LoggerFactory.getLogger(ArduinoTest.class);
 
@@ -234,7 +236,10 @@ public class ArduinoTest {
 
 	@Test
 	public void testEnablePinInt() {
-		// fail("Not yet implemented");
+		// set board type
+		arduino.connect(port);
+		arduino.enablePin(15);
+		arduino.attach(this);
 	}
 
 	@Test
@@ -928,6 +933,21 @@ public class ArduinoTest {
 			log.info("testStarted");
 		}
 	}
+	
+	@Override
+	public boolean isLocal() {
+		return true;
+	}
+
+	@Override
+	public String getName() {
+		return "arduinoTest";
+	}
+
+	@Override
+	public void onPinArray(PinData[] pindata) {
+		log.info("onPinArray size {}", pindata.length);
+	}
 
 	public static void main(String[] args) {
 		try {
@@ -946,10 +966,12 @@ public class ArduinoTest {
 			// test a "real" arduino
 			userVirtualHardware = false;
 			// vport = "COM5"; 
-			port = "COM4";
+			port = "COM10";
 			
 			ArduinoTest test = new ArduinoTest();
 			ArduinoTest.setUpBeforeClass();
+			
+			test.testEnablePinInt();
 			
 			// test specific method 
 			test.testServoAttachServoInteger();
@@ -965,5 +987,6 @@ public class ArduinoTest {
 			Logging.logError(e);
 		}
 	}
+
 
 }

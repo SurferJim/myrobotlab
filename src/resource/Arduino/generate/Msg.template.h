@@ -87,9 +87,6 @@ public:
     void publishError(const String& message);
     void publishDebug(const String& message);
 
-    // FIXME - this should be generated
-	void publishCommandAck(int function);
-
 	// generated send (PC <-- MrlComm) methods
 %hMethods%
 	// handles all (PC --> MrlComm) methods

@@ -87,20 +87,17 @@ public:
     void publishError(const String& message);
     void publishDebug(const String& message);
 
-    // FIXME - this should be generated
-	void publishCommandAck(int function);
-
 	// generated send (PC <-- MrlComm) methods
 	void publishMRLCommError(const char* errorMsg,  byte errorMsgSize);
 	void publishBoardInfo( byte version,  byte boardType);
+	void publishAck( byte function);
+	void publishHeartbeat();
 	void publishEcho( unsigned long sInt);
 	void publishCustomMsg(const byte* msg,  byte msgSize);
 	void publishAttachedDevice( byte deviceId, const char* deviceName,  byte deviceNameSize);
 	void publishBoardStatus( int microsPerLoop,  int sram, const byte* deviceSummary,  byte deviceSummarySize);
 	void publishDebug(const char* debugMsg,  byte debugMsgSize);
-	void publishMessageAck( byte function);
-	void publishSensorData( byte deviceId, const byte* data,  byte dataSize);
-	void publishServoEvent( byte deviceId,  byte eventType,  byte currentPos,  byte targetPos);
+	void publishPinArray(const byte* data,  byte dataSize);
 
 	// handles all (PC --> MrlComm) methods
 	// void handle(int[] ioCmd); // send size too ?

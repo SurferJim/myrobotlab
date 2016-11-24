@@ -77,7 +77,7 @@ void Msg::processCommand() {
 	  // ack that we got a command (should we ack it first? or after we process the command?)
 
 	lastHeartbeatUpdate = millis();
-	publishCommandAck(ioCmd[0]);
+	publishAck(ioCmd[0]);
 
 } // process Command
 
@@ -105,22 +105,12 @@ int Msg::b16(const byte* buffer, const int start/*=0*/) {
 }
 
 long Msg::b32(const byte* buffer, const int start/*=0*/) {
-	/*
-	Msg* msg = Msg::getInstance();
-	msg->publishError("b0=" + String(buffer[start + 0]));
-	msg->publishError("b1=" + String(buffer[start + 1]));
-	msg->publishError("b2=" + String(buffer[start + 2]));
-	msg->publishError("b3=" + String(buffer[start + 3]));
-	*/
-
     long result = 0;
     for (int i = 0; i < 4; i++) {
         result <<= 8;
         result |= (buffer[start + i] & 0xFF);
     }
-    // msg->publishError("returning " + String(result));
     return result;
-
 }
 
 unsigned long Msg::bu32(const byte* buffer, const int start/*=0*/) {
@@ -140,10 +130,6 @@ void Msg::publishError(const String& message) {
 void Msg::publishDebug(const String& message) {
 	// instance->publishDebug(message.c_str(), message.length()-1);
 	publishDebug(message.c_str(), message.length());
-}
-
-void Msg::publishCommandAck(int function) {
-	publishMessageAck(function);
 }
 
 bool Msg::readMsg() {

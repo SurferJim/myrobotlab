@@ -29,12 +29,21 @@
 > getBoardInfo
 < publishBoardInfo/version/boardType
 > enableBoardStatus/bool enabled
-> enableHeartbeat/bool enabled
 > enablePin/address/type/b16 rate
-> heartbeat
 > setDebug/bool enabled
 > setSerialRate/b32 rate
 > softReset
+
+# Message acks
+> enableAck/bool enabled
+< publishAck/function
+
+
+# Heartbeat
+> enableHeartbeat/bool enabled
+> heartbeat
+< publishHeartbeat
+
 
 # parameter echo testing
 #> echo/b32 sInt/str name1/b8/bu32 bui32/b32 bi32/b9/str name2/[] config/bu32 bui322
@@ -77,8 +86,10 @@
 < publishAttachedDevice/deviceId/str deviceName
 < publishBoardStatus/b16 microsPerLoop/b16 sram/[] deviceSummary
 < publishDebug/str debugMsg
-< publishMessageAck/function
-< publishSensorData/deviceId/[] data
+# devices now can easily publish on their own channels
+# generalized publishSensorData is deprecated
+# < publishSensorData/deviceId/[] data
+< publishPinArray/[] data
 # TODO - implement 
 > setTrigger/pin/triggerValue
 # TODO implement
