@@ -144,26 +144,30 @@ public class Msg {
 	public final static int SET_TRIGGER = 37;
 	// > setDebounce/pin/delay
 	public final static int SET_DEBOUNCE = 38;
-	// > serialRelay/deviceId/serialPort/[] relayData
-	public final static int SERIAL_RELAY = 39;
 	// > servoAttach/deviceId/pin/initPos/b16 initVelocity
-	public final static int SERVO_ATTACH = 40;
+	public final static int SERVO_ATTACH = 39;
 	// > servoEnablePwm/deviceId/pin
-	public final static int SERVO_ENABLE_PWM = 41;
+	public final static int SERVO_ENABLE_PWM = 40;
 	// > servoDisablePwm/deviceId
-	public final static int SERVO_DISABLE_PWM = 42;
+	public final static int SERVO_DISABLE_PWM = 41;
 	// > servoSetMaxVelocity/deviceId/b16 maxVelocity
-	public final static int SERVO_SET_MAX_VELOCITY = 43;
+	public final static int SERVO_SET_MAX_VELOCITY = 42;
 	// > servoSetVelocity/deviceId/b16 velocity
-	public final static int SERVO_SET_VELOCITY = 44;
+	public final static int SERVO_SET_VELOCITY = 43;
 	// > servoSweepStart/deviceId/min/max/step
-	public final static int SERVO_SWEEP_START = 45;
+	public final static int SERVO_SWEEP_START = 44;
 	// > servoSweepStop/deviceId
-	public final static int SERVO_SWEEP_STOP = 46;
+	public final static int SERVO_SWEEP_STOP = 45;
 	// > servoWrite/deviceId/target
-	public final static int SERVO_WRITE = 47;
+	public final static int SERVO_WRITE = 46;
 	// > servoWriteMicroseconds/deviceId/b16 ms
-	public final static int SERVO_WRITE_MICROSECONDS = 48;
+	public final static int SERVO_WRITE_MICROSECONDS = 47;
+	// > serialAttach/deviceId/relayPin
+	public final static int SERIAL_ATTACH = 48;
+	// > serialRelay/deviceId/[] data
+	public final static int SERIAL_RELAY = 49;
+	// < publishSerialData/deviceId/[] data
+	public final static int PUBLISH_SERIAL_DATA = 50;
 
 
 /**
@@ -181,6 +185,7 @@ public class Msg {
 	// public void publishBoardStatus(Integer microsPerLoop/*b16*/, Integer sram/*b16*/, int[] deviceSummary/*[]*/){}
 	// public void publishDebug(String debugMsg/*str*/){}
 	// public void publishPinArray(int[] data/*[]*/){}
+	// public void publishSerialData(Integer deviceId/*byte*/, int[] data/*[]*/){}
 	
 
 	
@@ -326,6 +331,17 @@ public class Msg {
 				arduino.invoke("publishPinArray",  data);
 			} else { 
  				arduino.publishPinArray( data);			}
+			break;
+		}
+		case PUBLISH_SERIAL_DATA: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			int[] data = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
+			startPos += 1 + ioCmd[startPos+1];
+			if(invoke){
+				arduino.invoke("publishSerialData",  deviceId,  data);
+			} else { 
+ 				arduino.publishSerialData( deviceId,  data);			}
 			break;
 		}
 		
@@ -680,25 +696,11 @@ public class Msg {
 	  }
 	}
 
-	public void serialRelay(Integer deviceId/*byte*/, Integer serialPort/*byte*/, int[] relayData/*[]*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1 + (1 + relayData.length)); // size
-			write(SERIAL_RELAY); // msgType = 39
-			write(deviceId);
-			write(serialPort);
-			write(relayData);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
 	public void servoAttach(Integer deviceId/*byte*/, Integer pin/*byte*/, Integer initPos/*byte*/, Integer initVelocity/*b16*/) {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1 + 1 + 2); // size
-			write(SERVO_ATTACH); // msgType = 40
+			write(SERVO_ATTACH); // msgType = 39
 			write(deviceId);
 			write(pin);
 			write(initPos);
@@ -713,7 +715,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1); // size
-			write(SERVO_ENABLE_PWM); // msgType = 41
+			write(SERVO_ENABLE_PWM); // msgType = 40
 			write(deviceId);
 			write(pin);
  
@@ -726,7 +728,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1); // size
-			write(SERVO_DISABLE_PWM); // msgType = 42
+			write(SERVO_DISABLE_PWM); // msgType = 41
 			write(deviceId);
  
 	  } catch (Exception e) {
@@ -738,7 +740,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 2); // size
-			write(SERVO_SET_MAX_VELOCITY); // msgType = 43
+			write(SERVO_SET_MAX_VELOCITY); // msgType = 42
 			write(deviceId);
 			writeb16(maxVelocity);
  
@@ -751,7 +753,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 2); // size
-			write(SERVO_SET_VELOCITY); // msgType = 44
+			write(SERVO_SET_VELOCITY); // msgType = 43
 			write(deviceId);
 			writeb16(velocity);
  
@@ -764,7 +766,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1 + 1 + 1); // size
-			write(SERVO_SWEEP_START); // msgType = 45
+			write(SERVO_SWEEP_START); // msgType = 44
 			write(deviceId);
 			write(min);
 			write(max);
@@ -779,7 +781,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1); // size
-			write(SERVO_SWEEP_STOP); // msgType = 46
+			write(SERVO_SWEEP_STOP); // msgType = 45
 			write(deviceId);
  
 	  } catch (Exception e) {
@@ -791,7 +793,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1); // size
-			write(SERVO_WRITE); // msgType = 47
+			write(SERVO_WRITE); // msgType = 46
 			write(deviceId);
 			write(target);
  
@@ -804,9 +806,35 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 2); // size
-			write(SERVO_WRITE_MICROSECONDS); // msgType = 48
+			write(SERVO_WRITE_MICROSECONDS); // msgType = 47
 			write(deviceId);
 			writeb16(ms);
+ 
+	  } catch (Exception e) {
+	  			serial.error(e);
+	  }
+	}
+
+	public void serialAttach(Integer deviceId/*byte*/, Integer relayPin/*byte*/) {
+		try {
+			write(MAGIC_NUMBER);
+			write(1 + 1 + 1); // size
+			write(SERIAL_ATTACH); // msgType = 48
+			write(deviceId);
+			write(relayPin);
+ 
+	  } catch (Exception e) {
+	  			serial.error(e);
+	  }
+	}
+
+	public void serialRelay(Integer deviceId/*byte*/, int[] data/*[]*/) {
+		try {
+			write(MAGIC_NUMBER);
+			write(1 + 1 + (1 + data.length)); // size
+			write(SERIAL_RELAY); // msgType = 49
+			write(deviceId);
+			write(data);
  
 	  } catch (Exception e) {
 	  			serial.error(e);
@@ -930,9 +958,6 @@ public class Msg {
 		case SET_DEBOUNCE:{
 			return "setDebounce";
 		}
-		case SERIAL_RELAY:{
-			return "serialRelay";
-		}
 		case SERVO_ATTACH:{
 			return "servoAttach";
 		}
@@ -959,6 +984,15 @@ public class Msg {
 		}
 		case SERVO_WRITE_MICROSECONDS:{
 			return "servoWriteMicroseconds";
+		}
+		case SERIAL_ATTACH:{
+			return "serialAttach";
+		}
+		case SERIAL_RELAY:{
+			return "serialRelay";
+		}
+		case PUBLISH_SERIAL_DATA:{
+			return "publishSerialData";
 		}
 
 		default: {

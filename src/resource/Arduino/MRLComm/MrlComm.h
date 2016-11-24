@@ -117,8 +117,6 @@ public:
 	void setTrigger( byte pin,  byte triggerValue);
 	// > setDebounce/pin/delay
 	void setDebounce( byte pin,  byte delay);
-	// > serialRelay/deviceId/serialPort/[] relayData
-	void serialRelay( byte deviceId,  byte serialPort,  byte relayDataSize, const byte*relayData);
 	// > servoAttach/deviceId/pin/initPos/b16 initVelocity
 	void servoAttach( byte deviceId,  byte pin,  byte initPos,  int initVelocity);
 	// > servoEnablePwm/deviceId/pin
@@ -137,6 +135,10 @@ public:
 	void servoWrite( byte deviceId,  byte target);
 	// > servoWriteMicroseconds/deviceId/b16 ms
 	void servoWriteMicroseconds( byte deviceId,  int ms);
+	// > serialAttach/deviceId/relayPin
+	void serialAttach( byte deviceId,  byte relayPin);
+	// > serialRelay/deviceId/[] data
+	void serialRelay( byte deviceId,  byte dataSize, const byte*data);
     // </generatedCallBacks>
     // end
 

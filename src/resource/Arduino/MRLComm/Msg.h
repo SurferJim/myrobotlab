@@ -99,6 +99,7 @@ public:
 	void publishBoardStatus( int microsPerLoop,  int sram, const byte* deviceSummary,  byte deviceSummarySize);
 	void publishDebug(const char* debugMsg,  byte debugMsgSize);
 	void publishPinArray(const byte* data,  byte dataSize);
+	void publishSerialData( byte deviceId, const byte* data,  byte dataSize);
 
 	// handles all (PC --> MrlComm) methods
 	// void handle(int[] ioCmd); // send size too ?

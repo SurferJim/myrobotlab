@@ -106,8 +106,6 @@ Msg* Msg::getInstance() {
 	void setTrigger( byte pin,  byte triggerValue);
 	// > setDebounce/pin/delay
 	void setDebounce( byte pin,  byte delay);
-	// > serialRelay/deviceId/serialPort/[] relayData
-	void serialRelay( byte deviceId,  byte serialPort,  byte relayDataSize, const byte*relayData);
 	// > servoAttach/deviceId/pin/initPos/b16 initVelocity
 	void servoAttach( byte deviceId,  byte pin,  byte initPos,  int initVelocity);
 	// > servoEnablePwm/deviceId/pin
@@ -126,6 +124,10 @@ Msg* Msg::getInstance() {
 	void servoWrite( byte deviceId,  byte target);
 	// > servoWriteMicroseconds/deviceId/b16 ms
 	void servoWriteMicroseconds( byte deviceId,  int ms);
+	// > serialAttach/deviceId/relayPin
+	void serialAttach( byte deviceId,  byte relayPin);
+	// > serialRelay/deviceId/[] data
+	void serialRelay( byte deviceId,  byte dataSize, const byte*data);
 
  */
 
@@ -228,6 +230,16 @@ void Msg::publishPinArray(const byte* data,  byte dataSize) {
   write(MAGIC_NUMBER);
   write(1 + (1 + dataSize)); // size
   write(PUBLISH_PIN_ARRAY); // msgType = 36
+  write((byte*)data, dataSize);
+  flush();
+  reset();
+}
+
+void Msg::publishSerialData( byte deviceId, const byte* data,  byte dataSize) {
+  write(MAGIC_NUMBER);
+  write(1 + 1 + (1 + dataSize)); // size
+  write(PUBLISH_SERIAL_DATA); // msgType = 50
+  write(deviceId);
   write((byte*)data, dataSize);
   flush();
   reset();
@@ -447,17 +459,6 @@ void Msg::processCommand() {
 			mrlComm->setDebounce( pin,  delay);
 			break;
 	}
-	case SERIAL_RELAY: { // serialRelay
-			byte deviceId = ioCmd[startPos+1]; // bu8
-			startPos += 1;
-			byte serialPort = ioCmd[startPos+1]; // bu8
-			startPos += 1;
-			const byte* relayData = ioCmd+startPos+2;
-			byte relayDataSize = ioCmd[startPos+1];
-			startPos += 1 + ioCmd[startPos+1];
-			mrlComm->serialRelay( deviceId,  serialPort,  relayDataSize, relayData);
-			break;
-	}
 	case SERVO_ATTACH: { // servoAttach
 			byte deviceId = ioCmd[startPos+1]; // bu8
 			startPos += 1;
@@ -532,6 +533,23 @@ void Msg::processCommand() {
 			int ms = b16(ioCmd, startPos+1);
 			startPos += 2; //b16
 			mrlComm->servoWriteMicroseconds( deviceId,  ms);
+			break;
+	}
+	case SERIAL_ATTACH: { // serialAttach
+			byte deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			byte relayPin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			mrlComm->serialAttach( deviceId,  relayPin);
+			break;
+	}
+	case SERIAL_RELAY: { // serialRelay
+			byte deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			const byte* data = ioCmd+startPos+2;
+			byte dataSize = ioCmd[startPos+1];
+			startPos += 1 + ioCmd[startPos+1];
+			mrlComm->serialRelay( deviceId,  dataSize, data);
 			break;
 	}
 

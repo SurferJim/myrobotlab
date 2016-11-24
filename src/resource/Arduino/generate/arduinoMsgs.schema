@@ -99,7 +99,7 @@
 # > sensorPollingStart/deviceId - not currently used - but probably should be
 # > sensorPollingStop/deviceId - not currently used - but probably should be
 # perhaps a serial method identifying the array of possible serials or a device
-> serialRelay/deviceId/serialPort/[] relayData
+# > serialRelay/deviceId/serialPort/[] relayData
 
 # Servo
 > servoAttach/deviceId/pin/initPos/b16 initVelocity
@@ -113,3 +113,9 @@
 > servoWriteMicroseconds/deviceId/b16 ms
 # not used as originally intended - as event information
 # < publishServoEvent/deviceId/eventType/currentPos/targetPos
+
+# Serial - for relaying serial data to a different pin
+> serialAttach/deviceId/relayPin
+> serialRelay/deviceId/[] data
+< publishSerialData/deviceId/[] data
+

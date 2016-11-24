@@ -92,26 +92,30 @@
 #define SET_TRIGGER 37
 // > setDebounce/pin/delay
 #define SET_DEBOUNCE 38
-// > serialRelay/deviceId/serialPort/[] relayData
-#define SERIAL_RELAY 39
 // > servoAttach/deviceId/pin/initPos/b16 initVelocity
-#define SERVO_ATTACH 40
+#define SERVO_ATTACH 39
 // > servoEnablePwm/deviceId/pin
-#define SERVO_ENABLE_PWM 41
+#define SERVO_ENABLE_PWM 40
 // > servoDisablePwm/deviceId
-#define SERVO_DISABLE_PWM 42
+#define SERVO_DISABLE_PWM 41
 // > servoSetMaxVelocity/deviceId/b16 maxVelocity
-#define SERVO_SET_MAX_VELOCITY 43
+#define SERVO_SET_MAX_VELOCITY 42
 // > servoSetVelocity/deviceId/b16 velocity
-#define SERVO_SET_VELOCITY 44
+#define SERVO_SET_VELOCITY 43
 // > servoSweepStart/deviceId/min/max/step
-#define SERVO_SWEEP_START 45
+#define SERVO_SWEEP_START 44
 // > servoSweepStop/deviceId
-#define SERVO_SWEEP_STOP 46
+#define SERVO_SWEEP_STOP 45
 // > servoWrite/deviceId/target
-#define SERVO_WRITE 47
+#define SERVO_WRITE 46
 // > servoWriteMicroseconds/deviceId/b16 ms
-#define SERVO_WRITE_MICROSECONDS 48
+#define SERVO_WRITE_MICROSECONDS 47
+// > serialAttach/deviceId/relayPin
+#define SERIAL_ATTACH 48
+// > serialRelay/deviceId/[] data
+#define SERIAL_RELAY 49
+// < publishSerialData/deviceId/[] data
+#define PUBLISH_SERIAL_DATA 50
 
 
 

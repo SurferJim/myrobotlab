@@ -383,14 +383,6 @@ void MrlComm::neoPixelWriteMatrix(byte deviceId, byte bufferSize,
 			buffer);
 }
 
-// > serialRelay/deviceId/serialPort/[] relayData
-void MrlComm::serialRelay(byte deviceId, byte serialPort, byte relayDataSize,
-		const byte*relayData) {
-	msg->publishDebug(
-			"serialRelay " + String(deviceId) + " " + String(serialPort));
-	msg->publishDebug("relayData " + String(relayDataSize) + relayData[0]);
-}
-
 
 // > servoAttach/deviceId/pin/targetOutput/b16 velocity
 void MrlComm::servoAttach(byte deviceId, byte pin, byte targetOutput, int velocity) {
@@ -466,6 +458,20 @@ void MrlComm::setTrigger( byte pin,  byte triggerValue){
 void MrlComm::setDebounce( byte pin,  byte delay){
 	msg->publishDebug("implement me ! setDebounce (" + String(pin) + "," + String(delay));
 }
+
+
+// TODO - implement
+// > serialAttach/deviceId/relayPin
+void MrlComm::serialAttach( byte deviceId,  byte relayPin){
+
+}
+
+// TODO - implement
+// > serialRelay/deviceId/[] data
+void MrlComm::serialRelay( byte deviceId,  byte dataSize, const byte*data){
+
+}
+
 
 void MrlComm::softReset() {
 	// removing devices & pins
