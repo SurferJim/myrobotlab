@@ -40,7 +40,7 @@ void MrlI2CBus::i2cRead(byte deviceAddress, byte size) {
 	}
 
 	// byte deviceId = ioCmd[1]; not needed we have our own deviceId
-	msg->publishSensorData(id, msg->getBuffer(), msg->getBufferSize());
+	msg->publishI2cData(id, msg->getBuffer(), msg->getBufferSize());
 }
 
 // I2WRITEREAD | DEVICE_INDEX | I2CADDRESS | DATASIZE | DEVICE_MEMORY_ADDRESS
@@ -59,7 +59,7 @@ void MrlI2CBus::i2cWriteRead(byte deviceAddress, byte readSize, byte writeValue)
 	}
 
 	// byte deviceId = ioCmd[1];
-	msg->publishSensorData(id, msg->getBuffer(), msg->getBufferSize());
+	msg->publishI2cData(id, msg->getBuffer(), msg->getBufferSize());
 }
 
 void MrlI2CBus::update() {

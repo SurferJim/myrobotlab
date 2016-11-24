@@ -71,6 +71,7 @@
 > i2cRead/deviceId/deviceAddress/size
 > i2cWrite/deviceId/deviceAddress/[] data
 > i2cWriteRead/deviceId/deviceAddress/readSize/writeValue
+< publishI2cData/deviceId/[] data
 
 # NeoPixel
 > neoPixelAttach/deviceId/pin/b32 numPixels

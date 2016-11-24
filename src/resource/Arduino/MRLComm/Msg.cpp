@@ -184,10 +184,20 @@ void Msg::publishCustomMsg(const byte* msg,  byte msgSize) {
   reset();
 }
 
+void Msg::publishI2cData( byte deviceId, const byte* data,  byte dataSize) {
+  write(MAGIC_NUMBER);
+  write(1 + 1 + (1 + dataSize)); // size
+  write(PUBLISH_I2C_DATA); // msgType = 24
+  write(deviceId);
+  write((byte*)data, dataSize);
+  flush();
+  reset();
+}
+
 void Msg::publishAttachedDevice( byte deviceId, const char* deviceName,  byte deviceNameSize) {
   write(MAGIC_NUMBER);
   write(1 + 1 + (1 + deviceNameSize)); // size
-  write(PUBLISH_ATTACHED_DEVICE); // msgType = 32
+  write(PUBLISH_ATTACHED_DEVICE); // msgType = 33
   write(deviceId);
   write((byte*)deviceName, deviceNameSize);
   flush();
@@ -197,7 +207,7 @@ void Msg::publishAttachedDevice( byte deviceId, const char* deviceName,  byte de
 void Msg::publishBoardStatus( int microsPerLoop,  int sram, const byte* deviceSummary,  byte deviceSummarySize) {
   write(MAGIC_NUMBER);
   write(1 + 2 + 2 + (1 + deviceSummarySize)); // size
-  write(PUBLISH_BOARD_STATUS); // msgType = 33
+  write(PUBLISH_BOARD_STATUS); // msgType = 34
   writeb16(microsPerLoop);
   writeb16(sram);
   write((byte*)deviceSummary, deviceSummarySize);
@@ -208,7 +218,7 @@ void Msg::publishBoardStatus( int microsPerLoop,  int sram, const byte* deviceSu
 void Msg::publishDebug(const char* debugMsg,  byte debugMsgSize) {
   write(MAGIC_NUMBER);
   write(1 + (1 + debugMsgSize)); // size
-  write(PUBLISH_DEBUG); // msgType = 34
+  write(PUBLISH_DEBUG); // msgType = 35
   write((byte*)debugMsg, debugMsgSize);
   flush();
   reset();
@@ -217,7 +227,7 @@ void Msg::publishDebug(const char* debugMsg,  byte debugMsgSize) {
 void Msg::publishPinArray(const byte* data,  byte dataSize) {
   write(MAGIC_NUMBER);
   write(1 + (1 + dataSize)); // size
-  write(PUBLISH_PIN_ARRAY); // msgType = 35
+  write(PUBLISH_PIN_ARRAY); // msgType = 36
   write((byte*)data, dataSize);
   flush();
   reset();

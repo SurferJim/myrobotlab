@@ -62,54 +62,56 @@
 #define I2C_WRITE 22
 // > i2cWriteRead/deviceId/deviceAddress/readSize/writeValue
 #define I2C_WRITE_READ 23
+// < publishI2cData/deviceId/[] data
+#define PUBLISH_I2C_DATA 24
 // > neoPixelAttach/deviceId/pin/b32 numPixels
-#define NEO_PIXEL_ATTACH 24
+#define NEO_PIXEL_ATTACH 25
 // > neoPixelSetAnimation/deviceId/animation/red/green/blue/b16 speed
-#define NEO_PIXEL_SET_ANIMATION 25
+#define NEO_PIXEL_SET_ANIMATION 26
 // > neoPixelWriteMatrix/deviceId/[] buffer
-#define NEO_PIXEL_WRITE_MATRIX 26
+#define NEO_PIXEL_WRITE_MATRIX 27
 // > analogWrite/pin/value
-#define ANALOG_WRITE 27
+#define ANALOG_WRITE 28
 // > digitalWrite/pin/value
-#define DIGITAL_WRITE 28
+#define DIGITAL_WRITE 29
 // > disablePin/pin
-#define DISABLE_PIN 29
+#define DISABLE_PIN 30
 // > disablePins
-#define DISABLE_PINS 30
+#define DISABLE_PINS 31
 // > pinMode/pin/mode
-#define PIN_MODE 31
+#define PIN_MODE 32
 // < publishAttachedDevice/deviceId/str deviceName
-#define PUBLISH_ATTACHED_DEVICE 32
+#define PUBLISH_ATTACHED_DEVICE 33
 // < publishBoardStatus/b16 microsPerLoop/b16 sram/[] deviceSummary
-#define PUBLISH_BOARD_STATUS 33
+#define PUBLISH_BOARD_STATUS 34
 // < publishDebug/str debugMsg
-#define PUBLISH_DEBUG 34
+#define PUBLISH_DEBUG 35
 // < publishPinArray/[] data
-#define PUBLISH_PIN_ARRAY 35
+#define PUBLISH_PIN_ARRAY 36
 // > setTrigger/pin/triggerValue
-#define SET_TRIGGER 36
+#define SET_TRIGGER 37
 // > setDebounce/pin/delay
-#define SET_DEBOUNCE 37
+#define SET_DEBOUNCE 38
 // > serialRelay/deviceId/serialPort/[] relayData
-#define SERIAL_RELAY 38
+#define SERIAL_RELAY 39
 // > servoAttach/deviceId/pin/initPos/b16 initVelocity
-#define SERVO_ATTACH 39
+#define SERVO_ATTACH 40
 // > servoEnablePwm/deviceId/pin
-#define SERVO_ENABLE_PWM 40
+#define SERVO_ENABLE_PWM 41
 // > servoDisablePwm/deviceId
-#define SERVO_DISABLE_PWM 41
+#define SERVO_DISABLE_PWM 42
 // > servoSetMaxVelocity/deviceId/b16 maxVelocity
-#define SERVO_SET_MAX_VELOCITY 42
+#define SERVO_SET_MAX_VELOCITY 43
 // > servoSetVelocity/deviceId/b16 velocity
-#define SERVO_SET_VELOCITY 43
+#define SERVO_SET_VELOCITY 44
 // > servoSweepStart/deviceId/min/max/step
-#define SERVO_SWEEP_START 44
+#define SERVO_SWEEP_START 45
 // > servoSweepStop/deviceId
-#define SERVO_SWEEP_STOP 45
+#define SERVO_SWEEP_STOP 46
 // > servoWrite/deviceId/target
-#define SERVO_WRITE 46
+#define SERVO_WRITE 47
 // > servoWriteMicroseconds/deviceId/b16 ms
-#define SERVO_WRITE_MICROSECONDS 47
+#define SERVO_WRITE_MICROSECONDS 48
 
 
 

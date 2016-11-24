@@ -66,6 +66,7 @@ public class Msg {
 	public static final int DEVICE_TYPE_I2C = 8;
 	public static final int DEVICE_TYPE_NEOPIXEL = 9;
 	
+	boolean invoke = true;
 
 %javaDefines%
 

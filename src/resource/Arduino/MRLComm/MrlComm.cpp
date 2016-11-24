@@ -173,7 +173,7 @@ void MrlComm::update() {
 			node = node->next;
 		}
 		if (dataCount) {
-			msg->publishSensorData(0, msg->getBuffer(), msg->getBufferSize());
+			msg->publishPinArray(msg->getBuffer(), msg->getBufferSize());
 		}
 	}
 }

@@ -50,6 +50,7 @@ public class ArduinoTest implements PinArrayListener {
 	static Serial uart = null;
 
 	int servoPin = 9;
+	int enablePin;
 
 	static ArduinoMsgCodec codec = new ArduinoMsgCodec();
 
@@ -238,7 +239,7 @@ public class ArduinoTest implements PinArrayListener {
 	public void testEnablePinInt() {
 		// set board type
 		arduino.connect(port);
-		arduino.enablePin(15);
+		arduino.enablePin(enablePin);
 		arduino.attach(this);
 	}
 
@@ -705,10 +706,6 @@ public class ArduinoTest implements PinArrayListener {
 		// fail("Not yet implemented");
 	}
 
-	@Test
-	public void testMain() {
-		// fail("Not yet implemented");
-	}
 	
 	////////  end generated ///////////////////////
 
@@ -965,13 +962,19 @@ public class ArduinoTest implements PinArrayListener {
 
 			// test a "real" arduino
 			userVirtualHardware = false;
-			// vport = "COM5"; 
-			port = "COM10";
+			// port = "COM10";
+			port = "COM4";
 			
 			ArduinoTest test = new ArduinoTest();
 			ArduinoTest.setUpBeforeClass();
 			
+			test.enablePin = 54;  // A0 for Mega
 			test.testEnablePinInt();
+			
+			boolean b = true;
+			if (b){
+				return;
+			}
 			
 			// test specific method 
 			test.testServoAttachServoInteger();

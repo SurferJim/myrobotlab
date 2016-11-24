@@ -308,9 +308,14 @@ public class ArduinoMsgGenerator {
 		StringBuilder cppCaseArduinoMethod = new StringBuilder("\t\t\t" + arduinoOrMrlComm + name + "(");
 
 		StringBuilder javaCaseHeader = new StringBuilder("\t\tcase " + CodecUtils.toUnderScore(name) + ": {\n");
-		StringBuilder javaCaseArduinoMethod = new StringBuilder("\n\t\t\tarduino.invoke(\"" + name + "\"");
+		StringBuilder javaCaseArduinoMethod = new StringBuilder("\t\t\tif(invoke){");
+		// javaCaseArduinoMethod.append();
+		javaCaseArduinoMethod.append("\n\t\t\t\tarduino.invoke(\"" + name + "\"");
+		// javaCaseArduinoMethod.append(b);
+		// javaCaseArduinoMethod.append(b);
+
 		// compiler check
-		StringBuilder javaCaseArduinoMethodComment = new StringBuilder("\n\t\t\t arduino." + name + "(");
+		StringBuilder javaCaseArduinoMethodComment = new StringBuilder("\n\t\t\t} else { \n \t\t\t\tarduino." + name + "(");
 		if (paramaters.length > 0) {
 			javaCaseArduinoMethod.append(", ");
 		}
@@ -498,7 +503,7 @@ public class ArduinoMsgGenerator {
 
 		} // end parameter loop
 
-		javaCaseParams.append(");\n");
+		javaCaseParams.append(");");
 		// cpp
 		cppGeneratedCallBack.append(");\n");
 		if (keywords.contains(name)) {
@@ -526,7 +531,7 @@ public class ArduinoMsgGenerator {
 			methodSnr.put("hMethod", hMethod);
 			methodSnr.put("cppMethod", cppMethod);
 			methodSnr.put("cppHandleCase", "");
-			methodSnr.put("javaHandleCase", javaCaseHeader.toString() + javaCaseArduinoMethod + javaCaseParams + javaCaseArduinoMethodComment + javaCaseParams + javaCaseFooter);
+			methodSnr.put("javaHandleCase", javaCaseHeader.toString() + javaCaseArduinoMethod + javaCaseParams + javaCaseArduinoMethodComment + javaCaseParams + "\t\t\t}" + javaCaseFooter);
 			methodSnr.put("javaGeneratedCallBack", javaGeneratedCallback + javaMethodParameters.toString() + "){}\n");
 			methodSnr.put("generatedCallBacks", "");
 			methodSnr.put("javaMethod", "");

@@ -66,6 +66,7 @@ public class Msg {
 	public static final int DEVICE_TYPE_I2C = 8;
 	public static final int DEVICE_TYPE_NEOPIXEL = 9;
 	
+	boolean invoke = true;
 
 	// < publishMRLCommError/str errorMsg
 	public final static int PUBLISH_MRLCOMM_ERROR = 1;
@@ -113,54 +114,56 @@ public class Msg {
 	public final static int I2C_WRITE = 22;
 	// > i2cWriteRead/deviceId/deviceAddress/readSize/writeValue
 	public final static int I2C_WRITE_READ = 23;
+	// < publishI2cData/deviceId/[] data
+	public final static int PUBLISH_I2C_DATA = 24;
 	// > neoPixelAttach/deviceId/pin/b32 numPixels
-	public final static int NEO_PIXEL_ATTACH = 24;
+	public final static int NEO_PIXEL_ATTACH = 25;
 	// > neoPixelSetAnimation/deviceId/animation/red/green/blue/b16 speed
-	public final static int NEO_PIXEL_SET_ANIMATION = 25;
+	public final static int NEO_PIXEL_SET_ANIMATION = 26;
 	// > neoPixelWriteMatrix/deviceId/[] buffer
-	public final static int NEO_PIXEL_WRITE_MATRIX = 26;
+	public final static int NEO_PIXEL_WRITE_MATRIX = 27;
 	// > analogWrite/pin/value
-	public final static int ANALOG_WRITE = 27;
+	public final static int ANALOG_WRITE = 28;
 	// > digitalWrite/pin/value
-	public final static int DIGITAL_WRITE = 28;
+	public final static int DIGITAL_WRITE = 29;
 	// > disablePin/pin
-	public final static int DISABLE_PIN = 29;
+	public final static int DISABLE_PIN = 30;
 	// > disablePins
-	public final static int DISABLE_PINS = 30;
+	public final static int DISABLE_PINS = 31;
 	// > pinMode/pin/mode
-	public final static int PIN_MODE = 31;
+	public final static int PIN_MODE = 32;
 	// < publishAttachedDevice/deviceId/str deviceName
-	public final static int PUBLISH_ATTACHED_DEVICE = 32;
+	public final static int PUBLISH_ATTACHED_DEVICE = 33;
 	// < publishBoardStatus/b16 microsPerLoop/b16 sram/[] deviceSummary
-	public final static int PUBLISH_BOARD_STATUS = 33;
+	public final static int PUBLISH_BOARD_STATUS = 34;
 	// < publishDebug/str debugMsg
-	public final static int PUBLISH_DEBUG = 34;
+	public final static int PUBLISH_DEBUG = 35;
 	// < publishPinArray/[] data
-	public final static int PUBLISH_PIN_ARRAY = 35;
+	public final static int PUBLISH_PIN_ARRAY = 36;
 	// > setTrigger/pin/triggerValue
-	public final static int SET_TRIGGER = 36;
+	public final static int SET_TRIGGER = 37;
 	// > setDebounce/pin/delay
-	public final static int SET_DEBOUNCE = 37;
+	public final static int SET_DEBOUNCE = 38;
 	// > serialRelay/deviceId/serialPort/[] relayData
-	public final static int SERIAL_RELAY = 38;
+	public final static int SERIAL_RELAY = 39;
 	// > servoAttach/deviceId/pin/initPos/b16 initVelocity
-	public final static int SERVO_ATTACH = 39;
+	public final static int SERVO_ATTACH = 40;
 	// > servoEnablePwm/deviceId/pin
-	public final static int SERVO_ENABLE_PWM = 40;
+	public final static int SERVO_ENABLE_PWM = 41;
 	// > servoDisablePwm/deviceId
-	public final static int SERVO_DISABLE_PWM = 41;
+	public final static int SERVO_DISABLE_PWM = 42;
 	// > servoSetMaxVelocity/deviceId/b16 maxVelocity
-	public final static int SERVO_SET_MAX_VELOCITY = 42;
+	public final static int SERVO_SET_MAX_VELOCITY = 43;
 	// > servoSetVelocity/deviceId/b16 velocity
-	public final static int SERVO_SET_VELOCITY = 43;
+	public final static int SERVO_SET_VELOCITY = 44;
 	// > servoSweepStart/deviceId/min/max/step
-	public final static int SERVO_SWEEP_START = 44;
+	public final static int SERVO_SWEEP_START = 45;
 	// > servoSweepStop/deviceId
-	public final static int SERVO_SWEEP_STOP = 45;
+	public final static int SERVO_SWEEP_STOP = 46;
 	// > servoWrite/deviceId/target
-	public final static int SERVO_WRITE = 46;
+	public final static int SERVO_WRITE = 47;
 	// > servoWriteMicroseconds/deviceId/b16 ms
-	public final static int SERVO_WRITE_MICROSECONDS = 47;
+	public final static int SERVO_WRITE_MICROSECONDS = 48;
 
 
 /**
@@ -173,6 +176,7 @@ public class Msg {
 	// public void publishHeartbeat(){}
 	// public void publishEcho(Long sInt/*bu32*/){}
 	// public void publishCustomMsg(int[] msg/*[]*/){}
+	// public void publishI2cData(Integer deviceId/*byte*/, int[] data/*[]*/){}
 	// public void publishAttachedDevice(Integer deviceId/*byte*/, String deviceName/*str*/){}
 	// public void publishBoardStatus(Integer microsPerLoop/*b16*/, Integer sram/*b16*/, int[] deviceSummary/*[]*/){}
 	// public void publishDebug(String debugMsg/*str*/){}
@@ -220,11 +224,10 @@ public class Msg {
 		case PUBLISH_MRLCOMM_ERROR: {
 			String errorMsg = str(ioCmd, startPos+2, ioCmd[startPos+1]);
 			startPos += 1 + ioCmd[startPos+1];
-
-			arduino.invoke("publishMRLCommError",  errorMsg);
-
-			 arduino.publishMRLCommError( errorMsg);
-
+			if(invoke){
+				arduino.invoke("publishMRLCommError",  errorMsg);
+			} else { 
+ 				arduino.publishMRLCommError( errorMsg);			}
 			break;
 		}
 		case PUBLISH_BOARD_INFO: {
@@ -232,49 +235,55 @@ public class Msg {
 			startPos += 1;
 			Integer boardType = ioCmd[startPos+1]; // bu8
 			startPos += 1;
-
-			arduino.invoke("publishBoardInfo",  version,  boardType);
-
-			 arduino.publishBoardInfo( version,  boardType);
-
+			if(invoke){
+				arduino.invoke("publishBoardInfo",  version,  boardType);
+			} else { 
+ 				arduino.publishBoardInfo( version,  boardType);			}
 			break;
 		}
 		case PUBLISH_ACK: {
 			Integer function = ioCmd[startPos+1]; // bu8
 			startPos += 1;
-
-			arduino.invoke("publishAck",  function);
-
-			 arduino.publishAck( function);
-
+			if(invoke){
+				arduino.invoke("publishAck",  function);
+			} else { 
+ 				arduino.publishAck( function);			}
 			break;
 		}
 		case PUBLISH_HEARTBEAT: {
-
-			arduino.invoke("publishHeartbeat");
-
-			 arduino.publishHeartbeat();
-
+			if(invoke){
+				arduino.invoke("publishHeartbeat");
+			} else { 
+ 				arduino.publishHeartbeat();			}
 			break;
 		}
 		case PUBLISH_ECHO: {
 			Long sInt = bu32(ioCmd, startPos+1);
 			startPos += 4; //bu32
-
-			arduino.invoke("publishEcho",  sInt);
-
-			 arduino.publishEcho( sInt);
-
+			if(invoke){
+				arduino.invoke("publishEcho",  sInt);
+			} else { 
+ 				arduino.publishEcho( sInt);			}
 			break;
 		}
 		case PUBLISH_CUSTOM_MSG: {
 			int[] msg = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
 			startPos += 1 + ioCmd[startPos+1];
-
-			arduino.invoke("publishCustomMsg",  msg);
-
-			 arduino.publishCustomMsg( msg);
-
+			if(invoke){
+				arduino.invoke("publishCustomMsg",  msg);
+			} else { 
+ 				arduino.publishCustomMsg( msg);			}
+			break;
+		}
+		case PUBLISH_I2C_DATA: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			int[] data = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
+			startPos += 1 + ioCmd[startPos+1];
+			if(invoke){
+				arduino.invoke("publishI2cData",  deviceId,  data);
+			} else { 
+ 				arduino.publishI2cData( deviceId,  data);			}
 			break;
 		}
 		case PUBLISH_ATTACHED_DEVICE: {
@@ -282,11 +291,10 @@ public class Msg {
 			startPos += 1;
 			String deviceName = str(ioCmd, startPos+2, ioCmd[startPos+1]);
 			startPos += 1 + ioCmd[startPos+1];
-
-			arduino.invoke("publishAttachedDevice",  deviceId,  deviceName);
-
-			 arduino.publishAttachedDevice( deviceId,  deviceName);
-
+			if(invoke){
+				arduino.invoke("publishAttachedDevice",  deviceId,  deviceName);
+			} else { 
+ 				arduino.publishAttachedDevice( deviceId,  deviceName);			}
 			break;
 		}
 		case PUBLISH_BOARD_STATUS: {
@@ -296,31 +304,28 @@ public class Msg {
 			startPos += 2; //b16
 			int[] deviceSummary = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
 			startPos += 1 + ioCmd[startPos+1];
-
-			arduino.invoke("publishBoardStatus",  microsPerLoop,  sram,  deviceSummary);
-
-			 arduino.publishBoardStatus( microsPerLoop,  sram,  deviceSummary);
-
+			if(invoke){
+				arduino.invoke("publishBoardStatus",  microsPerLoop,  sram,  deviceSummary);
+			} else { 
+ 				arduino.publishBoardStatus( microsPerLoop,  sram,  deviceSummary);			}
 			break;
 		}
 		case PUBLISH_DEBUG: {
 			String debugMsg = str(ioCmd, startPos+2, ioCmd[startPos+1]);
 			startPos += 1 + ioCmd[startPos+1];
-
-			arduino.invoke("publishDebug",  debugMsg);
-
-			 arduino.publishDebug( debugMsg);
-
+			if(invoke){
+				arduino.invoke("publishDebug",  debugMsg);
+			} else { 
+ 				arduino.publishDebug( debugMsg);			}
 			break;
 		}
 		case PUBLISH_PIN_ARRAY: {
 			int[] data = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
 			startPos += 1 + ioCmd[startPos+1];
-
-			arduino.invoke("publishPinArray",  data);
-
-			 arduino.publishPinArray( data);
-
+			if(invoke){
+				arduino.invoke("publishPinArray",  data);
+			} else { 
+ 				arduino.publishPinArray( data);			}
 			break;
 		}
 		
@@ -547,7 +552,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1 + 4); // size
-			write(NEO_PIXEL_ATTACH); // msgType = 24
+			write(NEO_PIXEL_ATTACH); // msgType = 25
 			write(deviceId);
 			write(pin);
 			writeb32(numPixels);
@@ -561,7 +566,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1 + 1 + 1 + 1 + 2); // size
-			write(NEO_PIXEL_SET_ANIMATION); // msgType = 25
+			write(NEO_PIXEL_SET_ANIMATION); // msgType = 26
 			write(deviceId);
 			write(animation);
 			write(red);
@@ -578,7 +583,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + (1 + buffer.length)); // size
-			write(NEO_PIXEL_WRITE_MATRIX); // msgType = 26
+			write(NEO_PIXEL_WRITE_MATRIX); // msgType = 27
 			write(deviceId);
 			write(buffer);
  
@@ -591,7 +596,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1); // size
-			write(ANALOG_WRITE); // msgType = 27
+			write(ANALOG_WRITE); // msgType = 28
 			write(pin);
 			write(value);
  
@@ -604,7 +609,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1); // size
-			write(DIGITAL_WRITE); // msgType = 28
+			write(DIGITAL_WRITE); // msgType = 29
 			write(pin);
 			write(value);
  
@@ -617,7 +622,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1); // size
-			write(DISABLE_PIN); // msgType = 29
+			write(DISABLE_PIN); // msgType = 30
 			write(pin);
  
 	  } catch (Exception e) {
@@ -629,7 +634,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1); // size
-			write(DISABLE_PINS); // msgType = 30
+			write(DISABLE_PINS); // msgType = 31
  
 	  } catch (Exception e) {
 	  			serial.error(e);
@@ -640,7 +645,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1); // size
-			write(PIN_MODE); // msgType = 31
+			write(PIN_MODE); // msgType = 32
 			write(pin);
 			write(mode);
  
@@ -653,7 +658,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1); // size
-			write(SET_TRIGGER); // msgType = 36
+			write(SET_TRIGGER); // msgType = 37
 			write(pin);
 			write(triggerValue);
  
@@ -666,7 +671,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1); // size
-			write(SET_DEBOUNCE); // msgType = 37
+			write(SET_DEBOUNCE); // msgType = 38
 			write(pin);
 			write(delay);
  
@@ -679,7 +684,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1 + (1 + relayData.length)); // size
-			write(SERIAL_RELAY); // msgType = 38
+			write(SERIAL_RELAY); // msgType = 39
 			write(deviceId);
 			write(serialPort);
 			write(relayData);
@@ -693,7 +698,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1 + 1 + 2); // size
-			write(SERVO_ATTACH); // msgType = 39
+			write(SERVO_ATTACH); // msgType = 40
 			write(deviceId);
 			write(pin);
 			write(initPos);
@@ -708,7 +713,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1); // size
-			write(SERVO_ENABLE_PWM); // msgType = 40
+			write(SERVO_ENABLE_PWM); // msgType = 41
 			write(deviceId);
 			write(pin);
  
@@ -721,7 +726,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1); // size
-			write(SERVO_DISABLE_PWM); // msgType = 41
+			write(SERVO_DISABLE_PWM); // msgType = 42
 			write(deviceId);
  
 	  } catch (Exception e) {
@@ -733,7 +738,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 2); // size
-			write(SERVO_SET_MAX_VELOCITY); // msgType = 42
+			write(SERVO_SET_MAX_VELOCITY); // msgType = 43
 			write(deviceId);
 			writeb16(maxVelocity);
  
@@ -746,7 +751,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 2); // size
-			write(SERVO_SET_VELOCITY); // msgType = 43
+			write(SERVO_SET_VELOCITY); // msgType = 44
 			write(deviceId);
 			writeb16(velocity);
  
@@ -759,7 +764,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1 + 1 + 1); // size
-			write(SERVO_SWEEP_START); // msgType = 44
+			write(SERVO_SWEEP_START); // msgType = 45
 			write(deviceId);
 			write(min);
 			write(max);
@@ -774,7 +779,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1); // size
-			write(SERVO_SWEEP_STOP); // msgType = 45
+			write(SERVO_SWEEP_STOP); // msgType = 46
 			write(deviceId);
  
 	  } catch (Exception e) {
@@ -786,7 +791,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 1); // size
-			write(SERVO_WRITE); // msgType = 46
+			write(SERVO_WRITE); // msgType = 47
 			write(deviceId);
 			write(target);
  
@@ -799,7 +804,7 @@ public class Msg {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + 2); // size
-			write(SERVO_WRITE_MICROSECONDS); // msgType = 47
+			write(SERVO_WRITE_MICROSECONDS); // msgType = 48
 			write(deviceId);
 			writeb16(ms);
  
@@ -879,6 +884,9 @@ public class Msg {
 		}
 		case I2C_WRITE_READ:{
 			return "i2cWriteRead";
+		}
+		case PUBLISH_I2C_DATA:{
+			return "publishI2cData";
 		}
 		case NEO_PIXEL_ATTACH:{
 			return "neoPixelAttach";

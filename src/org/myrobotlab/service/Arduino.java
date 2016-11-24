@@ -872,23 +872,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			error("must be connected to enable pins");
 			return;
 		}
-		/*
-		 * MrlMsg msg = new MrlMsg(ENABLE_PIN); msg.append(address); // ANALOG 1
-		 * DIGITAL 0
-		 * 
-		 * 
-		 * msg.append(getMrlPinType(pin)); // pinType // TODO - make this Hz so
-		 * everyone is happy :) msg.append16(rate); // sendMsg(msg);
-		 * 
-		 * FIXME - why pinType ???
-		 */
-
 		PinDefinition pin = pinIndex.get(address);
-
 		msg.enablePin(address, getMrlPinType(pin), rate);
-
 		pin.setEnabled(true);
-		invoke("publishPinDefinition", pin);
+		invoke("publishPinDefinition", pin); // broadcast pin change
 	}
 
 	public BoardInfo getBoardInfo() {
@@ -1024,8 +1011,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	/**
-	 * sends a heartbeat, if not replied from
-	 * in the next heartbeat disconnects and resets
+	 * sends a heartbeat, if not replied from in the next heartbeat disconnects
+	 * and resets
 	 */
 	// > heartbeat
 	public void heartbeat() {
@@ -1036,11 +1023,11 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 				disconnect();
 			}
 		}
-		
-		// resetting to false - publishHeartbeat will set to 
+
+		// resetting to false - publishHeartbeat will set to
 		// true (hopefully before the next heartbeat)
 		heartbeat = false;
-		msg.heartbeat();		
+		msg.heartbeat();
 	}
 
 	@Override
@@ -1664,15 +1651,14 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		log.info("b32 {} ", b32);
 	}
 
-	
 	/**
 	 * 
 	 * @param function
 	 */
 	// < publishAck/function
-	public void publishAck(Integer function/*byte*/){
+	public void publishAck(Integer function/* byte */) {
 		log.info("Message Ack received: =={}==", Msg.methodToString(function));
-		
+
 		synchronized (ackRecievedLock) {
 			ackRecievedLock.acknowledged = true;
 			ackRecievedLock.notifyAll();
@@ -1682,7 +1668,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		heartbeat = true;
 	}
 
-	
 	public String publishMRLCommError(String errorMsg/* str */) {
 		log.error(errorMsg);
 		return errorMsg;
@@ -1735,7 +1720,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	public void publishSensorData(Integer deviceId/* byte */, int[] data/* [] */) {
-		
+
 	}
 
 	/**
@@ -2159,13 +2144,40 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		heartbeat = true;
 	}
 
-	public void publishPinArray(int[] data) {
+	public PinData[] publishPinArray(int[] data) {
 		log.info("publishPinArray {}", data);
+		// if subscribers -
 		// look for subscribed pins and publish them
-		
+
+		int pinDataCnt = data.length / 3;
+		PinData[] pinArray = new PinData[pinDataCnt];
+
+		// parse sort reduce ...
+		for (int i = 0; i < pinArray.length; ++i) {
+			PinData pinData = new PinData(data[3 * i], Serial.bytesToInt(data, (3 * i) + 1, 2));
+			pinArray[i] = pinData;
+			int address = pinData.getAddress();
+
+			// handle individual pins
+			if (pinListeners.containsKey(address)) {
+				List<PinListener> list = pinListeners.get(address);
+				for (int j = 0; j < list.size(); ++j) {
+					PinListener pinListner = list.get(j);
+					if (pinListner.isLocal()) {
+						pinListner.onPin(pinData);
+					} else {
+						invoke("publishPin", pinData);
+					}
+				}
+			}
+		}
+
+		return pinArray;
 	}
 
-	// ============== GENERATED CALLBACKS END - non MrlObjects
-	// ======================
+	// < publishI2cData/deviceId/[] data
+	public void publishI2cData(Integer deviceId, int[] data) {
+		log.info("publishI2cData");
+	}
 
 }

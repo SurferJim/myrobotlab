@@ -94,6 +94,7 @@ public:
 	void publishHeartbeat();
 	void publishEcho( unsigned long sInt);
 	void publishCustomMsg(const byte* msg,  byte msgSize);
+	void publishI2cData( byte deviceId, const byte* data,  byte dataSize);
 	void publishAttachedDevice( byte deviceId, const char* deviceName,  byte deviceNameSize);
 	void publishBoardStatus( int microsPerLoop,  int sram, const byte* deviceSummary,  byte deviceSummarySize);
 	void publishDebug(const char* debugMsg,  byte debugMsgSize);
