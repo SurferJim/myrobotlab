@@ -968,6 +968,7 @@ public class ArduinoTest implements PinArrayListener {
 			ArduinoTest test = new ArduinoTest();
 			ArduinoTest.setUpBeforeClass();
 			
+			Runtime.start("webgui", "WebGui");
 			test.enablePin = 54;  // A0 for Mega
 			test.testEnablePinInt();
 			

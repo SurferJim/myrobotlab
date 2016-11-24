@@ -128,6 +128,12 @@ Msg* Msg::getInstance() {
 	void serialAttach( byte deviceId,  byte relayPin);
 	// > serialRelay/deviceId/[] data
 	void serialRelay( byte deviceId,  byte dataSize, const byte*data);
+	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
+	void ultrasonicSensorAttach( byte deviceId,  byte triggerPin,  byte echoPin);
+	// > ultrasonicSensorStartRanging/deviceId
+	void ultrasonicSensorStartRanging( byte deviceId);
+	// > ultrasonicSensorStopRanging/deviceId
+	void ultrasonicSensorStopRanging( byte deviceId);
 
  */
 
@@ -241,6 +247,16 @@ void Msg::publishSerialData( byte deviceId, const byte* data,  byte dataSize) {
   write(PUBLISH_SERIAL_DATA); // msgType = 50
   write(deviceId);
   write((byte*)data, dataSize);
+  flush();
+  reset();
+}
+
+void Msg::publishUltrasonicSensorData( byte deviceId,  long echoTime) {
+  write(MAGIC_NUMBER);
+  write(1 + 1 + 4); // size
+  write(PUBLISH_ULTRASONIC_SENSOR_DATA); // msgType = 54
+  write(deviceId);
+  writeb32(echoTime);
   flush();
   reset();
 }
@@ -550,6 +566,28 @@ void Msg::processCommand() {
 			byte dataSize = ioCmd[startPos+1];
 			startPos += 1 + ioCmd[startPos+1];
 			mrlComm->serialRelay( deviceId,  dataSize, data);
+			break;
+	}
+	case ULTRASONIC_SENSOR_ATTACH: { // ultrasonicSensorAttach
+			byte deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			byte triggerPin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			byte echoPin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			mrlComm->ultrasonicSensorAttach( deviceId,  triggerPin,  echoPin);
+			break;
+	}
+	case ULTRASONIC_SENSOR_START_RANGING: { // ultrasonicSensorStartRanging
+			byte deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			mrlComm->ultrasonicSensorStartRanging( deviceId);
+			break;
+	}
+	case ULTRASONIC_SENSOR_STOP_RANGING: { // ultrasonicSensorStopRanging
+			byte deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			mrlComm->ultrasonicSensorStopRanging( deviceId);
 			break;
 	}
 

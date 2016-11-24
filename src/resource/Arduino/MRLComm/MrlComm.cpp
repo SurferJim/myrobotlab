@@ -5,11 +5,12 @@
 #include "Servo.h"
 #include "MrlServo.h"
 #include "MrlI2cBus.h"
+#include "MrlUltrasonicSensor.h"
 #include "LinkedList.h"
 #include "MrlComm.h"
 
 /**
-<pre>
+ <pre>
  Schema Type Conversions
 
  Schema      ARDUINO					Java							Range
@@ -54,11 +55,11 @@ void MrlComm::publishBoardStatus() {
 
 	// report board status
 	if (boardStatusEnabled && (loopCount % publishBoardStatusModulus == 0)) {
-    byte deviceSummary[deviceList.size() * 2];
-    for (int i = 0; i < deviceList.size(); ++i){
-      deviceSummary[i] = deviceList.get(i)->id;
-      deviceSummary[i+1] = deviceList.get(i)->type;
-    }
+		byte deviceSummary[deviceList.size() * 2];
+		for (int i = 0; i < deviceList.size(); ++i) {
+			deviceSummary[i] = deviceList.get(i)->id;
+			deviceSummary[i + 1] = deviceList.get(i)->type;
+		}
 		msg->publishBoardStatus(avgTiming, getFreeRam(), deviceSummary, deviceList.size() * 2);
 	}
 	// update the timestamp of this update.
@@ -101,8 +102,9 @@ Device* MrlComm::getDevice(int id) {
  * expand if it could not accomidate the current number of devices, when a device was
  * removed - the slot could be re-used by the next device request
  */
-void MrlComm::addDevice(Device* device) {
+Device* MrlComm::addDevice(Device* device) {
 	deviceList.add(device);
+	return device;
 }
 
 /***********************************************************************
@@ -154,8 +156,7 @@ void MrlComm::update() {
 		unsigned int dataCount = 0;
 		while (node != NULL) {
 			Pin* pin = node->data;
-			if (pin->rate == 0
-					|| (now > pin->lastUpdate + (1000 / pin->rate))) {
+			if (pin->rate == 0 || (now > pin->lastUpdate + (1000 / pin->rate))) {
 				pin->lastUpdate = now;
 				// TODO: move the analog read outside of this method and pass it in!
 				if (pin->type == ANALOG) {
@@ -184,12 +185,12 @@ int MrlComm::getCustomMsgSize() {
 
 void MrlComm::processCommand() {
 	msg->processCommand();
-	if (ackEnabled){
+	if (ackEnabled) {
 		msg->publishAck(1);
 	}
 }
 
-void MrlComm::enableAck( bool enabled ){
+void MrlComm::enableAck(bool enabled) {
 	ackEnabled = enabled;
 }
 
@@ -221,7 +222,6 @@ void MrlComm::begin(HardwareSerial& serial) {
 	}
 }
 
-
 /****************************************************************
  *               GENERATED METHOD INTERFACE BEGIN
  * All methods signatures below this line are controlled by arduinoMsgs.schema
@@ -236,12 +236,12 @@ void MrlComm::getBoardInfo() {
 
 // > echo/str name1/b8/bu32 bui32/b32 bi32/b9/str name2/[] config/bu32 bui322
 /*
-void MrlComm::echo(long sInt, byte name1Size, const char*name1, byte b8,
-		unsigned long bui32, long bi32, byte b9, byte name2Size,
-		const char*name2, byte configSize, const byte*config,
-		unsigned long bui322) {
-*/
-void MrlComm::echo( unsigned long b32){
+ void MrlComm::echo(long sInt, byte name1Size, const char*name1, byte b8,
+ unsigned long bui32, long bi32, byte b9, byte name2Size,
+ const char*name2, byte configSize, const byte*config,
+ unsigned long bui322) {
+ */
+void MrlComm::echo(unsigned long b32) {
 	msg->publishEcho(b32);
 }
 
@@ -337,10 +337,10 @@ void MrlComm::heartbeat() {
 }
 
 // > i2cAttach/deviceId/i2cBus/deviceType/deviceAddress
-void MrlComm::i2cAttach( byte deviceId,  byte i2cBus,  byte deviceType,  byte deviceAddress){
-	MrlI2CBus* i2cbus = new MrlI2CBus(deviceId); //(MrlServo*) getDevice(deviceId);
-	addDevice(i2cbus);
-	// i2cbus->attach(i2cBus, deviceType, deviceAddress); @Mats do you need these ?
+void MrlComm::i2cAttach(byte deviceId, byte i2cBus, byte deviceType, byte deviceAddress) {
+	// @Mats - do you need deviceType & deviceAddress here ?
+	// if not we should shorten the i2cAttach parameters :)
+	MrlI2CBus* i2cbus = (MrlI2CBus*) addDevice(new MrlI2CBus(deviceId));
 	i2cbus->attach(i2cBus);
 }
 
@@ -350,43 +350,34 @@ void MrlComm::i2cRead(byte deviceId, byte deviceAddress, byte size) {
 }
 
 // > i2cWrite/deviceId/deviceAddress/[] data
-void MrlComm::i2cWrite(byte deviceId, byte deviceAddress, byte dataSize,
-		const byte*data) {
+void MrlComm::i2cWrite(byte deviceId, byte deviceAddress, byte dataSize, const byte*data) {
 	((MrlI2CBus*) getDevice(deviceId))->i2cWrite(deviceAddress, dataSize, data);
 }
 
 // > i2cWriteRead/deviceId/deviceAddress/readSize/writeValue
-void MrlComm::i2cWriteRead(byte deviceId, byte deviceAddress, byte readSize,
-		byte writeValue) {
-	((MrlI2CBus*) getDevice(deviceId))->i2cWriteRead(deviceAddress, readSize,
-			writeValue);
+void MrlComm::i2cWriteRead(byte deviceId, byte deviceAddress, byte readSize, byte writeValue) {
+	((MrlI2CBus*) getDevice(deviceId))->i2cWriteRead(deviceAddress, readSize, writeValue);
 }
 
 // > neoPixelAttach/pin/b16 numPixels
 void MrlComm::neoPixelAttach(byte deviceId, byte pin, long numPixels) {
-	MrlNeopixel* devicePtr = new MrlNeopixel(deviceId);
-	addDevice(devicePtr);
-	devicePtr->attach(pin, numPixels);
+	MrlNeopixel* neo = (MrlNeopixel*) addDevice(new MrlNeopixel(deviceId));
+	neo->attach(pin, numPixels);
 }
 
 // > neoPixelAttach/pin/b16 numPixels
-void MrlComm::neoPixelSetAnimation(byte deviceId, byte animation, byte red,
-		byte green, byte blue, int speed) {
-	((MrlNeopixel*) getDevice(deviceId))->setAnimation(animation, red, green,
-			blue, speed);
+void MrlComm::neoPixelSetAnimation(byte deviceId, byte animation, byte red, byte green, byte blue, int speed) {
+	((MrlNeopixel*) getDevice(deviceId))->setAnimation(animation, red, green, blue, speed);
 }
 
 // > neoPixelWriteMatrix/deviceId/[] buffer
-void MrlComm::neoPixelWriteMatrix(byte deviceId, byte bufferSize,
-		const byte*buffer) {
-	((MrlNeopixel*) getDevice(deviceId))->neopixelWriteMatrix(bufferSize,
-			buffer);
+void MrlComm::neoPixelWriteMatrix(byte deviceId, byte bufferSize, const byte*buffer) {
+	((MrlNeopixel*) getDevice(deviceId))->neopixelWriteMatrix(bufferSize, buffer);
 }
-
 
 // > servoAttach/deviceId/pin/targetOutput/b16 velocity
 void MrlComm::servoAttach(byte deviceId, byte pin, byte targetOutput, int velocity) {
-	MrlServo* servo = new MrlServo(deviceId); //(MrlServo*) getDevice(deviceId);
+	MrlServo* servo = new MrlServo(deviceId);
 	addDevice(servo);
 	// not your mama's attach - this is attaching/initializing the MrlDevice
 	servo->attach(pin, targetOutput, velocity);
@@ -449,30 +440,29 @@ void MrlComm::setSerialRate(long rate) {
 
 // TODO - implement
 // > setTrigger/pin/value
-void MrlComm::setTrigger( byte pin,  byte triggerValue){
+void MrlComm::setTrigger(byte pin, byte triggerValue) {
 	msg->publishDebug("implement me ! setDebounce (" + String(pin) + "," + String(triggerValue));
 }
 
 // TODO - implement
 // > setDebounce/pin/delay
-void MrlComm::setDebounce( byte pin,  byte delay){
+void MrlComm::setDebounce(byte pin, byte delay) {
 	msg->publishDebug("implement me ! setDebounce (" + String(pin) + "," + String(delay));
 }
 
-
 // TODO - implement
 // > serialAttach/deviceId/relayPin
-void MrlComm::serialAttach( byte deviceId,  byte relayPin){
+void MrlComm::serialAttach(byte deviceId, byte relayPin) {
 
 }
 
 // TODO - implement
 // > serialRelay/deviceId/[] data
-void MrlComm::serialRelay( byte deviceId,  byte dataSize, const byte*data){
+void MrlComm::serialRelay(byte deviceId, byte dataSize, const byte*data) {
 
 }
 
-
+// > softReset
 void MrlComm::softReset() {
 	// removing devices & pins
 	while (deviceList.size() > 0) {
@@ -493,4 +483,17 @@ void MrlComm::softReset() {
 	}
 	customMsgSize = 0;
 }
-// =================== GENERATED INTERFACE END =================================
+
+// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
+void MrlComm::ultrasonicSensorAttach(byte deviceId, byte triggerPin, byte echoPin) {
+	MrlUltrasonicSensor* sensor = (MrlUltrasonicSensor*) addDevice(new MrlUltrasonicSensor(deviceId));
+	sensor->attach(triggerPin, echoPin);
+}
+// > ultrasonicSensorStartRanging/deviceId
+void MrlComm::ultrasonicSensorStartRanging(byte deviceId) {
+
+}
+// > ultrasonicSensorStopRanging/deviceId
+void MrlComm::ultrasonicSensorStopRanging(byte deviceId) {
+
+}

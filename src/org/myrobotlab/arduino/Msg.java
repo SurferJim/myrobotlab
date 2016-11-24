@@ -168,6 +168,14 @@ public class Msg {
 	public final static int SERIAL_RELAY = 49;
 	// < publishSerialData/deviceId/[] data
 	public final static int PUBLISH_SERIAL_DATA = 50;
+	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
+	public final static int ULTRASONIC_SENSOR_ATTACH = 51;
+	// > ultrasonicSensorStartRanging/deviceId
+	public final static int ULTRASONIC_SENSOR_START_RANGING = 52;
+	// > ultrasonicSensorStopRanging/deviceId
+	public final static int ULTRASONIC_SENSOR_STOP_RANGING = 53;
+	// < publishUltrasonicSensorData/deviceId/b32 echoTime
+	public final static int PUBLISH_ULTRASONIC_SENSOR_DATA = 54;
 
 
 /**
@@ -186,6 +194,7 @@ public class Msg {
 	// public void publishDebug(String debugMsg/*str*/){}
 	// public void publishPinArray(int[] data/*[]*/){}
 	// public void publishSerialData(Integer deviceId/*byte*/, int[] data/*[]*/){}
+	// public void publishUltrasonicSensorData(Integer deviceId/*byte*/, Integer echoTime/*b32*/){}
 	
 
 	
@@ -342,6 +351,17 @@ public class Msg {
 				arduino.invoke("publishSerialData",  deviceId,  data);
 			} else { 
  				arduino.publishSerialData( deviceId,  data);			}
+			break;
+		}
+		case PUBLISH_ULTRASONIC_SENSOR_DATA: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer echoTime = b32(ioCmd, startPos+1);
+			startPos += 4; //b32
+			if(invoke){
+				arduino.invoke("publishUltrasonicSensorData",  deviceId,  echoTime);
+			} else { 
+ 				arduino.publishUltrasonicSensorData( deviceId,  echoTime);			}
 			break;
 		}
 		
@@ -841,6 +861,44 @@ public class Msg {
 	  }
 	}
 
+	public void ultrasonicSensorAttach(Integer deviceId/*byte*/, Integer triggerPin/*byte*/, Integer echoPin/*byte*/) {
+		try {
+			write(MAGIC_NUMBER);
+			write(1 + 1 + 1 + 1); // size
+			write(ULTRASONIC_SENSOR_ATTACH); // msgType = 51
+			write(deviceId);
+			write(triggerPin);
+			write(echoPin);
+ 
+	  } catch (Exception e) {
+	  			serial.error(e);
+	  }
+	}
+
+	public void ultrasonicSensorStartRanging(Integer deviceId/*byte*/) {
+		try {
+			write(MAGIC_NUMBER);
+			write(1 + 1); // size
+			write(ULTRASONIC_SENSOR_START_RANGING); // msgType = 52
+			write(deviceId);
+ 
+	  } catch (Exception e) {
+	  			serial.error(e);
+	  }
+	}
+
+	public void ultrasonicSensorStopRanging(Integer deviceId/*byte*/) {
+		try {
+			write(MAGIC_NUMBER);
+			write(1 + 1); // size
+			write(ULTRASONIC_SENSOR_STOP_RANGING); // msgType = 53
+			write(deviceId);
+ 
+	  } catch (Exception e) {
+	  			serial.error(e);
+	  }
+	}
+
 
 	public static String methodToString(int method) {
 		switch (method) {
@@ -993,6 +1051,18 @@ public class Msg {
 		}
 		case PUBLISH_SERIAL_DATA:{
 			return "publishSerialData";
+		}
+		case ULTRASONIC_SENSOR_ATTACH:{
+			return "ultrasonicSensorAttach";
+		}
+		case ULTRASONIC_SENSOR_START_RANGING:{
+			return "ultrasonicSensorStartRanging";
+		}
+		case ULTRASONIC_SENSOR_STOP_RANGING:{
+			return "ultrasonicSensorStopRanging";
+		}
+		case PUBLISH_ULTRASONIC_SENSOR_DATA:{
+			return "publishUltrasonicSensorData";
 		}
 
 		default: {

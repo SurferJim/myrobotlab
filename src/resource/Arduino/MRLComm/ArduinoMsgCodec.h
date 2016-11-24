@@ -116,6 +116,14 @@
 #define SERIAL_RELAY 49
 // < publishSerialData/deviceId/[] data
 #define PUBLISH_SERIAL_DATA 50
+// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
+#define ULTRASONIC_SENSOR_ATTACH 51
+// > ultrasonicSensorStartRanging/deviceId
+#define ULTRASONIC_SENSOR_START_RANGING 52
+// > ultrasonicSensorStopRanging/deviceId
+#define ULTRASONIC_SENSOR_STOP_RANGING 53
+// < publishUltrasonicSensorData/deviceId/b32 echoTime
+#define PUBLISH_ULTRASONIC_SENSOR_DATA 54
 
 
 

@@ -63,7 +63,7 @@ public:
 
     bool ackEnabled = false;
 
-    void addDevice(Device* device);
+    Device* addDevice(Device* device);
     void update();
 
     // Below are generated callbacks controlled by
@@ -139,6 +139,12 @@ public:
 	void serialAttach( byte deviceId,  byte relayPin);
 	// > serialRelay/deviceId/[] data
 	void serialRelay( byte deviceId,  byte dataSize, const byte*data);
+	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
+	void ultrasonicSensorAttach( byte deviceId,  byte triggerPin,  byte echoPin);
+	// > ultrasonicSensorStartRanging/deviceId
+	void ultrasonicSensorStartRanging( byte deviceId);
+	// > ultrasonicSensorStopRanging/deviceId
+	void ultrasonicSensorStopRanging( byte deviceId);
     // </generatedCallBacks>
     // end
 

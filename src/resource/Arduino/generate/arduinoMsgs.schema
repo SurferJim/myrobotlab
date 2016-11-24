@@ -102,6 +102,8 @@
 # > serialRelay/deviceId/serialPort/[] relayData
 
 # Servo
+# http://myrobotlab.org/service/Servo
+
 > servoAttach/deviceId/pin/initPos/b16 initVelocity
 > servoEnablePwm/deviceId/pin
 > servoDisablePwm/deviceId
@@ -115,7 +117,16 @@
 # < publishServoEvent/deviceId/eventType/currentPos/targetPos
 
 # Serial - for relaying serial data to a different pin
+# I suspect this should model the same pattern as Servo
+# where a Serial device is created for each serail created and attached
+# to a pin
 > serialAttach/deviceId/relayPin
 > serialRelay/deviceId/[] data
 < publishSerialData/deviceId/[] data
 
+# UltrasonicSensor
+# http://myrobotlab.org/service/UltrasonicSensor
+> ultrasonicSensorAttach/deviceId/triggerPin/echoPin
+> ultrasonicSensorStartRanging/deviceId
+> ultrasonicSensorStopRanging/deviceId
+< publishUltrasonicSensorData/deviceId/b32 echoTime

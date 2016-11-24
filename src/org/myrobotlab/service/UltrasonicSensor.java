@@ -252,37 +252,20 @@ public class UltrasonicSensor extends Service implements RangeListener, Ultrason
 
 		try {
 
-			// Runtime.start("gui", "GUIService");
-
-			/*
-			 * int [] config = new int[]{1,2}; int [] payload = new
-			 * int[config.length + 2]; payload = Arrays.copyOfRange(config, 0,
-			 * 2);
-			 */
-
-			Runtime.start("srf05", "UltrasonicSensor");
+			UltrasonicSensor srf05 = (UltrasonicSensor)Runtime.start("srf05", "UltrasonicSensor");
 			Runtime.start("python", "Python");
 			Runtime.start("gui", "GUIService");
-			/*
-			 * srf05.attach("COM9", 7);
-			 * 
-			 * Runtime.start("webgui", "WebGui");
-			 * 
-			 * Arduino arduino = srf05.getController(); arduino.digitalWrite(13,
-			 * 1); arduino.digitalWrite(13, 0); arduino.digitalWrite(13, 1);
-			 * arduino.digitalWrite(13, 0); arduino.digitalWrite(13, 1); Integer
-			 * version = arduino.getVersion(); log.info("version {}", version);
-			 * version = arduino.getVersion(); log.info("version {}", version);
-			 * version = arduino.getVersion(); log.info("version {}", version);
-			 * 
-			 * srf05.startRanging();
-			 * 
-			 * srf05.stopRanging();
-			 * 
-			 * int x = srf05.range();
-			 */
-
-			log.info("here");
+			
+			int trigPin = 8;
+			int echoPin = 7;
+			
+			// TODO test with externally supplied arduino
+			
+			srf05.attach("COM4", trigPin, echoPin);
+			
+			srf05.startRanging();
+			
+			srf05.stopRanging();
 
 		} catch (Exception e) {
 			Logging.logError(e);

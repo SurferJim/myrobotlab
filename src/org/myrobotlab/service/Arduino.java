@@ -1976,5 +1976,12 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		
 	}
 
+	public void publishUltrasonicSensorData(Integer deviceId, Integer echoTime) {
+		// TODO Auto-generated method stub
+		
+		// get device Id 
+		
+	}
+
 
 }
