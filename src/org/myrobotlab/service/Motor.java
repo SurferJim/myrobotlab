@@ -39,12 +39,10 @@ import org.myrobotlab.motor.MotorConfigDualPwm;
 import org.myrobotlab.motor.MotorConfigSimpleH;
 import org.myrobotlab.sensor.Encoder;
 import org.myrobotlab.sensor.EncoderListener;
-import org.myrobotlab.service.data.SensorData;
 import org.myrobotlab.service.interfaces.DeviceController;
 import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.MotorEncoder;
-import org.myrobotlab.service.interfaces.SensorDataListener;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
@@ -58,7 +56,7 @@ import org.slf4j.Logger;
  *         H-bridges output
  * 
  */
-public class Motor extends Service implements MotorControl, SensorDataListener, EncoderListener {
+public class Motor extends Service implements MotorControl, EncoderListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -370,11 +368,7 @@ public class Motor extends Service implements MotorControl, SensorDataListener, 
 
 	}
 
-	@Override
-	public void onSensorData(SensorData data) {
-		// TODO Auto-generated method stub
 
-	}
 
 	@Override
 	public void pulse() {

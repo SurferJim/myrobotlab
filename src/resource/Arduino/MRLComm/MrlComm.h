@@ -4,7 +4,7 @@
 #include "ArduinoMsgCodec.h"
 
 // TODO - standard convention of dev versions are odd release is even ?
-#define MRLCOMM_VERSION         41
+#define MRLCOMM_VERSION         43
 
 // forward defines to break circular dependency
 class Device;
@@ -141,8 +141,8 @@ public:
 	void serialRelay( byte deviceId,  byte dataSize, const byte*data);
 	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
 	void ultrasonicSensorAttach( byte deviceId,  byte triggerPin,  byte echoPin);
-	// > ultrasonicSensorStartRanging/deviceId
-	void ultrasonicSensorStartRanging( byte deviceId);
+	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
+	void ultrasonicSensorStartRanging( byte deviceId,  long timeout);
 	// > ultrasonicSensorStopRanging/deviceId
 	void ultrasonicSensorStopRanging( byte deviceId);
     // </generatedCallBacks>

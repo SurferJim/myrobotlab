@@ -130,8 +130,8 @@ Msg* Msg::getInstance() {
 	void serialRelay( byte deviceId,  byte dataSize, const byte*data);
 	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
 	void ultrasonicSensorAttach( byte deviceId,  byte triggerPin,  byte echoPin);
-	// > ultrasonicSensorStartRanging/deviceId
-	void ultrasonicSensorStartRanging( byte deviceId);
+	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
+	void ultrasonicSensorStartRanging( byte deviceId,  long timeout);
 	// > ultrasonicSensorStopRanging/deviceId
 	void ultrasonicSensorStopRanging( byte deviceId);
 
@@ -581,7 +581,9 @@ void Msg::processCommand() {
 	case ULTRASONIC_SENSOR_START_RANGING: { // ultrasonicSensorStartRanging
 			byte deviceId = ioCmd[startPos+1]; // bu8
 			startPos += 1;
-			mrlComm->ultrasonicSensorStartRanging( deviceId);
+			long timeout = b32(ioCmd, startPos+1);
+			startPos += 4; //b32
+			mrlComm->ultrasonicSensorStartRanging( deviceId,  timeout);
 			break;
 	}
 	case ULTRASONIC_SENSOR_STOP_RANGING: { // ultrasonicSensorStopRanging

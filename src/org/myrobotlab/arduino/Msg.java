@@ -170,7 +170,7 @@ public class Msg {
 	public final static int PUBLISH_SERIAL_DATA = 50;
 	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
 	public final static int ULTRASONIC_SENSOR_ATTACH = 51;
-	// > ultrasonicSensorStartRanging/deviceId
+	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
 	public final static int ULTRASONIC_SENSOR_START_RANGING = 52;
 	// > ultrasonicSensorStopRanging/deviceId
 	public final static int ULTRASONIC_SENSOR_STOP_RANGING = 53;
@@ -875,12 +875,13 @@ public class Msg {
 	  }
 	}
 
-	public void ultrasonicSensorStartRanging(Integer deviceId/*byte*/) {
+	public void ultrasonicSensorStartRanging(Integer deviceId/*byte*/, Integer timeout/*b32*/) {
 		try {
 			write(MAGIC_NUMBER);
-			write(1 + 1); // size
+			write(1 + 1 + 4); // size
 			write(ULTRASONIC_SENSOR_START_RANGING); // msgType = 52
 			write(deviceId);
+			writeb32(timeout);
  
 	  } catch (Exception e) {
 	  			serial.error(e);

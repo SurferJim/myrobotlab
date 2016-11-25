@@ -23,7 +23,7 @@ import org.slf4j.Logger;
  * build of MRLComm to work. Check with \@Alessandruino for questions.
  *
  */
-public class OculusDIY extends Service implements SensorDataListener, OculusDataPublisher, OculusDataListener {
+public class OculusDIY extends Service implements OculusDataPublisher, OculusDataListener {
 
 	private static final long serialVersionUID = 1L;
 
