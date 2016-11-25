@@ -429,6 +429,15 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	// @Calamity - I like your method signature - but I think it
 	// should create a MrlSerial device and read and write similar to the I2C
 	// MrlDevice instead of replacing the service's serial service
+	// @grog - I don't mind using a MrlSerial device, as both way will essentially do the same thing. The difference is only where the
+	//		   messages will be send in MRLComm (processCommand vs update methods). It could not be the same way as I2C because I2C read
+	//         block and blocking is evil
+	//         two thing I had in mind when I did it:
+	//         1- be able to connect MRLComm to a master MRLComm using different communication protocol (Serial, I2C, bluetooth, wifi) 
+	//            but this also can be done with different device type
+	//         2- I also had in mind of having the Master arduino and it's slaves (chain of slave) act as one device. So they could talk
+	//            and interract with each other without having to go back to the javaland. Not sure if it's a good idea or not, but that's
+	//            one of the reason I had go that way
 	public void controllerAttach(Arduino controller, int serialPort) {
 		attachedController.put(serialPort, controller);
 		msg.controllerAttach(serialPort);
