@@ -8,14 +8,12 @@ import org.myrobotlab.arduino.ArduinoUtils;
 import org.myrobotlab.framework.MRLException;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.sensor.AnalogPinSensor;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Motor;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
 
 import com.pi4j.jni.Serial;
-import com.sun.source.tree.AssertTree;
 
 @Ignore
 public class ArduinoChaosTest {
@@ -152,9 +150,6 @@ public class ArduinoChaosTest {
     arduino.softReset();
     
     
-    Thread.sleep(1000);
-    AnalogPinSensor s = new AnalogPinSensor(3, 2);
-    // arduino.sensorAttach(s);
     Thread.sleep(1000);
     // ?!
     // arduino.sensorPollingStart("A0", 123);
