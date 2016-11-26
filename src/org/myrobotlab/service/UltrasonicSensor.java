@@ -13,7 +13,6 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.service.data.SensorData;
 import org.myrobotlab.service.interfaces.DeviceController;
 import org.myrobotlab.service.interfaces.RangeListener;
 import org.myrobotlab.service.interfaces.UltrasonicSensorControl;
@@ -125,11 +124,11 @@ public class UltrasonicSensor extends Service implements RangeListener, Ultrason
 		return lastRange;
 	}
 
-	public int range() {
+	public long range() {
 		return range(10);
 	}
 
-	public Integer range(int timeout) {
+	public long range(int timeout) {
 
 		Integer ret = null;
 
@@ -245,37 +244,45 @@ public class UltrasonicSensor extends Service implements RangeListener, Ultrason
 		return range;
 	}
 	
+	@Override
+	public void setUnits(String units) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		try {
 
-			UltrasonicSensor srf05 = (UltrasonicSensor)Runtime.start("srf05", "UltrasonicSensor");
-			Runtime.start("python", "Python");
-			Runtime.start("gui", "GUIService");
+			UltrasonicSensor srf04 = (UltrasonicSensor)Runtime.start("srf04", "UltrasonicSensor");
+			// Runtime.start("python", "Python");
+			// Runtime.start("gui", "GUIService");
 			
 			int trigPin = 8;
 			int echoPin = 7;
 			
+			
+			
 			// TODO test with externally supplied arduino
 			
-			srf05.attach("COM4", trigPin, echoPin);
+			srf04.attach("COM10", trigPin, echoPin);
 			
-			srf05.startRanging();
+			Arduino arduino = (Arduino)srf04.getController();
+			arduino.enableBoardStatus(true);
+			arduino.enableBoardStatus(false);
+			arduino.setDebug(true);
 			
-			srf05.stopRanging();
+			srf04.startRanging();
+			
+			srf04.stopRanging();
+			
+			arduino.setDebug(false);
 
 		} catch (Exception e) {
 			Logging.logError(e);
 		}
-	}
-
-
-	@Override
-	public void setUnits(String units) {
-		// TODO Auto-generated method stub
-		
 	}
 
 

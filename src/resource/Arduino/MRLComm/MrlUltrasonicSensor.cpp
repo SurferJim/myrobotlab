@@ -2,8 +2,9 @@
 #include "Device.h"
 #include "MrlUltrasonicSensor.h"
 
-MrlUltrasonicSensor::MrlUltrasonicSensor(int deviceId) : Device(deviceId, DEVICE_TYPE_SERVO) {
-	timeoutUS=0; //this need to be set
+MrlUltrasonicSensor::MrlUltrasonicSensor(int deviceId) : Device(deviceId, DEVICE_TYPE_ULTRASONIC) {
+	msg->publishDebug("ctor MrlUltrasonicSensor " + String(deviceId));
+	timeoutUS=1000; //this need to be set
 	trigPin=0;//this need to be set
 	echoPin=0;//this need to be set
 }
@@ -11,12 +12,33 @@ MrlUltrasonicSensor::MrlUltrasonicSensor(int deviceId) : Device(deviceId, DEVICE
 MrlUltrasonicSensor::~MrlUltrasonicSensor() {}
 
 void MrlUltrasonicSensor::attach(byte trigPin, byte echoPin){
+	msg->publishDebug("Ultrasonic.attach " + String(trigPin) + " " + String(echoPin));
 	this->trigPin = trigPin;
 	this->echoPin = echoPin;
 }
 
+void MrlUltrasonicSensor::startRanging(long timeout) {
+	msg->publishDebug("Ultrasonic.startRanging " + String(timeout));
+	isRanging = true;
+	state = ECHO_STATE_START;
+}
+
+void MrlUltrasonicSensor::stopRanging() {
+	msg->publishDebug(F("Ultrasonic.stopRanging"));
+	isRanging = false;
+}
+
 void MrlUltrasonicSensor::update() {
-	// if ranging ..
+
+	if (!isRanging){
+		return;
+	}
+
+	msg->publishDebug("state " + String(state));
+
+	++lastValue;
+	msg->publishUltrasonicSensorData(id, lastValue);
+	return;
 
 	if (state == ECHO_STATE_START) {
 		// trigPin prepare - start low for an
@@ -71,7 +93,7 @@ void MrlUltrasonicSensor::update() {
 			lastValue = 0;
 		}
 	} else if (state == ECHO_STATE_GOOD_RANGE || state == ECHO_STATE_TIMEOUT) {
-		// publishSensorDataLong(pin.address, sensor.lastValue);
+		msg->publishUltrasonicSensorData(id, lastValue);
 		state = ECHO_STATE_START;
 	} // end else if
 }

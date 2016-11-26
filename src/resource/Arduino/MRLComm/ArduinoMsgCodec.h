@@ -122,7 +122,7 @@
 #define ULTRASONIC_SENSOR_START_RANGING 52
 // > ultrasonicSensorStopRanging/deviceId
 #define ULTRASONIC_SENSOR_STOP_RANGING 53
-// < publishUltrasonicSensorData/deviceId/b32 echoTime
+// < publishUltrasonicSensorData/deviceId/b16 echoTime
 #define PUBLISH_ULTRASONIC_SENSOR_DATA 54
 
 

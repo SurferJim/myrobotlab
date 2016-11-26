@@ -129,4 +129,4 @@
 > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
 > ultrasonicSensorStartRanging/deviceId/b32 timeout
 > ultrasonicSensorStopRanging/deviceId
-< publishUltrasonicSensorData/deviceId/b32 echoTime
+< publishUltrasonicSensorData/deviceId/b16 echoTime

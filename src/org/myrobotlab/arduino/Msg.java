@@ -174,7 +174,7 @@ public class Msg {
 	public final static int ULTRASONIC_SENSOR_START_RANGING = 52;
 	// > ultrasonicSensorStopRanging/deviceId
 	public final static int ULTRASONIC_SENSOR_STOP_RANGING = 53;
-	// < publishUltrasonicSensorData/deviceId/b32 echoTime
+	// < publishUltrasonicSensorData/deviceId/b16 echoTime
 	public final static int PUBLISH_ULTRASONIC_SENSOR_DATA = 54;
 
 
@@ -194,7 +194,7 @@ public class Msg {
 	// public void publishDebug(String debugMsg/*str*/){}
 	// public void publishPinArray(int[] data/*[]*/){}
 	// public void publishSerialData(Integer deviceId/*byte*/, int[] data/*[]*/){}
-	// public void publishUltrasonicSensorData(Integer deviceId/*byte*/, Integer echoTime/*b32*/){}
+	// public void publishUltrasonicSensorData(Integer deviceId/*byte*/, Integer echoTime/*b16*/){}
 	
 
 	
@@ -356,8 +356,8 @@ public class Msg {
 		case PUBLISH_ULTRASONIC_SENSOR_DATA: {
 			Integer deviceId = ioCmd[startPos+1]; // bu8
 			startPos += 1;
-			Integer echoTime = b32(ioCmd, startPos+1);
-			startPos += 4; //b32
+			Integer echoTime = b16(ioCmd, startPos+1);
+			startPos += 2; //b16
 			if(invoke){
 				arduino.invoke("publishUltrasonicSensorData",  deviceId,  echoTime);
 			} else { 

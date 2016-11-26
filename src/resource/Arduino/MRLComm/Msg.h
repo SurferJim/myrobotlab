@@ -37,6 +37,9 @@ class MrlComm;
 
 class Msg {
 
+public:
+	bool debug = false;
+
 private:
 	// msg reading FIXME - rename recvBuffer
 	byte ioCmd[MAX_MSG_SIZE];
@@ -100,7 +103,7 @@ public:
 	void publishDebug(const char* debugMsg,  byte debugMsgSize);
 	void publishPinArray(const byte* data,  byte dataSize);
 	void publishSerialData( byte deviceId, const byte* data,  byte dataSize);
-	void publishUltrasonicSensorData( byte deviceId,  long echoTime);
+	void publishUltrasonicSensorData( byte deviceId,  int echoTime);
 
 	// handles all (PC --> MrlComm) methods
 	// void handle(int[] ioCmd); // send size too ?

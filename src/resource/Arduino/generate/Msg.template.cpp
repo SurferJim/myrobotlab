@@ -123,13 +123,13 @@ unsigned long Msg::bu32(const byte* buffer, const int start/*=0*/) {
 }
 
 void Msg::publishError(const String& message) {
-	// instance->publishMRLCommError(message.c_str(), message.length()-1);
 	publishMRLCommError(message.c_str(), message.length());
 }
 
 void Msg::publishDebug(const String& message) {
-	// instance->publishDebug(message.c_str(), message.length()-1);
-	publishDebug(message.c_str(), message.length());
+	if (debug){
+		publishDebug(message.c_str(), message.length());
+	}
 }
 
 bool Msg::readMsg() {

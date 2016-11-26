@@ -37,6 +37,9 @@ class MrlComm;
 
 class Msg {
 
+public:
+	bool debug = false;
+
 private:
 	// msg reading FIXME - rename recvBuffer
 	byte ioCmd[MAX_MSG_SIZE];

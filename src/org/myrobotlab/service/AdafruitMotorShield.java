@@ -11,7 +11,6 @@ package org.myrobotlab.service;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.myrobotlab.arduino.MrlMsg;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceType;
 import org.myrobotlab.logging.Level;

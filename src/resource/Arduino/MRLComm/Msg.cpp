@@ -251,12 +251,12 @@ void Msg::publishSerialData( byte deviceId, const byte* data,  byte dataSize) {
   reset();
 }
 
-void Msg::publishUltrasonicSensorData( byte deviceId,  long echoTime) {
+void Msg::publishUltrasonicSensorData( byte deviceId,  int echoTime) {
   write(MAGIC_NUMBER);
-  write(1 + 1 + 4); // size
+  write(1 + 1 + 2); // size
   write(PUBLISH_ULTRASONIC_SENSOR_DATA); // msgType = 54
   write(deviceId);
-  writeb32(echoTime);
+  writeb16(echoTime);
   flush();
   reset();
 }
@@ -646,13 +646,13 @@ unsigned long Msg::bu32(const byte* buffer, const int start/*=0*/) {
 }
 
 void Msg::publishError(const String& message) {
-	// instance->publishMRLCommError(message.c_str(), message.length()-1);
 	publishMRLCommError(message.c_str(), message.length());
 }
 
 void Msg::publishDebug(const String& message) {
-	// instance->publishDebug(message.c_str(), message.length()-1);
-	publishDebug(message.c_str(), message.length());
+	if (debug){
+		publishDebug(message.c_str(), message.length());
+	}
 }
 
 bool Msg::readMsg() {

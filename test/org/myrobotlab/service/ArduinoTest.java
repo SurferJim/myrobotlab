@@ -17,7 +17,6 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
-import org.myrobotlab.codec.serial.ArduinoMsgCodec;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -962,8 +961,8 @@ public class ArduinoTest implements PinArrayListener {
 
 			// test a "real" arduino
 			userVirtualHardware = false;
-			// port = "COM10";
-			port = "COM4";
+			port = "COM10";
+			// port = "COM4";
 			
 			ArduinoTest test = new ArduinoTest();
 			ArduinoTest.setUpBeforeClass();

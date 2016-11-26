@@ -431,7 +431,7 @@ void MrlComm::servoWriteMicroseconds(byte deviceId, int ms) {
 }
 
 void MrlComm::setDebug(bool enabled) {
-	debug = enabled;
+	msg->debug = enabled;
 }
 
 void MrlComm::setSerialRate(long rate) {
@@ -475,7 +475,7 @@ void MrlComm::softReset() {
 	loopCount = 0;
 	publishBoardStatusModulus = 10000;
 	boardStatusEnabled = false;
-	debug = false;
+	msg->debug = false;
 	heartbeatEnabled = false;
 	lastHeartbeatUpdate = 0;
 	for (unsigned int i = 0; i < MAX_MSG_SIZE; i++) {
@@ -490,10 +490,12 @@ void MrlComm::ultrasonicSensorAttach(byte deviceId, byte triggerPin, byte echoPi
 	sensor->attach(triggerPin, echoPin);
 }
 // > ultrasonicSensorStartRanging/deviceId
-void MrlComm::ultrasonicSensorStartRanging(byte deviceId) {
-
+void MrlComm::ultrasonicSensorStartRanging(byte deviceId, long timeout) {
+	MrlUltrasonicSensor* sensor = (MrlUltrasonicSensor*)getDevice(deviceId);
+	sensor->startRanging(timeout);
 }
 // > ultrasonicSensorStopRanging/deviceId
 void MrlComm::ultrasonicSensorStopRanging(byte deviceId) {
-
+	MrlUltrasonicSensor* sensor = (MrlUltrasonicSensor*)getDevice(deviceId);
+	sensor->stopRanging();
 }

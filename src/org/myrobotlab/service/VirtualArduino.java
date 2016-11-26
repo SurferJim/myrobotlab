@@ -1,104 +1,5 @@
 package org.myrobotlab.service;
 
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MAGIC_NUMBER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MAX_MSG_SIZE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MSG_ROUTE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_BOARD_INFO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_BOARD_STATUS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_MRLCOMM_ERROR;
-
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MAX_MSG_SIZE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MAGIC_NUMBER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MRLCOMM_VERSION;
-
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_NOT_FOUND;
-
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_ARDUINO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_ULTRASONIC;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_STEPPER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_MOTOR;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_STEPPER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_MOTOR;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_SERVO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_I2C;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_NEOPIXEL;
-
-///// java static import definition - DO NOT MODIFY - Begin //////
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_MRLCOMM_ERROR;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.GET_BOARD_INFO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_BOARD_INFO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.ANALOG_WRITE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.CONTROLLER_ATTACH;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.CREATE_I2C_DEVICE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.CUSTOM_MSG;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_ATTACH;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_DETACH;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DIGITAL_WRITE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DISABLE_BOARD_STATUS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DISABLE_PIN;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DISABLE_PINS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.ENABLE_BOARD_STATUS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.ENABLE_PIN;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.GET_MRL_PIN_TYPE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.HEARTBEAT;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.I2C_READ;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.I2C_RETURN_DATA;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.I2C_WRITE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.I2C_WRITE_READ;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.INTS_TO_STRING;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.IS_ATTACHED;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.IS_RECORDING;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MOTOR_MOVE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MOTOR_MOVE_TO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MOTOR_RESET;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MOTOR_STOP;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MSG_ROUTE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.NEO_PIXEL_SET_ANIMATION;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.NEO_PIXEL_WRITE_MATRIX;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.ON_SENSOR_DATA;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PIN_MODE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_ATTACHED_DEVICE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_BOARD_STATUS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_CUSTOM_MSG;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_DEBUG;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_MESSAGE_ACK;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_PIN;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_PIN_ARRAY;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_PIN_DEFINITION;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_PULSE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_PULSE_STOP;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_SENSOR_DATA;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_SERVO_EVENT;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_TRIGGER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PULSE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PULSE_STOP;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.READ;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.RECORD;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.RELEASE_I2C_DEVICE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.RESET;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SENSOR_ACTIVATE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SENSOR_DEACTIVATE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SENSOR_POLLING_START;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SENSOR_POLLING_STOP;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_ATTACH;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_DETACH;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_SET_MAX_VELOCITY;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_SET_VELOCITY;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_SWEEP_START;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_SWEEP_STOP;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_WRITE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_WRITE_MICROSECONDS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_BOARD_MEGA_ADK;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_DEBOUNCE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_DEBUG;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_DIGITAL_TRIGGER_ONLY;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_SERIAL_RATE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_TRIGGER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SOFT_RESET;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.STOP_RECORDING;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.UNSET_CONTROLLER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.WRITE;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -107,9 +8,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.myrobotlab.arduino.BoardInfo;
-import org.myrobotlab.arduino.BoardStatus;
-import org.myrobotlab.arduino.MrlMsg;
-import org.myrobotlab.codec.serial.ArduinoMsgCodec;
+import org.myrobotlab.arduino.Msg;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceType;
 import org.myrobotlab.logging.Level;
@@ -283,13 +182,14 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 
 		if (record != null) {
 			recordRxBuffer.append("< ");
-			recordRxBuffer.append(ArduinoMsgCodec.byteToMethod(function));
+			recordRxBuffer.append(Msg.methodToString(function));
 		}
 
 		switch (function) {
-		case GET_BOARD_INFO: {
+		case Msg.GET_BOARD_INFO: {
 			MrlMsg msg = new MrlMsg(PUBLISH_BOARD_INFO);
 			msg.append(boardInfo.getVersion()).append(boardInfo.getBoardType());
+			
 			sendMsg(msg);
 			break;
 		}

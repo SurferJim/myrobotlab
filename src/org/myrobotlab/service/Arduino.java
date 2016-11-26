@@ -323,7 +323,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	synchronized private Integer attachDevice(DeviceControl device, Object[] attachConfig) {
-		DeviceMapping map = new DeviceMapping(this, attachConfig);
+		DeviceMapping map = new DeviceMapping(device, attachConfig);
 		map.setId(nextDeviceId);
 		deviceList.put(device.getName(), map);
 		deviceIndex.put(nextDeviceId, map);
@@ -394,7 +394,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			// most likely on a real board this send will never get to
 			// mrlcomm - because the board is not ready - but it doesnt hurt
 			// and in fact it helps VirtualArduino - since we currently do not
-			// have a DTR CDR line in the virtual port
+			// have a DTR CDR line in the virtual port as use this as a signal of 
+			// connection
 			msg.getBoardInfo();
 
 			log.info("waiting for boardInfo lock..........");
@@ -768,8 +769,12 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 		// deviceAttach(i2cBus, getMrlDeviceType(i2cBus), busAddress);
 		// msg.i2cAttach(deviceId, getMrlDeviceType(i2cBus), deviceAddress);
-		Integer deviceId = attachDevice(control, new Object[] { busAddress, deviceAddress });
-		msg.i2cAttach(deviceId, busAddress, getMrlDeviceType(i2cBus), deviceAddress);
+		// Mat's correction !
+		// Integer deviceId = attachDevice(control, new Object[] { busAddress, deviceAddress });
+		// msg.i2cAttach(deviceId, busAddress, getMrlDeviceType(i2cBus), deviceAddress);
+		
+		Integer deviceId = attachDevice(i2cBus, new Object[] { busAddress });
+		msg.i2cBusAttach(deviceId, busAddress);
 
 		// This part adds the service to the mapping between
 		// busAddress||DeviceAddress
@@ -1195,9 +1200,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		invoke("publishPinDefinition", pinDef);
 	}
 
-	/*
-	 * public BoardInfo publishBoardInfo(BoardInfo info) { return info; }
-	 */
+	
+	// publishing point
+	public BoardInfo publishBoardInfo(BoardInfo info) { return info; }
+	 
 
 	@Override
 	public void pinMode(int address, String mode) {
@@ -1310,8 +1316,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return status;
 	}
 
-	// public BoardInfo publishBoardInfo(int version/* byte */, int boardType/*
-	// byte */) {
 	public void publishBoardStatus(int b16i/* b16 */, int b32i/* b32 */, long bu32i/* bu32 */, String name2/* str */) {
 		log.info(" testMsg deviceType {} name {} config {}", bu32i, name2);
 		// return new BoardInfo(version, boardType);
@@ -1906,6 +1910,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	public Integer publishUltrasonicSensorData(Integer deviceId, Integer echoTime) {
+		log.info("echoTime {}", echoTime);
 		((UltrasonicSensor)getDevice(deviceId)).onUltrasonicSensorData(echoTime);
 		return echoTime;
 	}

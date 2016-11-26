@@ -40,7 +40,6 @@ class MrlComm{
     unsigned char* config;
     // performance metrics  and load timing
     // global debug setting, if set to true publishDebug will write to the serial port.
-    bool debug;
     int byteCount;
     int msgSize;
     bool boardStatusEnabled;
