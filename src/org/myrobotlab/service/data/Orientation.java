@@ -6,18 +6,18 @@ package org.myrobotlab.service.data;
  * 
  * 
  */
-public class OculusData {
+public class Orientation {
 
   public Double roll = null;
   public Double pitch = null;
   public Double yaw = null;
 
   // default constructor (values will be null until set)
-  public OculusData() {
+  public Orientation() {
   }
 
   // constructor with initial values for roll/pitch/yaw
-  public OculusData(Double roll, Double pitch, Double yaw) {
+  public Orientation(Double roll, Double pitch, Double yaw) {
     this.roll = roll;
     this.pitch = pitch;
     this.yaw = yaw;
