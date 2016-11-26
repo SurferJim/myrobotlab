@@ -84,8 +84,8 @@ Msg* Msg::getInstance() {
 	void customMsg( byte msgSize, const byte*msg);
 	// > deviceDetach/deviceId
 	void deviceDetach( byte deviceId);
-	// > i2cAttach/deviceId/i2cBus/deviceType/deviceAddress
-	void i2cAttach( byte deviceId,  byte i2cBus,  byte deviceType,  byte deviceAddress);
+	// > i2cBusAttach/deviceId/i2cBus
+	void i2cBusAttach( byte deviceId,  byte i2cBus);
 	// > i2cRead/deviceId/deviceAddress/size
 	void i2cRead( byte deviceId,  byte deviceAddress,  byte size);
 	// > i2cWrite/deviceId/deviceAddress/[] data
@@ -345,16 +345,12 @@ void Msg::processCommand() {
 			mrlComm->deviceDetach( deviceId);
 			break;
 	}
-	case I2C_ATTACH: { // i2cAttach
+	case I2C_BUS_ATTACH: { // i2cBusAttach
 			byte deviceId = ioCmd[startPos+1]; // bu8
 			startPos += 1;
 			byte i2cBus = ioCmd[startPos+1]; // bu8
 			startPos += 1;
-			byte deviceType = ioCmd[startPos+1]; // bu8
-			startPos += 1;
-			byte deviceAddress = ioCmd[startPos+1]; // bu8
-			startPos += 1;
-			mrlComm->i2cAttach( deviceId,  i2cBus,  deviceType,  deviceAddress);
+			mrlComm->i2cBusAttach( deviceId,  i2cBus);
 			break;
 	}
 	case I2C_READ: { // i2cRead

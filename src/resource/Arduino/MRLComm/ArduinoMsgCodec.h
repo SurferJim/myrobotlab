@@ -54,8 +54,8 @@
 #define PUBLISH_CUSTOM_MSG 18
 // > deviceDetach/deviceId
 #define DEVICE_DETACH 19
-// > i2cAttach/deviceId/i2cBus/deviceType/deviceAddress
-#define I2C_ATTACH 20
+// > i2cBusAttach/deviceId/i2cBus
+#define I2C_BUS_ATTACH 20
 // > i2cRead/deviceId/deviceAddress/size
 #define I2C_READ 21
 // > i2cWrite/deviceId/deviceAddress/[] data

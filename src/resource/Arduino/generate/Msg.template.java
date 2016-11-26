@@ -23,7 +23,7 @@ import org.myrobotlab.logging.Level;
 
  All message editing should be done in the arduinoMsg.schema
 
- The binary wire format of an Arduino is:
+ The binary wire format of an %javaArduinoClass% is:
 
  MAGIC_NUMBER|MSG_SIZE|METHOD_NUMBER|PARAM0|PARAM1 ...
  
@@ -35,14 +35,14 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.VirtualArduino;
 import java.util.Arrays;
-import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.%javaArduinoClass%;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.interfaces.SerialDevice;
 import org.slf4j.Logger;
 
 /**
- * Singlton messaging interface to an Arduino
+ * Singlton messaging interface to an %javaArduinoClass%
  *
  * @author GroG
  *
@@ -79,7 +79,7 @@ public class %javaClass% {
 	
 	public transient final static Logger log = LoggerFactory.getLogger(Msg.class);
 
-	public %javaClass%(Arduino arduino, SerialDevice serial) {
+	public %javaClass%(%javaArduinoClass% arduino, SerialDevice serial) {
 		this.arduino = arduino;
 		this.serial = serial;
 	}
@@ -87,7 +87,7 @@ public class %javaClass% {
 	// transient private Msg instance;
 
 	// ArduinoSerialCallBacks - TODO - extract interface
-	transient private Arduino arduino;
+	transient private %javaArduinoClass% arduino;
 	
 	transient private SerialDevice serial;
 
@@ -98,7 +98,7 @@ public class %javaClass% {
 	 * @return
 	 */
 	/*
-	static public synchronized Msg getInstance(Arduino arduino, SerialDevice serial) {
+	static public synchronized Msg getInstance(%javaArduinoClass% arduino, SerialDevice serial) {
 		if (instance == null) {
 			instance = new Msg();
 		}
@@ -255,7 +255,7 @@ public class %javaClass% {
 			virtual.connectVirtualUart(port, port + "UART");
 			*/
 			
-			Arduino arduino = (Arduino)Runtime.start("arduino","Arduino");
+			%javaArduinoClass% arduino = (%javaArduinoClass%)Runtime.start("arduino","%javaArduinoClass%");
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
 			arduino.connect(port);
 			

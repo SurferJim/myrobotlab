@@ -94,8 +94,8 @@ public:
 	void customMsg( byte msgSize, const byte*msg);
 	// > deviceDetach/deviceId
 	void deviceDetach( byte deviceId);
-	// > i2cAttach/deviceId/i2cBus/deviceType/deviceAddress
-	void i2cAttach( byte deviceId,  byte i2cBus,  byte deviceType,  byte deviceAddress);
+	// > i2cBusAttach/deviceId/i2cBus
+	void i2cBusAttach( byte deviceId,  byte i2cBus);
 	// > i2cRead/deviceId/deviceAddress/size
 	void i2cRead( byte deviceId,  byte deviceAddress,  byte size);
 	// > i2cWrite/deviceId/deviceAddress/[] data
