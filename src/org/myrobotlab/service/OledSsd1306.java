@@ -944,7 +944,7 @@ public class OledSsd1306 extends Service implements I2CControl {
 
 	@Override
 	public void setController(DeviceController controller) {
-		setController(controller);
+		log.error("Method void setController(DeviceController controller) in OledSsd1306 not implemented");
 	}
 
 	@Override

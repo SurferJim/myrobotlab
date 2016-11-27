@@ -765,16 +765,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// This will only handle the creation of i2cBus.
 		if (i2cBus == null) {
 			i2cBus = new I2CBus(String.format("I2CBus%s", busAddress));
+			i2cBusAttach(i2cBus, busAddress);
 		}
-
-		// deviceAttach(i2cBus, getMrlDeviceType(i2cBus), busAddress);
-		// msg.i2cAttach(deviceId, getMrlDeviceType(i2cBus), deviceAddress);
-		// Mat's correction !
-		// Integer deviceId = attachDevice(control, new Object[] { busAddress, deviceAddress });
-		// msg.i2cAttach(deviceId, busAddress, getMrlDeviceType(i2cBus), deviceAddress);
-		
-		Integer deviceId = attachDevice(i2cBus, new Object[] { busAddress });
-		msg.i2cBusAttach(deviceId, busAddress);
 
 		// This part adds the service to the mapping between
 		// busAddress||DeviceAddress
@@ -790,15 +782,30 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			i2cDevices.put(key, devicedata);
 		}
 	}
-
+	/**
+	 * Internal Arduino method to create an i2cBus object in MRLComm that is shared between all i2c devices
+	 * @param control
+	 * @param busAddress
+	 */
+	private void i2cBusAttach(I2CBusControl control, int busAddress){
+	
+		// deviceAttach(i2cBus, getMrlDeviceType(i2cBus), busAddress);
+		// msg.i2cAttach(deviceId, getMrlDeviceType(i2cBus), deviceAddress);
+		// Mat's correction !
+		// Integer deviceId = attachDevice(control, new Object[] { busAddress, deviceAddress });
+		// msg.i2cAttach(deviceId, busAddress, getMrlDeviceType(i2cBus), deviceAddress);
+		
+		Integer deviceId = attachDevice(i2cBus, new Object[] { busAddress });
+		msg.i2cBusAttach(deviceId, busAddress);
+	}
+	
 	@Override
 	public int i2cRead(I2CControl control, int busAddress, int deviceAddress, byte[] buffer, int size) {
 		i2cDataReturned = false;
 		// Get the device index to the MRL i2c bus
 		String i2cBus = String.format("I2CBus%s", busAddress);
-		DeviceMapping map;
-		map = deviceList.get(i2cBus);
-		int id = map.getId(); // Device index to the I2CBus
+		int deviceId = getDeviceId(i2cBus);
+		msg.i2cRead(deviceId, deviceAddress, size);
 
 		int retry = 0;
 		int retryMax = 1000; // ( About 1000ms = s)
@@ -835,6 +842,11 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		((I2CBusController)getDevice(deviceId)).i2cReturnData(data);
 	}
 
+	/** This methods is called by the i2cBus object when data is returned from the i2cRead
+	 * It populates the i2cData area and sets the i2cDataReturned flag to true so that the 
+	 * loop in i2cRead can return the data to the caller
+	 * 
+	 */
 	@Override
 	public void i2cReturnData(int[] rawData) {
 		i2cDataSize = rawData.length;
@@ -849,8 +861,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	// > i2cWrite/deviceId/deviceAddress/[] data
 	public void i2cWrite(I2CControl control, int busAddress, int deviceAddress, byte[] buffer, int size) {
 		String i2cBus = String.format("I2CBus%s", busAddress);
-		DeviceMapping deviceMapping = deviceList.get(i2cBus);
-		int id = deviceMapping.getId();
+		int deviceId = getDeviceId(i2cBus);
 
 		int data[] = new int[size];
 		for (int i = 0; i < size; ++i) {
@@ -858,7 +869,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 								// char & 0xff;
 		}
 
-		msg.i2cWrite(id, deviceAddress, data);
+		msg.i2cWrite(deviceId, deviceAddress, data);
 	}
 
 	@Override
@@ -871,15 +882,14 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			i2cDataReturned = false;
 			// Get the device index to the MRL i2c bus
 			String i2cBus = String.format("I2CBus%s", busAddress);
-			DeviceMapping map;
-			map = deviceList.get(i2cBus);
-			int id = map.getId(); // Device index to the I2CBus
+			int deviceId = getDeviceId(i2cBus);
+			
 			int msgBuffer[] = new int[4];
-			msgBuffer[0] = id;
+			msgBuffer[0] = deviceId;
 			msgBuffer[1] = deviceAddress;
 			msgBuffer[2] = readSize;
 			msgBuffer[3] = writeBuffer[0];
-			msg.i2cWriteRead(getDeviceId(control), deviceAddress, readSize, writeBuffer[0] & 0xFF);
+			msg.i2cWriteRead(deviceId, deviceAddress, readSize, writeBuffer[0] & 0xFF);
 			int retry = 0;
 			int retryMax = 1000; // ( About 1000ms = s)
 			try {
