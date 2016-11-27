@@ -1,7 +1,5 @@
 package org.myrobotlab.arduino;
 
-import java.util.Arrays;
-
 import org.myrobotlab.logging.Level;
 
 /**
@@ -35,10 +33,11 @@ import org.myrobotlab.logging.Level;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.VirtualArduino;
+import java.util.Arrays;
+import org.myrobotlab.service.VirtualArduino;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
-import org.myrobotlab.service.VirtualArduino;
 import org.myrobotlab.service.interfaces.SerialDevice;
 import org.slf4j.Logger;
 
@@ -1209,7 +1208,7 @@ public class VirtualMsg {
 			virtual.connectVirtualUart(port, port + "UART");
 			*/
 			
-			Arduino arduino = (Arduino)Runtime.start("arduino","Arduino");
+			VirtualArduino arduino = (VirtualArduino)Runtime.start("arduino","VirtualArduino");
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
 			arduino.connect(port);
 			
