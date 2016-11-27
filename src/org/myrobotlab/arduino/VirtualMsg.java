@@ -1210,17 +1210,18 @@ public class VirtualMsg {
 			
 			VirtualArduino arduino = (VirtualArduino)Runtime.start("arduino","VirtualArduino");
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
-			arduino.connect(port);
+			// arduino.onConnect(portName)
+			// arduino.connect(port);
 			
 			// test pins
-			arduino.enablePin(5);
+			// arduino.enablePin(5);
 			
 			arduino.disablePin(5);
 			
 			// test status list enabled
 			arduino.enableBoardStatus(true);
 			
-			servo01.attach(arduino, 8);
+			// servo01.attach(arduino, 8);
 			
 			servo01.moveTo(30);
 			servo01.moveTo(130);
