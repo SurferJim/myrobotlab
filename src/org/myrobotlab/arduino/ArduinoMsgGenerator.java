@@ -23,6 +23,8 @@ public class ArduinoMsgGenerator {
 
 	public transient final static Logger log = LoggerFactory.getLogger(ArduinoMsgGenerator.class);
 
+	static final Integer MRLCOMM_VERSION = 46;
+
 	public void generateDefinitions() throws IOException {
 		generateDefinitions(new File("src/resource/Arduino/generate/arduinoMsgs.schema"));
 	}
@@ -159,6 +161,7 @@ public class ArduinoMsgGenerator {
 		br.close();
 
 		// file templates
+		fileSnr.put("%MRLCOMM_VERSION%", MRLCOMM_VERSION.toString());
 		fileSnr.put("%defines%", defines.toString());
 		fileSnr.put("%hMethods%", hMethods.toString());
 		fileSnr.put("%cppMethods%", cppMethods.toString());
@@ -411,10 +414,18 @@ public class ArduinoMsgGenerator {
 			}
 
 			javaCaseRecord.append("\t\t\t\trxBuffer.append(\"/\");\n");
-			javaCaseRecord.append("\t\t\t\trxBuffer.append(" + paramName + ");\n");
+			if (idlParamType.equals("[]")){
+				javaCaseRecord.append("\t\t\t\trxBuffer.append(Arrays.toString(" + paramName + "));\n");
+			} else {
+				javaCaseRecord.append("\t\t\t\trxBuffer.append(" + paramName + ");\n");
+			}
 
 			javaSendRecord.append("\t\t\t\ttxBuffer.append(\"/\");\n");
-			javaSendRecord.append("\t\t\t\ttxBuffer.append(" + paramName + ");\n");
+			if (idlParamType.equals("[]")){
+				javaSendRecord.append("\t\t\t\ttxBuffer.append(Arrays.toString(" + paramName + "));\n");
+			} else {
+				javaSendRecord.append("\t\t\t\ttxBuffer.append(" + paramName + ");\n");
+			}
 
 			// msgSize += getCppTypeSize(idlParamType);
 
@@ -554,6 +565,7 @@ public class ArduinoMsgGenerator {
 
 		} // end parameter loop
 		
+		javaSendRecord.append("\t\t\t\ttxBuffer.append(\"\\n\");\n");
 		javaSendRecord.append("\t\t\t\trecord.write(txBuffer.toString().getBytes());\n");
 		javaSendRecord.append("\t\t\t\ttxBuffer.setLength(0);\n");
 		javaSendRecord.append("\t\t\t}\n");
@@ -574,10 +586,8 @@ public class ArduinoMsgGenerator {
 		snr.put("%javaWrite%", javaWrite.toString());
 		snr.put("%javaSendRecord%", javaSendRecord.toString());
 		
-		
 		javaSendRecord.append("\t\t\t\trecord.write(txBuffer.toString().getBytes());\n");
 
-		
 		// process templates
 		for (String search : snr.keySet()) {
 			hMethod = hMethod.replace(search, snr.get(search));
@@ -586,6 +596,7 @@ public class ArduinoMsgGenerator {
 		}
 
 		
+		javaCaseRecord.append("\t\t\trxBuffer.append(\"\\n\");\n");
 		javaCaseRecord.append("\t\t\ttry{\n");
 		javaCaseRecord.append("\t\t\t\trecord.write(rxBuffer.toString().getBytes());\n");
 		javaCaseRecord.append("\t\t\t\trxBuffer.setLength(0);\n");

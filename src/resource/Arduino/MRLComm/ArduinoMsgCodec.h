@@ -9,9 +9,7 @@
  * 							src\resource\Arduino\generate\ArduinoMsgCodec.template.h
  */
 
-/*******************************************************************
- * serial protocol functions
- */
+#define MRLCOMM_VERSION			46
 #define MAGIC_NUMBER            170 // 10101010
 #define MAX_MSG_SIZE			64
 

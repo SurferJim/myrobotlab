@@ -59,7 +59,7 @@ public class VirtualMsg {
 
 	public static final int MAX_MSG_SIZE = 64;
 	public static final int MAGIC_NUMBER = 170; // 10101010
-	public static final int MRLCOMM_VERSION = 41;
+	public static final int MRLCOMM_VERSION = 46;
 
 	// ------ device type mapping constants
 
@@ -773,6 +773,7 @@ public class VirtualMsg {
 				txBuffer.append("> publishMRLCommError");
 				txBuffer.append("/");
 				txBuffer.append(errorMsg);
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -796,6 +797,7 @@ public class VirtualMsg {
 				txBuffer.append(version);
 				txBuffer.append("/");
 				txBuffer.append(boardType);
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -816,6 +818,7 @@ public class VirtualMsg {
 				txBuffer.append("> publishAck");
 				txBuffer.append("/");
 				txBuffer.append(function);
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -833,6 +836,7 @@ public class VirtualMsg {
  
 			if(record != null){
 				txBuffer.append("> publishHeartbeat");
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -853,6 +857,7 @@ public class VirtualMsg {
 				txBuffer.append("> publishEcho");
 				txBuffer.append("/");
 				txBuffer.append(sInt);
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -872,7 +877,8 @@ public class VirtualMsg {
 			if(record != null){
 				txBuffer.append("> publishCustomMsg");
 				txBuffer.append("/");
-				txBuffer.append(msg);
+				txBuffer.append(Arrays.toString(msg));
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -895,7 +901,8 @@ public class VirtualMsg {
 				txBuffer.append("/");
 				txBuffer.append(deviceId);
 				txBuffer.append("/");
-				txBuffer.append(data);
+				txBuffer.append(Arrays.toString(data));
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -919,6 +926,7 @@ public class VirtualMsg {
 				txBuffer.append(deviceId);
 				txBuffer.append("/");
 				txBuffer.append(deviceName);
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -944,7 +952,8 @@ public class VirtualMsg {
 				txBuffer.append("/");
 				txBuffer.append(sram);
 				txBuffer.append("/");
-				txBuffer.append(deviceSummary);
+				txBuffer.append(Arrays.toString(deviceSummary));
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -965,6 +974,7 @@ public class VirtualMsg {
 				txBuffer.append("> publishDebug");
 				txBuffer.append("/");
 				txBuffer.append(debugMsg);
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -984,7 +994,8 @@ public class VirtualMsg {
 			if(record != null){
 				txBuffer.append("> publishPinArray");
 				txBuffer.append("/");
-				txBuffer.append(data);
+				txBuffer.append(Arrays.toString(data));
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -1007,7 +1018,8 @@ public class VirtualMsg {
 				txBuffer.append("/");
 				txBuffer.append(deviceId);
 				txBuffer.append("/");
-				txBuffer.append(data);
+				txBuffer.append(Arrays.toString(data));
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -1031,6 +1043,7 @@ public class VirtualMsg {
 				txBuffer.append(deviceId);
 				txBuffer.append("/");
 				txBuffer.append(echoTime);
+				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);
 			}
@@ -1359,23 +1372,25 @@ public class VirtualMsg {
 			
 			VirtualArduino arduino = (VirtualArduino)Runtime.start("arduino","VirtualArduino");
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
-// 			arduino.connect(port);
+			
+			/*
+			arduino.connect(port);
 			
 			// test pins
-// 			arduino.enablePin(5);
+			arduino.enablePin(5);
 			
 			arduino.disablePin(5);
 			
 			// test status list enabled
 			arduino.enableBoardStatus(true);
 			
-// 			servo01.attach(arduino, 8);
+			servo01.attach(arduino, 8);
 			
 			servo01.moveTo(30);
 			servo01.moveTo(130);
 			
 			arduino.enableBoardStatus(false);
-			
+			*/
 			// test ack
 			
 			// test heartbeat

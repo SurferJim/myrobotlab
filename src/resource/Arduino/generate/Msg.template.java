@@ -59,7 +59,7 @@ public class %javaClass% {
 
 	public static final int MAX_MSG_SIZE = 64;
 	public static final int MAGIC_NUMBER = 170; // 10101010
-	public static final int MRLCOMM_VERSION = 41;
+	public static final int MRLCOMM_VERSION = %MRLCOMM_VERSION%;
 
 	// ------ device type mapping constants
 
@@ -290,6 +290,8 @@ public class %javaClass% {
 			
 			%javaArduinoClass% arduino = (%javaArduinoClass%)Runtime.start("arduino","%javaArduinoClass%");
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
+			
+			/*
 			arduino.connect(port);
 			
 			// test pins
@@ -306,7 +308,7 @@ public class %javaClass% {
 			servo01.moveTo(130);
 			
 			arduino.enableBoardStatus(false);
-			
+			*/
 			// test ack
 			
 			// test heartbeat

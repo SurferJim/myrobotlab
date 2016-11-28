@@ -967,13 +967,13 @@ public class ArduinoTest implements PinArrayListener {
 			port = "COM10";
 			// port = "COM4";
 			
-			arduino.record();
-			
 			ArduinoTest test = new ArduinoTest();
 			ArduinoTest.setUpBeforeClass();
 			
-			Runtime.start("webgui", "WebGui");
+			arduino.record();
+			// Runtime.start("webgui", "WebGui");
 			test.enablePin = 54;  // A0 for Mega
+			test.testEnableBoardStatus();
 			test.testEnablePinInt();
 			
 			boolean b = true;
