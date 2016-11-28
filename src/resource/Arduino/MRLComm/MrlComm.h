@@ -2,6 +2,7 @@
 #define MrlComm_h
 
 #include "ArduinoMsgCodec.h"
+#include "MrlSerialRelay.h"
 
 // TODO - standard convention of dev versions are odd release is even ?
 #define MRLCOMM_VERSION         41

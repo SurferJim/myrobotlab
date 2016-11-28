@@ -62,13 +62,14 @@ import org.myrobotlab.service.interfaces.SensorController;
 import org.myrobotlab.service.interfaces.SensorDataListener;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.SerialDataListener;
+import org.myrobotlab.service.interfaces.SerialRelayListener;
 import org.myrobotlab.service.interfaces.ServoControl;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.myrobotlab.service.interfaces.UltrasonicSensorControl;
 import org.slf4j.Logger;
 
 public class Arduino extends Service implements Microcontroller, PinArrayControl, I2CBusController, I2CController, SerialDataListener, ServoController, MotorController,
-		NeoPixelController, SensorDataPublisher, DeviceController, SensorController, SensorDataListener, RecordControl {
+		NeoPixelController, SensorDataPublisher, DeviceController, SensorController, SensorDataListener, RecordControl, SerialRelayListener {
 
 	public static class AckLock {
 		volatile boolean acknowledged = false;
@@ -209,7 +210,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	transient int[] ioCmd = new int[MAX_MSG_SIZE];
 
-	transient Msg msg;
+	public transient Msg msg;
 
 	public int msgSize;
 	Integer nextDeviceId = 0;
@@ -349,9 +350,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			error("You must connect to a Mega controller");
 			return;
 		}
-		rootController = controller;
-		// connect("COM15");
-		serial = rootController.serial;
+		SerialRelay relay = (SerialRelay) Runtime.createAndStart("relay", "SerialRelay");
 		switch (serialPort) {
 		case "Serial1":
 			controllerAttachAs = MRL_IO_SERIAL_1;
@@ -366,12 +365,30 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			error("Unknow serial port");
 			return;
 		}
-		controller.controllerAttach(this, controllerAttachAs);
-		// softReset();
-		Integer version = getVersion();
-		if (version == null || version != MRLCOMM_VERSION) {
-			error("MRLComm expected version %d actual is %d", MRLCOMM_VERSION, version);
-		}
+		relay.attach(controller, this, controllerAttachAs);
+		msg = new Msg(this,relay);
+		msg.softReset(); //needed because there is no serial connect
+    msg.getBoardInfo();
+    log.info("waiting for boardInfo lock..........");
+    synchronized (boardInfo) {
+      try {
+        boardInfo.wait(4500); // max wait 4.5 seconds - for port to
+                    // open
+      } catch (InterruptedException e) {
+      }
+    }
+
+    // we might be connected now
+    // see what our version is like...
+    Integer version = boardInfo.getVersion();
+
+    if (version == null) {
+      error("%s did not get response from arduino....", serial.getPortName());
+    } else if (!version.equals(MRLCOMM_VERSION)) {
+      error("MRLComm.ino responded with version %s expected version is %s", version, MRLCOMM_VERSION);
+    } else {
+      info("%s connected on %s responded version %s ... goodtimes...", serial.getName(), serial.getPortName(), version);
+    }
 		broadcastState();
 	}
 
@@ -1980,9 +1997,9 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		}
 	}
 
-	public void publishSerialData(Integer deviceId, int[] data) {
+	public int[] publishSerialData(Integer deviceId, int[] data) {
 		// TODO Auto-generated method stub
-		
+		return data;
 	}
 
 	public void publishUltrasonicSensorData(Integer deviceId, Integer echoTime) {
@@ -1991,6 +2008,11 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// get device Id 
 		
 	}
+
+  public void serialAttach(SerialRelay serialRelay, int controllerAttachAs) {
+    Integer deviceId = attachDevice(serialRelay, new Object[] { controllerAttachAs });
+    msg.serialAttach(deviceId, controllerAttachAs);
+  }
 
 
 }

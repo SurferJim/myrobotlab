@@ -1,3 +1,4 @@
+#include "MrlSerialRelay.h"
 #include "Msg.h"
 #include "Device.h"
 #include "Pin.h"
@@ -453,13 +454,17 @@ void MrlComm::setDebounce(byte pin, byte delay) {
 // TODO - implement
 // > serialAttach/deviceId/relayPin
 void MrlComm::serialAttach(byte deviceId, byte relayPin) {
-
+	MrlSerialRelay* relay = new MrlSerialRelay(deviceId);
+	addDevice(relay);
+	relay->attach(relayPin);
 }
 
 // TODO - implement
 // > serialRelay/deviceId/[] data
-void MrlComm::serialRelay(byte deviceId, byte dataSize, const byte*data) {
-
+void MrlComm::serialRelay(byte deviceId, byte dataSize, const byte* data) {
+	MrlSerialRelay* relay = (MrlSerialRelay*) getDevice(deviceId);
+  //msg->publishDebug("serialRelay (" + String(dataSize) + "," + String(deviceId));
+	relay->write(data, dataSize);
 }
 
 // > softReset

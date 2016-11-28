@@ -848,7 +848,7 @@ public class Msg {
 	  }
 	}
 
-	public void serialRelay(Integer deviceId/*byte*/, int[] data/*[]*/) {
+	public void serialRelay(Integer deviceId/*byte*/, int[] data) {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + (1 + data.length)); // size
