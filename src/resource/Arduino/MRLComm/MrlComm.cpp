@@ -1,3 +1,4 @@
+#include "MrlSerialRelay.h"
 #include "Msg.h"
 #include "Device.h"
 #include "Pin.h"
@@ -338,8 +339,6 @@ void MrlComm::heartbeat() {
 
 // > i2cBusAttach/deviceId/i2cBus
 void MrlComm::i2cBusAttach(byte deviceId, byte i2cBus) {
-	// @Mats - do you need deviceType & deviceAddress here ?
-	// if not we should shorten the i2cAttach parameters :)
 	MrlI2CBus* i2cbus = (MrlI2CBus*) addDevice(new MrlI2CBus(deviceId));
 	i2cbus->attach(i2cBus);
 }
@@ -453,13 +452,17 @@ void MrlComm::setDebounce(byte pin, byte delay) {
 // TODO - implement
 // > serialAttach/deviceId/relayPin
 void MrlComm::serialAttach(byte deviceId, byte relayPin) {
-
+	MrlSerialRelay* relay = new MrlSerialRelay(deviceId);
+	addDevice(relay);
+	relay->attach(relayPin);
 }
 
 // TODO - implement
 // > serialRelay/deviceId/[] data
-void MrlComm::serialRelay(byte deviceId, byte dataSize, const byte*data) {
-
+void MrlComm::serialRelay(byte deviceId, byte dataSize, const byte* data) {
+	MrlSerialRelay* relay = (MrlSerialRelay*) getDevice(deviceId);
+  //msg->publishDebug("serialRelay (" + String(dataSize) + "," + String(deviceId));
+	relay->write(data, dataSize);
 }
 
 // > softReset
