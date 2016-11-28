@@ -5,7 +5,7 @@
 #include "MrlSerialRelay.h"
 
 // TODO - standard convention of dev versions are odd release is even ?
-#define MRLCOMM_VERSION         41
+#define MRLCOMM_VERSION         43
 
 // forward defines to break circular dependency
 class Device;
@@ -41,7 +41,6 @@ class MrlComm{
     unsigned char* config;
     // performance metrics  and load timing
     // global debug setting, if set to true publishDebug will write to the serial port.
-    bool debug;
     int byteCount;
     int msgSize;
     bool boardStatusEnabled;
@@ -96,8 +95,8 @@ public:
 	void customMsg( byte msgSize, const byte*msg);
 	// > deviceDetach/deviceId
 	void deviceDetach( byte deviceId);
-	// > i2cAttach/deviceId/i2cBus/deviceType/deviceAddress
-	void i2cAttach( byte deviceId,  byte i2cBus,  byte deviceType,  byte deviceAddress);
+	// > i2cBusAttach/deviceId/i2cBus
+	void i2cBusAttach( byte deviceId,  byte i2cBus);
 	// > i2cRead/deviceId/deviceAddress/size
 	void i2cRead( byte deviceId,  byte deviceAddress,  byte size);
 	// > i2cWrite/deviceId/deviceAddress/[] data
@@ -142,8 +141,8 @@ public:
 	void serialRelay( byte deviceId,  byte dataSize, const byte*data);
 	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
 	void ultrasonicSensorAttach( byte deviceId,  byte triggerPin,  byte echoPin);
-	// > ultrasonicSensorStartRanging/deviceId
-	void ultrasonicSensorStartRanging( byte deviceId);
+	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
+	void ultrasonicSensorStartRanging( byte deviceId,  long timeout);
 	// > ultrasonicSensorStopRanging/deviceId
 	void ultrasonicSensorStopRanging( byte deviceId);
     // </generatedCallBacks>

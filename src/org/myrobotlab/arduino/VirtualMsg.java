@@ -23,7 +23,7 @@ import org.myrobotlab.logging.Level;
 
  All message editing should be done in the arduinoMsg.schema
 
- The binary wire format of an Arduino is:
+ The binary wire format of an VirtualArduino is:
 
  MAGIC_NUMBER|MSG_SIZE|METHOD_NUMBER|PARAM0|PARAM1 ...
  
@@ -35,20 +35,20 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.VirtualArduino;
 import java.util.Arrays;
-import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.VirtualArduino;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.interfaces.SerialDevice;
 import org.slf4j.Logger;
 
 /**
- * Singlton messaging interface to an Arduino
+ * Singlton messaging interface to an VirtualArduino
  *
  * @author GroG
  *
  */
 
-public class Msg {
+public class VirtualMsg {
 
 	public static final int MAX_MSG_SIZE = 64;
 	public static final int MAGIC_NUMBER = 170; // 10101010
@@ -182,25 +182,53 @@ public class Msg {
  * These methods will be invoked from the Msg class as callbacks from MrlComm.
  */
 	
-	// public void publishMRLCommError(String errorMsg/*str*/){}
-	// public void publishBoardInfo(Integer version/*byte*/, Integer boardType/*byte*/){}
-	// public void publishAck(Integer function/*byte*/){}
-	// public void publishHeartbeat(){}
-	// public void publishEcho(Long sInt/*bu32*/){}
-	// public void publishCustomMsg(int[] msg/*[]*/){}
-	// public void publishI2cData(Integer deviceId/*byte*/, int[] data/*[]*/){}
-	// public void publishAttachedDevice(Integer deviceId/*byte*/, String deviceName/*str*/){}
-	// public void publishBoardStatus(Integer microsPerLoop/*b16*/, Integer sram/*b16*/, int[] deviceSummary/*[]*/){}
-	// public void publishDebug(String debugMsg/*str*/){}
-	// public void publishPinArray(int[] data/*[]*/){}
-	// public void publishSerialData(Integer deviceId/*byte*/, int[] data/*[]*/){}
-	// public void publishUltrasonicSensorData(Integer deviceId/*byte*/, Integer echoTime/*b16*/){}
+	// public void getBoardInfo(){}
+	// public void enableBoardStatus(Boolean enabled/*bool*/){}
+	// public void enablePin(Integer address/*byte*/, Integer type/*byte*/, Integer rate/*b16*/){}
+	// public void setDebug(Boolean enabled/*bool*/){}
+	// public void setSerialRate(Integer rate/*b32*/){}
+	// public void softReset(){}
+	// public void enableAck(Boolean enabled/*bool*/){}
+	// public void enableHeartbeat(Boolean enabled/*bool*/){}
+	// public void heartbeat(){}
+	// public void echo(Long sInt/*bu32*/){}
+	// public void controllerAttach(Integer serialPort/*byte*/){}
+	// public void customMsg(int[] msg/*[]*/){}
+	// public void deviceDetach(Integer deviceId/*byte*/){}
+	// public void i2cBusAttach(Integer deviceId/*byte*/, Integer i2cBus/*byte*/){}
+	// public void i2cRead(Integer deviceId/*byte*/, Integer deviceAddress/*byte*/, Integer size/*byte*/){}
+	// public void i2cWrite(Integer deviceId/*byte*/, Integer deviceAddress/*byte*/, int[] data/*[]*/){}
+	// public void i2cWriteRead(Integer deviceId/*byte*/, Integer deviceAddress/*byte*/, Integer readSize/*byte*/, Integer writeValue/*byte*/){}
+	// public void neoPixelAttach(Integer deviceId/*byte*/, Integer pin/*byte*/, Integer numPixels/*b32*/){}
+	// public void neoPixelSetAnimation(Integer deviceId/*byte*/, Integer animation/*byte*/, Integer red/*byte*/, Integer green/*byte*/, Integer blue/*byte*/, Integer speed/*b16*/){}
+	// public void neoPixelWriteMatrix(Integer deviceId/*byte*/, int[] buffer/*[]*/){}
+	// public void analogWrite(Integer pin/*byte*/, Integer value/*byte*/){}
+	// public void digitalWrite(Integer pin/*byte*/, Integer value/*byte*/){}
+	// public void disablePin(Integer pin/*byte*/){}
+	// public void disablePins(){}
+	// public void pinMode(Integer pin/*byte*/, Integer mode/*byte*/){}
+	// public void setTrigger(Integer pin/*byte*/, Integer triggerValue/*byte*/){}
+	// public void setDebounce(Integer pin/*byte*/, Integer delay/*byte*/){}
+	// public void servoAttach(Integer deviceId/*byte*/, Integer pin/*byte*/, Integer initPos/*byte*/, Integer initVelocity/*b16*/){}
+	// public void servoEnablePwm(Integer deviceId/*byte*/, Integer pin/*byte*/){}
+	// public void servoDisablePwm(Integer deviceId/*byte*/){}
+	// public void servoSetMaxVelocity(Integer deviceId/*byte*/, Integer maxVelocity/*b16*/){}
+	// public void servoSetVelocity(Integer deviceId/*byte*/, Integer velocity/*b16*/){}
+	// public void servoSweepStart(Integer deviceId/*byte*/, Integer min/*byte*/, Integer max/*byte*/, Integer step/*byte*/){}
+	// public void servoSweepStop(Integer deviceId/*byte*/){}
+	// public void servoWrite(Integer deviceId/*byte*/, Integer target/*byte*/){}
+	// public void servoWriteMicroseconds(Integer deviceId/*byte*/, Integer ms/*b16*/){}
+	// public void serialAttach(Integer deviceId/*byte*/, Integer relayPin/*byte*/){}
+	// public void serialRelay(Integer deviceId/*byte*/, int[] data/*[]*/){}
+	// public void ultrasonicSensorAttach(Integer deviceId/*byte*/, Integer triggerPin/*byte*/, Integer echoPin/*byte*/){}
+	// public void ultrasonicSensorStartRanging(Integer deviceId/*byte*/, Integer timeout/*b32*/){}
+	// public void ultrasonicSensorStopRanging(Integer deviceId/*byte*/){}
 	
 
 	
 	public transient final static Logger log = LoggerFactory.getLogger(Msg.class);
 
-	public Msg(Arduino arduino, SerialDevice serial) {
+	public VirtualMsg(VirtualArduino arduino, SerialDevice serial) {
 		this.arduino = arduino;
 		this.serial = serial;
 	}
@@ -208,7 +236,7 @@ public class Msg {
 	// transient private Msg instance;
 
 	// ArduinoSerialCallBacks - TODO - extract interface
-	transient private Arduino arduino;
+	transient private VirtualArduino arduino;
 	
 	transient private SerialDevice serial;
 
@@ -219,7 +247,7 @@ public class Msg {
 	 * @return
 	 */
 	/*
-	static public synchronized Msg getInstance(Arduino arduino, SerialDevice serial) {
+	static public synchronized Msg getInstance(VirtualArduino arduino, SerialDevice serial) {
 		if (instance == null) {
 			instance = new Msg();
 		}
@@ -235,145 +263,483 @@ public class Msg {
 		int startPos = 0;
 		int method = ioCmd[startPos];
 		switch (method) {
-		case PUBLISH_MRLCOMM_ERROR: {
-			String errorMsg = str(ioCmd, startPos+2, ioCmd[startPos+1]);
-			startPos += 1 + ioCmd[startPos+1];
+		case GET_BOARD_INFO: {
 			if(invoke){
-				arduino.invoke("publishMRLCommError",  errorMsg);
+				arduino.invoke("getBoardInfo");
 			} else { 
- 				arduino.publishMRLCommError( errorMsg);
+ 				arduino.getBoardInfo();
 			}
 			break;
 		}
-		case PUBLISH_BOARD_INFO: {
-			Integer version = ioCmd[startPos+1]; // bu8
-			startPos += 1;
-			Integer boardType = ioCmd[startPos+1]; // bu8
+		case ENABLE_BOARD_STATUS: {
+			Boolean enabled = (ioCmd[startPos+1] == 0)?false:true;
 			startPos += 1;
 			if(invoke){
-				arduino.invoke("publishBoardInfo",  version,  boardType);
+				arduino.invoke("enableBoardStatus",  enabled);
 			} else { 
- 				arduino.publishBoardInfo( version,  boardType);
+ 				arduino.enableBoardStatus( enabled);
 			}
 			break;
 		}
-		case PUBLISH_ACK: {
-			Integer function = ioCmd[startPos+1]; // bu8
+		case ENABLE_PIN: {
+			Integer address = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer type = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer rate = b16(ioCmd, startPos+1);
+			startPos += 2; //b16
+			if(invoke){
+				arduino.invoke("enablePin",  address,  type,  rate);
+			} else { 
+ 				arduino.enablePin( address,  type,  rate);
+			}
+			break;
+		}
+		case SET_DEBUG: {
+			Boolean enabled = (ioCmd[startPos+1] == 0)?false:true;
 			startPos += 1;
 			if(invoke){
-				arduino.invoke("publishAck",  function);
+				arduino.invoke("setDebug",  enabled);
 			} else { 
- 				arduino.publishAck( function);
+ 				arduino.setDebug( enabled);
 			}
 			break;
 		}
-		case PUBLISH_HEARTBEAT: {
+		case SET_SERIAL_RATE: {
+			Integer rate = b32(ioCmd, startPos+1);
+			startPos += 4; //b32
 			if(invoke){
-				arduino.invoke("publishHeartbeat");
+				arduino.invoke("setSerialRate",  rate);
 			} else { 
- 				arduino.publishHeartbeat();
+ 				arduino.setSerialRate( rate);
 			}
 			break;
 		}
-		case PUBLISH_ECHO: {
+		case SOFT_RESET: {
+			if(invoke){
+				arduino.invoke("softReset");
+			} else { 
+ 				arduino.softReset();
+			}
+			break;
+		}
+		case ENABLE_ACK: {
+			Boolean enabled = (ioCmd[startPos+1] == 0)?false:true;
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("enableAck",  enabled);
+			} else { 
+ 				arduino.enableAck( enabled);
+			}
+			break;
+		}
+		case ENABLE_HEARTBEAT: {
+			Boolean enabled = (ioCmd[startPos+1] == 0)?false:true;
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("enableHeartbeat",  enabled);
+			} else { 
+ 				arduino.enableHeartbeat( enabled);
+			}
+			break;
+		}
+		case HEARTBEAT: {
+			if(invoke){
+				arduino.invoke("heartbeat");
+			} else { 
+ 				arduino.heartbeat();
+			}
+			break;
+		}
+		case ECHO: {
 			Long sInt = bu32(ioCmd, startPos+1);
 			startPos += 4; //bu32
 			if(invoke){
-				arduino.invoke("publishEcho",  sInt);
+				arduino.invoke("echo",  sInt);
 			} else { 
- 				arduino.publishEcho( sInt);
+ 				arduino.echo( sInt);
 			}
 			break;
 		}
-		case PUBLISH_CUSTOM_MSG: {
+		case CONTROLLER_ATTACH: {
+			Integer serialPort = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("controllerAttach",  serialPort);
+			} else { 
+ 				arduino.controllerAttach( serialPort);
+			}
+			break;
+		}
+		case CUSTOM_MSG: {
 			int[] msg = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
 			startPos += 1 + ioCmd[startPos+1];
 			if(invoke){
-				arduino.invoke("publishCustomMsg",  msg);
+				arduino.invoke("customMsg",  msg);
 			} else { 
- 				arduino.publishCustomMsg( msg);
+ 				arduino.customMsg( msg);
 			}
 			break;
 		}
-		case PUBLISH_I2C_DATA: {
+		case DEVICE_DETACH: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("deviceDetach",  deviceId);
+			} else { 
+ 				arduino.deviceDetach( deviceId);
+			}
+			break;
+		}
+		case I2C_BUS_ATTACH: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer i2cBus = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("i2cBusAttach",  deviceId,  i2cBus);
+			} else { 
+ 				arduino.i2cBusAttach( deviceId,  i2cBus);
+			}
+			break;
+		}
+		case I2C_READ: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer deviceAddress = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer size = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("i2cRead",  deviceId,  deviceAddress,  size);
+			} else { 
+ 				arduino.i2cRead( deviceId,  deviceAddress,  size);
+			}
+			break;
+		}
+		case I2C_WRITE: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer deviceAddress = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			int[] data = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
+			startPos += 1 + ioCmd[startPos+1];
+			if(invoke){
+				arduino.invoke("i2cWrite",  deviceId,  deviceAddress,  data);
+			} else { 
+ 				arduino.i2cWrite( deviceId,  deviceAddress,  data);
+			}
+			break;
+		}
+		case I2C_WRITE_READ: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer deviceAddress = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer readSize = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer writeValue = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("i2cWriteRead",  deviceId,  deviceAddress,  readSize,  writeValue);
+			} else { 
+ 				arduino.i2cWriteRead( deviceId,  deviceAddress,  readSize,  writeValue);
+			}
+			break;
+		}
+		case NEO_PIXEL_ATTACH: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer pin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer numPixels = b32(ioCmd, startPos+1);
+			startPos += 4; //b32
+			if(invoke){
+				arduino.invoke("neoPixelAttach",  deviceId,  pin,  numPixels);
+			} else { 
+ 				arduino.neoPixelAttach( deviceId,  pin,  numPixels);
+			}
+			break;
+		}
+		case NEO_PIXEL_SET_ANIMATION: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer animation = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer red = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer green = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer blue = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer speed = b16(ioCmd, startPos+1);
+			startPos += 2; //b16
+			if(invoke){
+				arduino.invoke("neoPixelSetAnimation",  deviceId,  animation,  red,  green,  blue,  speed);
+			} else { 
+ 				arduino.neoPixelSetAnimation( deviceId,  animation,  red,  green,  blue,  speed);
+			}
+			break;
+		}
+		case NEO_PIXEL_WRITE_MATRIX: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			int[] buffer = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
+			startPos += 1 + ioCmd[startPos+1];
+			if(invoke){
+				arduino.invoke("neoPixelWriteMatrix",  deviceId,  buffer);
+			} else { 
+ 				arduino.neoPixelWriteMatrix( deviceId,  buffer);
+			}
+			break;
+		}
+		case ANALOG_WRITE: {
+			Integer pin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer value = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("analogWrite",  pin,  value);
+			} else { 
+ 				arduino.analogWrite( pin,  value);
+			}
+			break;
+		}
+		case DIGITAL_WRITE: {
+			Integer pin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer value = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("digitalWrite",  pin,  value);
+			} else { 
+ 				arduino.digitalWrite( pin,  value);
+			}
+			break;
+		}
+		case DISABLE_PIN: {
+			Integer pin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("disablePin",  pin);
+			} else { 
+ 				arduino.disablePin( pin);
+			}
+			break;
+		}
+		case DISABLE_PINS: {
+			if(invoke){
+				arduino.invoke("disablePins");
+			} else { 
+ 				arduino.disablePins();
+			}
+			break;
+		}
+		case PIN_MODE: {
+			Integer pin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer mode = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("pinMode",  pin,  mode);
+			} else { 
+ 				arduino.pinMode( pin,  mode);
+			}
+			break;
+		}
+		case SET_TRIGGER: {
+			Integer pin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer triggerValue = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("setTrigger",  pin,  triggerValue);
+			} else { 
+ 				arduino.setTrigger( pin,  triggerValue);
+			}
+			break;
+		}
+		case SET_DEBOUNCE: {
+			Integer pin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer delay = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("setDebounce",  pin,  delay);
+			} else { 
+ 				arduino.setDebounce( pin,  delay);
+			}
+			break;
+		}
+		case SERVO_ATTACH: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer pin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer initPos = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer initVelocity = b16(ioCmd, startPos+1);
+			startPos += 2; //b16
+			if(invoke){
+				arduino.invoke("servoAttach",  deviceId,  pin,  initPos,  initVelocity);
+			} else { 
+ 				arduino.servoAttach( deviceId,  pin,  initPos,  initVelocity);
+			}
+			break;
+		}
+		case SERVO_ENABLE_PWM: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer pin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("servoEnablePwm",  deviceId,  pin);
+			} else { 
+ 				arduino.servoEnablePwm( deviceId,  pin);
+			}
+			break;
+		}
+		case SERVO_DISABLE_PWM: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("servoDisablePwm",  deviceId);
+			} else { 
+ 				arduino.servoDisablePwm( deviceId);
+			}
+			break;
+		}
+		case SERVO_SET_MAX_VELOCITY: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer maxVelocity = b16(ioCmd, startPos+1);
+			startPos += 2; //b16
+			if(invoke){
+				arduino.invoke("servoSetMaxVelocity",  deviceId,  maxVelocity);
+			} else { 
+ 				arduino.servoSetMaxVelocity( deviceId,  maxVelocity);
+			}
+			break;
+		}
+		case SERVO_SET_VELOCITY: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer velocity = b16(ioCmd, startPos+1);
+			startPos += 2; //b16
+			if(invoke){
+				arduino.invoke("servoSetVelocity",  deviceId,  velocity);
+			} else { 
+ 				arduino.servoSetVelocity( deviceId,  velocity);
+			}
+			break;
+		}
+		case SERVO_SWEEP_START: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer min = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer max = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer step = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("servoSweepStart",  deviceId,  min,  max,  step);
+			} else { 
+ 				arduino.servoSweepStart( deviceId,  min,  max,  step);
+			}
+			break;
+		}
+		case SERVO_SWEEP_STOP: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("servoSweepStop",  deviceId);
+			} else { 
+ 				arduino.servoSweepStop( deviceId);
+			}
+			break;
+		}
+		case SERVO_WRITE: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer target = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("servoWrite",  deviceId,  target);
+			} else { 
+ 				arduino.servoWrite( deviceId,  target);
+			}
+			break;
+		}
+		case SERVO_WRITE_MICROSECONDS: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer ms = b16(ioCmd, startPos+1);
+			startPos += 2; //b16
+			if(invoke){
+				arduino.invoke("servoWriteMicroseconds",  deviceId,  ms);
+			} else { 
+ 				arduino.servoWriteMicroseconds( deviceId,  ms);
+			}
+			break;
+		}
+		case SERIAL_ATTACH: {
+			Integer deviceId = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer relayPin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			if(invoke){
+				arduino.invoke("serialAttach",  deviceId,  relayPin);
+			} else { 
+ 				arduino.serialAttach( deviceId,  relayPin);
+			}
+			break;
+		}
+		case SERIAL_RELAY: {
 			Integer deviceId = ioCmd[startPos+1]; // bu8
 			startPos += 1;
 			int[] data = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
 			startPos += 1 + ioCmd[startPos+1];
 			if(invoke){
-				arduino.invoke("publishI2cData",  deviceId,  data);
+				arduino.invoke("serialRelay",  deviceId,  data);
 			} else { 
- 				arduino.publishI2cData( deviceId,  data);
+ 				arduino.serialRelay( deviceId,  data);
 			}
 			break;
 		}
-		case PUBLISH_ATTACHED_DEVICE: {
+		case ULTRASONIC_SENSOR_ATTACH: {
 			Integer deviceId = ioCmd[startPos+1]; // bu8
 			startPos += 1;
-			String deviceName = str(ioCmd, startPos+2, ioCmd[startPos+1]);
-			startPos += 1 + ioCmd[startPos+1];
+			Integer triggerPin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
+			Integer echoPin = ioCmd[startPos+1]; // bu8
+			startPos += 1;
 			if(invoke){
-				arduino.invoke("publishAttachedDevice",  deviceId,  deviceName);
+				arduino.invoke("ultrasonicSensorAttach",  deviceId,  triggerPin,  echoPin);
 			} else { 
- 				arduino.publishAttachedDevice( deviceId,  deviceName);
+ 				arduino.ultrasonicSensorAttach( deviceId,  triggerPin,  echoPin);
 			}
 			break;
 		}
-		case PUBLISH_BOARD_STATUS: {
-			Integer microsPerLoop = b16(ioCmd, startPos+1);
-			startPos += 2; //b16
-			Integer sram = b16(ioCmd, startPos+1);
-			startPos += 2; //b16
-			int[] deviceSummary = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
-			startPos += 1 + ioCmd[startPos+1];
-			if(invoke){
-				arduino.invoke("publishBoardStatus",  microsPerLoop,  sram,  deviceSummary);
-			} else { 
- 				arduino.publishBoardStatus( microsPerLoop,  sram,  deviceSummary);
-			}
-			break;
-		}
-		case PUBLISH_DEBUG: {
-			String debugMsg = str(ioCmd, startPos+2, ioCmd[startPos+1]);
-			startPos += 1 + ioCmd[startPos+1];
-			if(invoke){
-				arduino.invoke("publishDebug",  debugMsg);
-			} else { 
- 				arduino.publishDebug( debugMsg);
-			}
-			break;
-		}
-		case PUBLISH_PIN_ARRAY: {
-			int[] data = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
-			startPos += 1 + ioCmd[startPos+1];
-			if(invoke){
-				arduino.invoke("publishPinArray",  data);
-			} else { 
- 				arduino.publishPinArray( data);
-			}
-			break;
-		}
-		case PUBLISH_SERIAL_DATA: {
+		case ULTRASONIC_SENSOR_START_RANGING: {
 			Integer deviceId = ioCmd[startPos+1]; // bu8
 			startPos += 1;
-			int[] data = subArray(ioCmd, startPos+2, ioCmd[startPos+1]);
-			startPos += 1 + ioCmd[startPos+1];
+			Integer timeout = b32(ioCmd, startPos+1);
+			startPos += 4; //b32
 			if(invoke){
-				arduino.invoke("publishSerialData",  deviceId,  data);
+				arduino.invoke("ultrasonicSensorStartRanging",  deviceId,  timeout);
 			} else { 
- 				arduino.publishSerialData( deviceId,  data);
+ 				arduino.ultrasonicSensorStartRanging( deviceId,  timeout);
 			}
 			break;
 		}
-		case PUBLISH_ULTRASONIC_SENSOR_DATA: {
+		case ULTRASONIC_SENSOR_STOP_RANGING: {
 			Integer deviceId = ioCmd[startPos+1]; // bu8
 			startPos += 1;
-			Integer echoTime = b16(ioCmd, startPos+1);
-			startPos += 2; //b16
 			if(invoke){
-				arduino.invoke("publishUltrasonicSensorData",  deviceId,  echoTime);
+				arduino.invoke("ultrasonicSensorStopRanging",  deviceId);
 			} else { 
- 				arduino.publishUltrasonicSensorData( deviceId,  echoTime);
+ 				arduino.ultrasonicSensorStopRanging( deviceId);
 			}
 			break;
 		}
@@ -384,118 +750,59 @@ public class Msg {
 
 	// Java-land --to--> MrlComm
 
-	public void getBoardInfo() {
+	public void publishMRLCommError(String errorMsg/*str*/) {
+		try {
+			write(MAGIC_NUMBER);
+			write(1 + (1 + errorMsg.length())); // size
+			write(PUBLISH_MRLCOMM_ERROR); // msgType = 1
+			write(errorMsg);
+ 
+	  } catch (Exception e) {
+	  			serial.error(e);
+	  }
+	}
+
+	public void publishBoardInfo(Integer version/*byte*/, Integer boardType/*byte*/) {
+		try {
+			write(MAGIC_NUMBER);
+			write(1 + 1 + 1); // size
+			write(PUBLISH_BOARD_INFO); // msgType = 3
+			write(version);
+			write(boardType);
+ 
+	  } catch (Exception e) {
+	  			serial.error(e);
+	  }
+	}
+
+	public void publishAck(Integer function/*byte*/) {
+		try {
+			write(MAGIC_NUMBER);
+			write(1 + 1); // size
+			write(PUBLISH_ACK); // msgType = 10
+			write(function);
+ 
+	  } catch (Exception e) {
+	  			serial.error(e);
+	  }
+	}
+
+	public void publishHeartbeat() {
 		try {
 			write(MAGIC_NUMBER);
 			write(1); // size
-			write(GET_BOARD_INFO); // msgType = 2
+			write(PUBLISH_HEARTBEAT); // msgType = 13
  
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
 	}
 
-	public void enableBoardStatus(Boolean enabled/*bool*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1); // size
-			write(ENABLE_BOARD_STATUS); // msgType = 4
-			writebool(enabled);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void enablePin(Integer address/*byte*/, Integer type/*byte*/, Integer rate/*b16*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1 + 2); // size
-			write(ENABLE_PIN); // msgType = 5
-			write(address);
-			write(type);
-			writeb16(rate);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void setDebug(Boolean enabled/*bool*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1); // size
-			write(SET_DEBUG); // msgType = 6
-			writebool(enabled);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void setSerialRate(Integer rate/*b32*/) {
+	public void publishEcho(Long sInt/*bu32*/) {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 4); // size
-			write(SET_SERIAL_RATE); // msgType = 7
-			writeb32(rate);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void softReset() {
-		try {
-			write(MAGIC_NUMBER);
-			write(1); // size
-			write(SOFT_RESET); // msgType = 8
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void enableAck(Boolean enabled/*bool*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1); // size
-			write(ENABLE_ACK); // msgType = 9
-			writebool(enabled);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void enableHeartbeat(Boolean enabled/*bool*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1); // size
-			write(ENABLE_HEARTBEAT); // msgType = 11
-			writebool(enabled);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void heartbeat() {
-		try {
-			write(MAGIC_NUMBER);
-			write(1); // size
-			write(HEARTBEAT); // msgType = 12
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void echo(Long sInt/*bu32*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 4); // size
-			write(ECHO); // msgType = 14
+			write(PUBLISH_ECHO); // msgType = 15
 			writebu32(sInt);
  
 	  } catch (Exception e) {
@@ -503,23 +810,11 @@ public class Msg {
 	  }
 	}
 
-	public void controllerAttach(Integer serialPort/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1); // size
-			write(CONTROLLER_ATTACH); // msgType = 16
-			write(serialPort);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void customMsg(int[] msg/*[]*/) {
+	public void publishCustomMsg(int[] msg/*[]*/) {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + (1 + msg.length)); // size
-			write(CUSTOM_MSG); // msgType = 17
+			write(PUBLISH_CUSTOM_MSG); // msgType = 18
 			write(msg);
  
 	  } catch (Exception e) {
@@ -527,343 +822,11 @@ public class Msg {
 	  }
 	}
 
-	public void deviceDetach(Integer deviceId/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1); // size
-			write(DEVICE_DETACH); // msgType = 19
-			write(deviceId);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void i2cBusAttach(Integer deviceId/*byte*/, Integer i2cBus/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1); // size
-			write(I2C_BUS_ATTACH); // msgType = 20
-			write(deviceId);
-			write(i2cBus);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void i2cRead(Integer deviceId/*byte*/, Integer deviceAddress/*byte*/, Integer size/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1 + 1); // size
-			write(I2C_READ); // msgType = 21
-			write(deviceId);
-			write(deviceAddress);
-			write(size);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void i2cWrite(Integer deviceId/*byte*/, Integer deviceAddress/*byte*/, int[] data/*[]*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1 + (1 + data.length)); // size
-			write(I2C_WRITE); // msgType = 22
-			write(deviceId);
-			write(deviceAddress);
-			write(data);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void i2cWriteRead(Integer deviceId/*byte*/, Integer deviceAddress/*byte*/, Integer readSize/*byte*/, Integer writeValue/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1 + 1 + 1); // size
-			write(I2C_WRITE_READ); // msgType = 23
-			write(deviceId);
-			write(deviceAddress);
-			write(readSize);
-			write(writeValue);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void neoPixelAttach(Integer deviceId/*byte*/, Integer pin/*byte*/, Integer numPixels/*b32*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1 + 4); // size
-			write(NEO_PIXEL_ATTACH); // msgType = 25
-			write(deviceId);
-			write(pin);
-			writeb32(numPixels);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void neoPixelSetAnimation(Integer deviceId/*byte*/, Integer animation/*byte*/, Integer red/*byte*/, Integer green/*byte*/, Integer blue/*byte*/, Integer speed/*b16*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1 + 1 + 1 + 1 + 2); // size
-			write(NEO_PIXEL_SET_ANIMATION); // msgType = 26
-			write(deviceId);
-			write(animation);
-			write(red);
-			write(green);
-			write(blue);
-			writeb16(speed);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void neoPixelWriteMatrix(Integer deviceId/*byte*/, int[] buffer/*[]*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + (1 + buffer.length)); // size
-			write(NEO_PIXEL_WRITE_MATRIX); // msgType = 27
-			write(deviceId);
-			write(buffer);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void analogWrite(Integer pin/*byte*/, Integer value/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1); // size
-			write(ANALOG_WRITE); // msgType = 28
-			write(pin);
-			write(value);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void digitalWrite(Integer pin/*byte*/, Integer value/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1); // size
-			write(DIGITAL_WRITE); // msgType = 29
-			write(pin);
-			write(value);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void disablePin(Integer pin/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1); // size
-			write(DISABLE_PIN); // msgType = 30
-			write(pin);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void disablePins() {
-		try {
-			write(MAGIC_NUMBER);
-			write(1); // size
-			write(DISABLE_PINS); // msgType = 31
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void pinMode(Integer pin/*byte*/, Integer mode/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1); // size
-			write(PIN_MODE); // msgType = 32
-			write(pin);
-			write(mode);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void setTrigger(Integer pin/*byte*/, Integer triggerValue/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1); // size
-			write(SET_TRIGGER); // msgType = 37
-			write(pin);
-			write(triggerValue);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void setDebounce(Integer pin/*byte*/, Integer delay/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1); // size
-			write(SET_DEBOUNCE); // msgType = 38
-			write(pin);
-			write(delay);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void servoAttach(Integer deviceId/*byte*/, Integer pin/*byte*/, Integer initPos/*byte*/, Integer initVelocity/*b16*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1 + 1 + 2); // size
-			write(SERVO_ATTACH); // msgType = 39
-			write(deviceId);
-			write(pin);
-			write(initPos);
-			writeb16(initVelocity);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void servoEnablePwm(Integer deviceId/*byte*/, Integer pin/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1); // size
-			write(SERVO_ENABLE_PWM); // msgType = 40
-			write(deviceId);
-			write(pin);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void servoDisablePwm(Integer deviceId/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1); // size
-			write(SERVO_DISABLE_PWM); // msgType = 41
-			write(deviceId);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void servoSetMaxVelocity(Integer deviceId/*byte*/, Integer maxVelocity/*b16*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 2); // size
-			write(SERVO_SET_MAX_VELOCITY); // msgType = 42
-			write(deviceId);
-			writeb16(maxVelocity);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void servoSetVelocity(Integer deviceId/*byte*/, Integer velocity/*b16*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 2); // size
-			write(SERVO_SET_VELOCITY); // msgType = 43
-			write(deviceId);
-			writeb16(velocity);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void servoSweepStart(Integer deviceId/*byte*/, Integer min/*byte*/, Integer max/*byte*/, Integer step/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1 + 1 + 1); // size
-			write(SERVO_SWEEP_START); // msgType = 44
-			write(deviceId);
-			write(min);
-			write(max);
-			write(step);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void servoSweepStop(Integer deviceId/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1); // size
-			write(SERVO_SWEEP_STOP); // msgType = 45
-			write(deviceId);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void servoWrite(Integer deviceId/*byte*/, Integer target/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1); // size
-			write(SERVO_WRITE); // msgType = 46
-			write(deviceId);
-			write(target);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void servoWriteMicroseconds(Integer deviceId/*byte*/, Integer ms/*b16*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 2); // size
-			write(SERVO_WRITE_MICROSECONDS); // msgType = 47
-			write(deviceId);
-			writeb16(ms);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void serialAttach(Integer deviceId/*byte*/, Integer relayPin/*byte*/) {
-		try {
-			write(MAGIC_NUMBER);
-			write(1 + 1 + 1); // size
-			write(SERIAL_ATTACH); // msgType = 48
-			write(deviceId);
-			write(relayPin);
- 
-	  } catch (Exception e) {
-	  			serial.error(e);
-	  }
-	}
-
-	public void serialRelay(Integer deviceId/*byte*/, int[] data) {
+	public void publishI2cData(Integer deviceId/*byte*/, int[] data/*[]*/) {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + (1 + data.length)); // size
-			write(SERIAL_RELAY); // msgType = 49
+			write(PUBLISH_I2C_DATA); // msgType = 24
 			write(deviceId);
 			write(data);
  
@@ -872,39 +835,77 @@ public class Msg {
 	  }
 	}
 
-	public void ultrasonicSensorAttach(Integer deviceId/*byte*/, Integer triggerPin/*byte*/, Integer echoPin/*byte*/) {
+	public void publishAttachedDevice(Integer deviceId/*byte*/, String deviceName/*str*/) {
 		try {
 			write(MAGIC_NUMBER);
-			write(1 + 1 + 1 + 1); // size
-			write(ULTRASONIC_SENSOR_ATTACH); // msgType = 51
+			write(1 + 1 + (1 + deviceName.length())); // size
+			write(PUBLISH_ATTACHED_DEVICE); // msgType = 33
 			write(deviceId);
-			write(triggerPin);
-			write(echoPin);
+			write(deviceName);
  
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
 	}
 
-	public void ultrasonicSensorStartRanging(Integer deviceId/*byte*/, Integer timeout/*b32*/) {
+	public void publishBoardStatus(Integer microsPerLoop/*b16*/, Integer sram/*b16*/, int[] deviceSummary/*[]*/) {
 		try {
 			write(MAGIC_NUMBER);
-			write(1 + 1 + 4); // size
-			write(ULTRASONIC_SENSOR_START_RANGING); // msgType = 52
-			write(deviceId);
-			writeb32(timeout);
+			write(1 + 2 + 2 + (1 + deviceSummary.length)); // size
+			write(PUBLISH_BOARD_STATUS); // msgType = 34
+			writeb16(microsPerLoop);
+			writeb16(sram);
+			write(deviceSummary);
  
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
 	}
 
-	public void ultrasonicSensorStopRanging(Integer deviceId/*byte*/) {
+	public void publishDebug(String debugMsg/*str*/) {
 		try {
 			write(MAGIC_NUMBER);
-			write(1 + 1); // size
-			write(ULTRASONIC_SENSOR_STOP_RANGING); // msgType = 53
+			write(1 + (1 + debugMsg.length())); // size
+			write(PUBLISH_DEBUG); // msgType = 35
+			write(debugMsg);
+ 
+	  } catch (Exception e) {
+	  			serial.error(e);
+	  }
+	}
+
+	public void publishPinArray(int[] data/*[]*/) {
+		try {
+			write(MAGIC_NUMBER);
+			write(1 + (1 + data.length)); // size
+			write(PUBLISH_PIN_ARRAY); // msgType = 36
+			write(data);
+ 
+	  } catch (Exception e) {
+	  			serial.error(e);
+	  }
+	}
+
+	public void publishSerialData(Integer deviceId/*byte*/, int[] data/*[]*/) {
+		try {
+			write(MAGIC_NUMBER);
+			write(1 + 1 + (1 + data.length)); // size
+			write(PUBLISH_SERIAL_DATA); // msgType = 50
 			write(deviceId);
+			write(data);
+ 
+	  } catch (Exception e) {
+	  			serial.error(e);
+	  }
+	}
+
+	public void publishUltrasonicSensorData(Integer deviceId/*byte*/, Integer echoTime/*b16*/) {
+		try {
+			write(MAGIC_NUMBER);
+			write(1 + 1 + 2); // size
+			write(PUBLISH_ULTRASONIC_SENSOR_DATA); // msgType = 54
+			write(deviceId);
+			writeb16(echoTime);
  
 	  } catch (Exception e) {
 	  			serial.error(e);
@@ -1207,19 +1208,20 @@ public class Msg {
 			virtual.connectVirtualUart(port, port + "UART");
 			*/
 			
-			Arduino arduino = (Arduino)Runtime.start("arduino","Arduino");
+			VirtualArduino arduino = (VirtualArduino)Runtime.start("arduino","VirtualArduino");
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
-			arduino.connect(port);
+			// arduino.onConnect(portName)
+			// arduino.connect(port);
 			
 			// test pins
-			arduino.enablePin(5);
+			// arduino.enablePin(5);
 			
 			arduino.disablePin(5);
 			
 			// test status list enabled
 			arduino.enableBoardStatus(true);
 			
-			servo01.attach(arduino, 8);
+			// servo01.attach(arduino, 8);
 			
 			servo01.moveTo(30);
 			servo01.moveTo(130);

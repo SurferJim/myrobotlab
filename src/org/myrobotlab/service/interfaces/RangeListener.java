@@ -5,5 +5,7 @@ public interface RangeListener {
   String getName();
 
   void onRange(Long range);
+  
+  void setUnits(String units);
 
 }

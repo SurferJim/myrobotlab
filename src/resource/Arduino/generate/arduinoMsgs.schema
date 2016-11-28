@@ -64,10 +64,7 @@
 > deviceDetach/deviceId
 
 # I2cDevices
-# Help Mats !  I don't know what kind of data or signature you need !
-# attach is now explicit in its parameters - no parsing an int array !
-> i2cAttach/deviceId/i2cBus/deviceType/deviceAddress
-# > i2cAttach/deviceId/i2cBus
+> i2cBusAttach/deviceId/i2cBus
 > i2cRead/deviceId/deviceAddress/size
 > i2cWrite/deviceId/deviceAddress/[] data
 > i2cWriteRead/deviceId/deviceAddress/readSize/writeValue
@@ -127,6 +124,6 @@
 # UltrasonicSensor
 # http://myrobotlab.org/service/UltrasonicSensor
 > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
-> ultrasonicSensorStartRanging/deviceId
+> ultrasonicSensorStartRanging/deviceId/b32 timeout
 > ultrasonicSensorStopRanging/deviceId
-< publishUltrasonicSensorData/deviceId/b32 echoTime
+< publishUltrasonicSensorData/deviceId/b16 echoTime

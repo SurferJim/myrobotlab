@@ -1,115 +1,17 @@
 package org.myrobotlab.service;
 
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MAGIC_NUMBER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MAX_MSG_SIZE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MSG_ROUTE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_BOARD_INFO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_BOARD_STATUS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_MRLCOMM_ERROR;
-
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MAX_MSG_SIZE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MAGIC_NUMBER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MRLCOMM_VERSION;
-
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_NOT_FOUND;
-
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_ARDUINO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_ULTRASONIC;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_STEPPER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_MOTOR;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_STEPPER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_MOTOR;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_SERVO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_I2C;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_TYPE_NEOPIXEL;
-
-///// java static import definition - DO NOT MODIFY - Begin //////
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_MRLCOMM_ERROR;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.GET_BOARD_INFO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_BOARD_INFO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.ANALOG_WRITE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.CONTROLLER_ATTACH;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.CREATE_I2C_DEVICE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.CUSTOM_MSG;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_ATTACH;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DEVICE_DETACH;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DIGITAL_WRITE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DISABLE_BOARD_STATUS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DISABLE_PIN;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.DISABLE_PINS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.ENABLE_BOARD_STATUS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.ENABLE_PIN;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.GET_MRL_PIN_TYPE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.HEARTBEAT;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.I2C_READ;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.I2C_RETURN_DATA;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.I2C_WRITE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.I2C_WRITE_READ;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.INTS_TO_STRING;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.IS_ATTACHED;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.IS_RECORDING;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MOTOR_MOVE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MOTOR_MOVE_TO;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MOTOR_RESET;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MOTOR_STOP;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.MSG_ROUTE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.NEO_PIXEL_SET_ANIMATION;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.NEO_PIXEL_WRITE_MATRIX;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.ON_SENSOR_DATA;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PIN_MODE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_ATTACHED_DEVICE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_BOARD_STATUS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_CUSTOM_MSG;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_DEBUG;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_MESSAGE_ACK;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_PIN;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_PIN_ARRAY;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_PIN_DEFINITION;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_PULSE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_PULSE_STOP;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_SENSOR_DATA;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_SERVO_EVENT;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PUBLISH_TRIGGER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PULSE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.PULSE_STOP;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.READ;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.RECORD;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.RELEASE_I2C_DEVICE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.RESET;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SENSOR_ACTIVATE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SENSOR_DEACTIVATE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SENSOR_POLLING_START;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SENSOR_POLLING_STOP;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_ATTACH;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_DETACH;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_SET_MAX_VELOCITY;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_SET_VELOCITY;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_SWEEP_START;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_SWEEP_STOP;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_WRITE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SERVO_WRITE_MICROSECONDS;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_BOARD_MEGA_ADK;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_DEBOUNCE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_DEBUG;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_DIGITAL_TRIGGER_ONLY;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_SERIAL_RATE;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SET_TRIGGER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.SOFT_RESET;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.STOP_RECORDING;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.UNSET_CONTROLLER;
-import static org.myrobotlab.codec.serial.ArduinoMsgCodec.WRITE;
+import static org.myrobotlab.arduino.Msg.MAGIC_NUMBER;
+import static org.myrobotlab.arduino.VirtualMsg.MAX_MSG_SIZE;
+import static org.myrobotlab.arduino.VirtualMsg.MRLCOMM_VERSION;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.myrobotlab.arduino.BoardInfo;
-import org.myrobotlab.arduino.BoardStatus;
-import org.myrobotlab.arduino.MrlMsg;
-import org.myrobotlab.codec.serial.ArduinoMsgCodec;
+import org.myrobotlab.arduino.VirtualMsg;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceType;
 import org.myrobotlab.logging.Level;
@@ -117,6 +19,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.serial.PortQueue;
+import org.myrobotlab.service.Arduino.AckLock;
 import org.myrobotlab.service.interfaces.RecordControl;
 import org.myrobotlab.service.interfaces.SerialDataListener;
 import org.myrobotlab.service.interfaces.SerialDevice;
@@ -132,6 +35,8 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 	String portName = "COM42";
 	final BoardInfo boardInfo = new BoardInfo();
 	String boardType;
+	
+	
 
 	transient FileOutputStream record = null;
 	// for debuging & developing - need synchronized - both send & recv threads
@@ -155,6 +60,8 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 			uart = (Serial) startPeer("uart");
 			connectVirtualUart(portName, portName + ".UART");
 			uart.addByteListener(this);
+			
+			msg = new VirtualMsg(this, uart);
 			
 			// since we don't have a real DTR CDR lines like
 			// the Arduino
@@ -204,13 +111,36 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 		return uart;
 	}
 
-	transient int[] msg = new int[MAX_MSG_SIZE];
+	transient int[] ioCmd = new int[MAX_MSG_SIZE];
+	
+	transient VirtualMsg msg;
 
-	private int error_mrl_to_arduino_rx_cnt;
+	int error_arduino_to_mrl_rx_cnt = 0;
+
+	int error_mrl_to_arduino_rx_cnt = 0;
+	
+	boolean ackEnabled = false;
+
+	transient AckLock ackRecievedLock = new AckLock();
+
+	boolean enableBoardStatus = false;
+
 
 	@Override
 	public Integer onByte(Integer newByte) {
 		try {
+			/**
+			 * Archtype InputStream read - rxtxLib does not have this
+			 * straightforward design, but the details of how it behaves is is
+			 * handled in the Serial service and we are given a unified
+			 * interface
+			 *
+			 * The "read()" is data taken from a blocking queue in the Serial
+			 * service. If we want to support blocking functions in Arduino then
+			 * we'll "publish" to our local queues
+			 */
+			// TODO: consider reading more than 1 byte at a time ,and make this
+			// callback onBytes or something like that.
 
 			++byteCount;
 			if (log.isDebugEnabled()) {
@@ -220,8 +150,8 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 				if (newByte != MAGIC_NUMBER) {
 					byteCount = 0;
 					msgSize = 0;
-					Arrays.fill(msg, MAGIC_NUMBER);
-					warn(String.format("Arduino->MRL error - bad magic number %d - %d rx errors", newByte, ++error_mrl_to_arduino_rx_cnt));
+					Arrays.fill(ioCmd, 0); // FIXME - optimize - remove
+					warn(String.format("Arduino->MRL error - bad magic number %d - %d rx errors", newByte, ++error_arduino_to_mrl_rx_cnt));
 					// dump.setLength(0);
 				}
 				return newByte;
@@ -230,39 +160,51 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 				if (newByte > 64) {
 					byteCount = 0;
 					msgSize = 0;
-					error(String.format("Arduino->MRL error %d rx sz errors", ++error_mrl_to_arduino_rx_cnt));
+					error(String.format("Arduino->MRL error %d rx sz errors", ++error_arduino_to_mrl_rx_cnt));
 					return newByte;
 				}
-				msgSize = (byte) newByte.intValue();
+				msgSize = newByte.intValue();
 				// dump.append(String.format("MSG|SZ %d", msgSize));
 			} else if (byteCount > 2) {
 				// remove header - fill msg data - (2) headbytes -1
 				// (offset)
 				// dump.append(String.format("|P%d %d", byteCount,
 				// newByte));
-				msg[byteCount - 3] = (byte) newByte.intValue();
+				ioCmd[byteCount - 3] = newByte.intValue();
 			} else {
 				// the case where byteCount is negative?! not got.
-				error(String.format("Arduino->MRL error %d rx negsz errors", ++error_mrl_to_arduino_rx_cnt));
+				error(String.format("Arduino->MRL error %d rx negsz errors", ++error_arduino_to_mrl_rx_cnt));
 				return newByte;
 			}
 			if (byteCount == 2 + msgSize) {
 				// we've received a full message
-				// process valid message
-				// TODO: deserialize this byte array as an mrl message object to
-				// help clean up the code.
-				// int[] payload = Arrays.copyOfRange(msg, 2, msgSize);
-				// MrlCommMessage mrlMsg = new MrlCommMessage(msg[0], payload);
-				processMessage(msg);
+
+				msg.processCommand(ioCmd);
+
+				if (ackEnabled) {
+					/* we doon need no stink'ing ack'ing
+					synchronized (ackRecievedLock) {
+						try {
+							ackRecievedLock.wait(2000);
+						} catch (InterruptedException e) {// don't care}
+						}
+
+						if (!ackRecievedLock.acknowledged) {
+							log.error("Ack not received : {} {}", Msg.methodToString(ioCmd[0]), numAck);
+						}
+					}
+					*/
+				}
+
 				// clean up memory/buffers
 				msgSize = 0;
 				byteCount = 0;
-				Arrays.fill(msg, 0); // optimize remove
+				Arrays.fill(ioCmd, 0); // optimize remove
 			}
 		} catch (Exception e) {
 			++error_mrl_to_arduino_rx_cnt;
 			error("msg structure violation %d", error_mrl_to_arduino_rx_cnt);
-			log.warn("msg_structure violation byteCount {} buffer {}", byteCount, Arrays.copyOf(msg, byteCount));
+			log.warn("msg_structure violation byteCount {} buffer {}", byteCount, Arrays.copyOf(ioCmd, byteCount));
 			// try again (clean up memory buffer)
 			msgSize = 0;
 			byteCount = 0;
@@ -271,61 +213,16 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 		return newByte;
 	}
 
-	public void processMessage(int[] message) {
-		// MSG CONTENTS = FN | D0 | D1 | ...
-		int function = message[0];
-		// log.info("Process Message Called: {}",
-		// ArduinoMsgCodec.functionToString(function));
-		// if (log.isDebugEnabled()) {
-		// log.debug("Process Message Called: {}",
-		// ArduinoMsgCodec.functionToString(function));
-		// }
-
-		if (record != null) {
-			recordRxBuffer.append("< ");
-			recordRxBuffer.append(ArduinoMsgCodec.byteToMethod(function));
-		}
-
-		switch (function) {
-		case GET_BOARD_INFO: {
-			MrlMsg msg = new MrlMsg(PUBLISH_BOARD_INFO);
-			msg.append(boardInfo.getVersion()).append(boardInfo.getBoardType());
-			sendMsg(msg);
-			break;
-		}
-		default: {
-			// FIXME - use formatter for message
-			error("not handled serial event %d - %s ?", function, ArduinoMsgCodec.byteToMethod(function));
-			break;
-		}
-		}
-
-		if (record != null) {
-
-			// FIXME - hmm if it was not static - the angular client could use
-			// it
-			// FIXME - each callback would have to decode appropriately and
-			// append to
-			// a string buffer
-
-			try {
-				recordRxBuffer.append("\n");
-				record.write(recordRxBuffer.toString().getBytes());
-			} catch (IOException e) {
-				log.error("recording threw", e);
-			}
-
-			recordRxBuffer.setLength(0);
-		}
-
-	}
 
 	@Override
 	public String onConnect(String portName) {
 		for (int i = 0; i < 3; ++i) {
+			// TODO msg.publishBoardInfo();
+			/*
 			MrlMsg msg = new MrlMsg(PUBLISH_BOARD_INFO);
 			msg.append(boardInfo.getVersion()).append(boardInfo.getBoardType());
 			sendMsg(msg);
+			*/ 
 		}
 		return portName;
 	}
@@ -335,77 +232,11 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 		return portName;
 	}
 
-	public synchronized boolean sendMsg(MrlMsg msg) {
-		int function = msg.getMethod();
-
-		List<Integer> list = msg.getList();
-		int[] params = new int[list.size()];
-		for (int i = 0; i < list.size(); ++i) {
-			params[i] = list.get(i);
-		}
-
-		log.info(ArduinoMsgCodec.byteToMethod(function));
-		if (record != null) {
-			recordTxBuffer.append("> ");
-			recordTxBuffer.append(msg.toString());
-			recordTxBuffer.append("\n");
-			try {
-				record.write(recordTxBuffer.toString().getBytes());
-			} catch (Exception e) {
-			}
-			recordTxBuffer.setLength(0);
-		}
-
-		// some sanity checking.
-		if (!uart.isConnected()) {
-			log.warn("Serial port is not connected, unable to send message.");
-			return false;
-		}
-		// don't even attempt to send it if we know it's a bogus message.
-		// TODO: we need to account for the magic byte & length bytes. max
-		// message size is 64-2 (potentially)
-		if (params.length > MAX_MSG_SIZE) {
-			log.error("Arduino Message size was large! Function {} Size {}", function, params.length);
-			return false;
-		}
-		// System.out.println("Sending Message " + function );
-		try {// FIXME - perhaps we should
-				// Minimum MRLComm message is 3 bytes(int).
-				// MAGIC_NUMBER|LENGTH|FUNCTION|PARAM0|PARAM1 would be valid
-			int[] msgToSend = new int[3 + params.length];
-			msgToSend[0] = MAGIC_NUMBER;
-			msgToSend[1] = 1 + params.length;
-			msgToSend[2] = function;
-			for (int i = 0; i < params.length; i++) {
-				// What if the int is > 127 ?
-				msgToSend[3 + i] = params[i];
-			}
-			// send the message as an array. (uart port actually writes 1
-			// byte
-			// at a time anyway.. oh well.)
-			// notify();
-
-			// Technically this is the only thing that needs to be
-			// synchronized
-			// i think.
-			synchronized (msgToSend) {
-				log.info("writing....");
-				uart.write(msgToSend);
-			}
-		} catch (Exception e) {
-			error("sendMsg " + e.getMessage());
-			return false;
-		}
-
-		return true;
-	}
-
 	@Override
 	public void record() throws Exception {
 		if (record == null) {
 			record = new FileOutputStream(String.format("%s.ard", getName()));
 		}
-		MrlMsg.enableText();
 	}
 
 	@Override
@@ -451,6 +282,210 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 		return setBoard(Arduino.BOARD_TYPE_UNO);
 	}
 
+	public void getBoardInfo() {
+		msg.publishBoardInfo(MRLCOMM_VERSION, boardInfo.getBoardType());
+	}
+
+	public void enableBoardStatus(Boolean enabled) {
+		enableBoardStatus = enabled;
+	}
+
+	public void enablePin(Integer address, Integer type, Integer rate) {
+		// FIXME - debug logging in Msg / VirtualMsg
+		log.info("enablePin {} {} {}", address, type, rate);
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setDebug(Boolean enabled) {
+		
+	}
+
+	public void setSerialRate(Integer rate) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void softReset() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void enableAck(Boolean enabled) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void enableHeartbeat(Boolean enabled) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void heartbeat() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void echo(Long sInt) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void controllerAttach(Integer serialPort) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void customMsg(int[] msg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void i2cBusAttach(Integer deviceId, Integer i2cBus) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void i2cRead(Integer deviceId, Integer deviceAddress, Integer size) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void i2cWrite(Integer deviceId, Integer deviceAddress, int[] data) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void i2cWriteRead(Integer deviceId, Integer deviceAddress, Integer readSize, Integer writeValue) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void neoPixelAttach(Integer deviceId, Integer pin, Integer numPixels) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void analogWrite(Integer pin, Integer value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void digitalWrite(Integer pin, Integer value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void disablePin(Integer pin) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void disablePins() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void pinMode(Integer pin, Integer mode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void servoAttach(Integer deviceId, Integer pin, Integer initPos, Integer initVelocity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void servoEnablePwm(Integer deviceId, Integer pin) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void servoDisablePwm(Integer deviceId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void servoSetMaxVelocity(Integer deviceId, Integer maxVelocity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void servoSetVelocity(Integer deviceId, Integer velocity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void servoSweepStart(Integer deviceId, Integer min, Integer max, Integer step) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void servoSweepStop(Integer deviceId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void servoWrite(Integer deviceId, Integer target) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void servoWriteMicroseconds(Integer deviceId, Integer ms) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void serialAttach(Integer deviceId, Integer relayPin) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void serialRelay(Integer deviceId, int[] data) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void ultrasonicSensorAttach(Integer deviceId, Integer triggerPin, Integer echoPin) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void ultrasonicSensorStartRanging(Integer deviceId, Integer timeout) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void deviceDetach(Integer deviceId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void neoPixelSetAnimation(Integer deviceId, Integer animation, Integer red, Integer green, Integer blue, Integer speed) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void neoPixelWriteMatrix(Integer deviceId, int[] buffer) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setDebounce(Integer pin, Integer delay) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setTrigger(Integer pin, Integer triggerValue) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void ultrasonicSensorStopRanging(Integer deviceId) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	public static void main(String[] args) {
 		try {
 
@@ -462,7 +497,9 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 			boolean useVirtual = true;
 
 			Runtime.start("gui", "GUIService");
-			Runtime.start("python", "Python");
+			Runtime.start("webgui", "WebGui");
+			// Runtime.start("python", "Python");
+			
 			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
 			arduino.record();
 			log.info("ports " + Arrays.toString(arduino.getSerial().getPortNames().toArray()));
@@ -473,10 +510,12 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 				varduino.setBoardMega();//.setBoardUno();
 			}
 			arduino.connect(port);
+			arduino.enablePin(54);
 
 		} catch (Exception e) {
 			log.error("main threw", e);
 		}
 	}
+
 
 }

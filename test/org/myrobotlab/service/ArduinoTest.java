@@ -17,7 +17,7 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
-import org.myrobotlab.codec.serial.ArduinoMsgCodec;
+import org.myrobotlab.arduino.Msg;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -52,8 +52,6 @@ public class ArduinoTest implements PinArrayListener {
 	int servoPin = 9;
 	int enablePin;
 
-	static ArduinoMsgCodec codec = new ArduinoMsgCodec();
-
 	// FIXME - test for re-entrant !!!!
 	// FIXME - single switch for virtual versus "real" hardware
 
@@ -75,7 +73,6 @@ public class ArduinoTest implements PinArrayListener {
 
 			uart = virtual.getUart(port);
 	
-			codec.setTimeout(1000);
 			uart.setTimeout(100); // don't want to hang when decoding results...
 
 		}
@@ -737,7 +734,7 @@ public class ArduinoTest implements PinArrayListener {
 		arduino.disconnect();
 		arduino.connect(port);
 		assertTrue(arduino.isConnected());
-		assertEquals(ArduinoMsgCodec.MRLCOMM_VERSION, arduino.getVersion().intValue());
+		assertEquals(Msg.MRLCOMM_VERSION, arduino.getVersion().intValue());
 		log.info("testConnect - end");
 	}
 
@@ -786,7 +783,7 @@ public class ArduinoTest implements PinArrayListener {
 	@Test
 	public final void testGetVersion() {
 		log.info("testGetVersion");
-		assertEquals(ArduinoMsgCodec.MRLCOMM_VERSION, arduino.getVersion().intValue());
+		assertEquals(Msg.MRLCOMM_VERSION, arduino.getVersion().intValue());
 	}
 
 
@@ -962,8 +959,8 @@ public class ArduinoTest implements PinArrayListener {
 
 			// test a "real" arduino
 			userVirtualHardware = false;
-			// port = "COM10";
-			port = "COM4";
+			port = "COM10";
+			// port = "COM4";
 			
 			ArduinoTest test = new ArduinoTest();
 			ArduinoTest.setUpBeforeClass();

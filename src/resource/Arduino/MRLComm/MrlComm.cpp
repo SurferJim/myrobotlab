@@ -2,7 +2,7 @@
 #include "Msg.h"
 #include "Device.h"
 #include "Pin.h"
-#include "MrlNeoPixel.h"
+#include "MrlNeopixel.h"
 #include "Servo.h"
 #include "MrlServo.h"
 #include "MrlI2cBus.h"
@@ -337,10 +337,8 @@ void MrlComm::heartbeat() {
 	lastHeartbeatUpdate = millis();
 }
 
-// > i2cAttach/deviceId/i2cBus/deviceType/deviceAddress
-void MrlComm::i2cAttach(byte deviceId, byte i2cBus, byte deviceType, byte deviceAddress) {
-	// @Mats - do you need deviceType & deviceAddress here ?
-	// if not we should shorten the i2cAttach parameters :)
+// > i2cBusAttach/deviceId/i2cBus
+void MrlComm::i2cBusAttach(byte deviceId, byte i2cBus) {
 	MrlI2CBus* i2cbus = (MrlI2CBus*) addDevice(new MrlI2CBus(deviceId));
 	i2cbus->attach(i2cBus);
 }
@@ -432,7 +430,7 @@ void MrlComm::servoWriteMicroseconds(byte deviceId, int ms) {
 }
 
 void MrlComm::setDebug(bool enabled) {
-	debug = enabled;
+	msg->debug = enabled;
 }
 
 void MrlComm::setSerialRate(long rate) {
@@ -480,7 +478,7 @@ void MrlComm::softReset() {
 	loopCount = 0;
 	publishBoardStatusModulus = 10000;
 	boardStatusEnabled = false;
-	debug = false;
+	msg->debug = false;
 	heartbeatEnabled = false;
 	lastHeartbeatUpdate = 0;
 	for (unsigned int i = 0; i < MAX_MSG_SIZE; i++) {
@@ -495,10 +493,12 @@ void MrlComm::ultrasonicSensorAttach(byte deviceId, byte triggerPin, byte echoPi
 	sensor->attach(triggerPin, echoPin);
 }
 // > ultrasonicSensorStartRanging/deviceId
-void MrlComm::ultrasonicSensorStartRanging(byte deviceId) {
-
+void MrlComm::ultrasonicSensorStartRanging(byte deviceId, long timeout) {
+	MrlUltrasonicSensor* sensor = (MrlUltrasonicSensor*)getDevice(deviceId);
+	sensor->startRanging(timeout);
 }
 // > ultrasonicSensorStopRanging/deviceId
 void MrlComm::ultrasonicSensorStopRanging(byte deviceId) {
-
+	MrlUltrasonicSensor* sensor = (MrlUltrasonicSensor*)getDevice(deviceId);
+	sensor->stopRanging();
 }

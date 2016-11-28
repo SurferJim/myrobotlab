@@ -1,14 +1,14 @@
 #ifndef MrlUltrasonicSensor_h
 #define MrlUltrasonicSensor_h
 
-// possible transitional states
-#define ECHO_STATE_START 0
-#define ECHO_STATE_TRIG_PULSE_BEGIN 1
-#define ECHO_STATE_TRIG_PULSE_END 2
-#define ECHO_STATE_MIN_PAUSE_PRE_LISTENING 3
-#define ECHO_STATE_LISTENING 4
-#define ECHO_STATE_GOOD_RANGE 5
-#define ECHO_STATE_TIMEOUT 5
+// ECHO FINITE STATE MACHINE - NON BLOCKING PULSIN
+#define ECHO_STATE_START                    1
+#define ECHO_STATE_TRIG_PULSE_BEGIN         2
+#define ECHO_STATE_TRIG_PULSE_END           3
+#define ECHO_STATE_MIN_PAUSE_PRE_LISTENING  4
+#define ECHO_STATE_LISTENING                5
+#define ECHO_STATE_GOOD_RANGE               6
+#define ECHO_STATE_TIMEOUT                  7
 
 /**
  * Ultrasonic Sensor
@@ -21,13 +21,16 @@ class MrlUltrasonicSensor : public Device {
     int echoPin;
     unsigned long ts;
     unsigned long lastValue;
-    int timeoutUS;
+    unsigned long timeoutUS;
+    bool isRanging = false;
 
     MrlUltrasonicSensor(int deviceId);
     ~MrlUltrasonicSensor();
 
     void attach(byte trigPin, byte echoPin);
     void update();
+    void startRanging(long timeout);
+    void stopRanging();
 };
 
 #endif

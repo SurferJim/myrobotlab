@@ -54,8 +54,8 @@
 #define PUBLISH_CUSTOM_MSG 18
 // > deviceDetach/deviceId
 #define DEVICE_DETACH 19
-// > i2cAttach/deviceId/i2cBus/deviceType/deviceAddress
-#define I2C_ATTACH 20
+// > i2cBusAttach/deviceId/i2cBus
+#define I2C_BUS_ATTACH 20
 // > i2cRead/deviceId/deviceAddress/size
 #define I2C_READ 21
 // > i2cWrite/deviceId/deviceAddress/[] data
@@ -118,11 +118,11 @@
 #define PUBLISH_SERIAL_DATA 50
 // > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
 #define ULTRASONIC_SENSOR_ATTACH 51
-// > ultrasonicSensorStartRanging/deviceId
+// > ultrasonicSensorStartRanging/deviceId/b32 timeout
 #define ULTRASONIC_SENSOR_START_RANGING 52
 // > ultrasonicSensorStopRanging/deviceId
 #define ULTRASONIC_SENSOR_STOP_RANGING 53
-// < publishUltrasonicSensorData/deviceId/b32 echoTime
+// < publishUltrasonicSensorData/deviceId/b16 echoTime
 #define PUBLISH_ULTRASONIC_SENSOR_DATA 54
 
 

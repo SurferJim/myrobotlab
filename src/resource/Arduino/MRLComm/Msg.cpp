@@ -84,8 +84,8 @@ Msg* Msg::getInstance() {
 	void customMsg( byte msgSize, const byte*msg);
 	// > deviceDetach/deviceId
 	void deviceDetach( byte deviceId);
-	// > i2cAttach/deviceId/i2cBus/deviceType/deviceAddress
-	void i2cAttach( byte deviceId,  byte i2cBus,  byte deviceType,  byte deviceAddress);
+	// > i2cBusAttach/deviceId/i2cBus
+	void i2cBusAttach( byte deviceId,  byte i2cBus);
 	// > i2cRead/deviceId/deviceAddress/size
 	void i2cRead( byte deviceId,  byte deviceAddress,  byte size);
 	// > i2cWrite/deviceId/deviceAddress/[] data
@@ -130,8 +130,8 @@ Msg* Msg::getInstance() {
 	void serialRelay( byte deviceId,  byte dataSize, const byte*data);
 	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
 	void ultrasonicSensorAttach( byte deviceId,  byte triggerPin,  byte echoPin);
-	// > ultrasonicSensorStartRanging/deviceId
-	void ultrasonicSensorStartRanging( byte deviceId);
+	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
+	void ultrasonicSensorStartRanging( byte deviceId,  long timeout);
 	// > ultrasonicSensorStopRanging/deviceId
 	void ultrasonicSensorStopRanging( byte deviceId);
 
@@ -251,12 +251,12 @@ void Msg::publishSerialData( byte deviceId, const byte* data,  byte dataSize) {
   reset();
 }
 
-void Msg::publishUltrasonicSensorData( byte deviceId,  long echoTime) {
+void Msg::publishUltrasonicSensorData( byte deviceId,  int echoTime) {
   write(MAGIC_NUMBER);
-  write(1 + 1 + 4); // size
+  write(1 + 1 + 2); // size
   write(PUBLISH_ULTRASONIC_SENSOR_DATA); // msgType = 54
   write(deviceId);
-  writeb32(echoTime);
+  writeb16(echoTime);
   flush();
   reset();
 }
@@ -345,16 +345,12 @@ void Msg::processCommand() {
 			mrlComm->deviceDetach( deviceId);
 			break;
 	}
-	case I2C_ATTACH: { // i2cAttach
+	case I2C_BUS_ATTACH: { // i2cBusAttach
 			byte deviceId = ioCmd[startPos+1]; // bu8
 			startPos += 1;
 			byte i2cBus = ioCmd[startPos+1]; // bu8
 			startPos += 1;
-			byte deviceType = ioCmd[startPos+1]; // bu8
-			startPos += 1;
-			byte deviceAddress = ioCmd[startPos+1]; // bu8
-			startPos += 1;
-			mrlComm->i2cAttach( deviceId,  i2cBus,  deviceType,  deviceAddress);
+			mrlComm->i2cBusAttach( deviceId,  i2cBus);
 			break;
 	}
 	case I2C_READ: { // i2cRead
@@ -581,7 +577,9 @@ void Msg::processCommand() {
 	case ULTRASONIC_SENSOR_START_RANGING: { // ultrasonicSensorStartRanging
 			byte deviceId = ioCmd[startPos+1]; // bu8
 			startPos += 1;
-			mrlComm->ultrasonicSensorStartRanging( deviceId);
+			long timeout = b32(ioCmd, startPos+1);
+			startPos += 4; //b32
+			mrlComm->ultrasonicSensorStartRanging( deviceId,  timeout);
 			break;
 	}
 	case ULTRASONIC_SENSOR_STOP_RANGING: { // ultrasonicSensorStopRanging
@@ -644,13 +642,13 @@ unsigned long Msg::bu32(const byte* buffer, const int start/*=0*/) {
 }
 
 void Msg::publishError(const String& message) {
-	// instance->publishMRLCommError(message.c_str(), message.length()-1);
 	publishMRLCommError(message.c_str(), message.length());
 }
 
 void Msg::publishDebug(const String& message) {
-	// instance->publishDebug(message.c_str(), message.length()-1);
-	publishDebug(message.c_str(), message.length());
+	if (debug){
+		publishDebug(message.c_str(), message.length());
+	}
 }
 
 bool Msg::readMsg() {

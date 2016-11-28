@@ -8,8 +8,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.myrobotlab.codec.serial.ArduinoMsgCodec;
-import org.myrobotlab.codec.serial.Codec;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -37,8 +35,6 @@ public class UltrasonicSensorTest {
 
   int servoPin = 9;
 
-  static ArduinoMsgCodec codec = new ArduinoMsgCodec();
-
   // FIXME - test for re-entrant !!!!
   // FIXME - single switch for virtual versus "real" hardware
 
@@ -61,8 +57,7 @@ public class UltrasonicSensorTest {
     catcher.subscribe(arduino, "onError");
 
     uart = virtual.getUart(vport);
-  
-    codec.setTimeout(1000);
+ 
     uart.setTimeout(100); // don't want to hang when decoding results...
 
     arduino.setBoardMega();

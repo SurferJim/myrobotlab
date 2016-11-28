@@ -1,4 +1,4 @@
-package org.myrobotlab.codec.serial;
+package org.myrobotlab.arduino;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -76,6 +76,7 @@ public class ArduinoMsgGenerator {
 		String idlToHpp = toString("src/resource/Arduino/generate/Msg.template.h");
 		String idlToCpp = toString("src/resource/Arduino/generate/Msg.template.cpp");
 		String idlToJava = toString("src/resource/Arduino/generate/Msg.template.java");
+		String virtualJava = toString("src/resource/Arduino/generate/Msg.template.java");
 
 		// String idlToJava = toString("blah");
 
@@ -84,16 +85,22 @@ public class ArduinoMsgGenerator {
 
 		// accumulators
 		StringBuilder defines = new StringBuilder();
-		StringBuilder javaGeneratedCallBacks = new StringBuilder();
-		StringBuilder javaDefines = new StringBuilder();
-
+		
 		StringBuilder methodToString = new StringBuilder();
 		StringBuilder hMethods = new StringBuilder();
 		StringBuilder cppMethods = new StringBuilder();
-		StringBuilder javaMethods = new StringBuilder();
 		StringBuilder cppHandleCases = new StringBuilder();
-		StringBuilder javaHandleCases = new StringBuilder();
 		StringBuilder cppGeneratedCallBacks = new StringBuilder();
+		
+		StringBuilder javaGeneratedCallBacks = new StringBuilder();
+		StringBuilder javaDefines = new StringBuilder();
+		StringBuilder javaMethods = new StringBuilder();
+		StringBuilder javaHandleCases = new StringBuilder();
+
+		StringBuilder vJavaGeneratedCallBacks = new StringBuilder();
+		// StringBuilder vJavaDefines = new StringBuilder();
+		StringBuilder vJavaMethods = new StringBuilder();
+		StringBuilder vJavaHandleCases = new StringBuilder();
 
 		// process schema
 		BufferedReader br = new BufferedReader(new FileReader(idl));
@@ -129,30 +136,38 @@ public class ArduinoMsgGenerator {
 			methodToString.append("\t\tcase "+CodecUtils.toUnderScore(name)+":{\n\t\t\treturn \""+name+"\";\n\t\t}\n");
 		
 			// mux out
-			hMethods.append(methodData.get("hMethod"));
 			defines.append(methodData.get("define"));
-			javaDefines.append(methodData.get("javaDefine"));
-			cppMethods.append(methodData.get("cppMethod"));
-			javaMethods.append(methodData.get("javaMethod"));
+
+			hMethods.append(methodData.get("hMethod"));
 			cppHandleCases.append(methodData.get("cppHandleCase"));
+			cppMethods.append(methodData.get("cppMethod"));
+			cppGeneratedCallBacks.append(methodData.get("cppGeneratedCallBacks"));
+
+			javaDefines.append(methodData.get("javaDefine"));
+			javaMethods.append(methodData.get("javaMethod"));
 			javaHandleCases.append(methodData.get("javaHandleCase"));
-			cppGeneratedCallBacks.append(methodData.get("generatedCallBacks"));
-			javaGeneratedCallBacks.append(methodData.get("javaGeneratedCallBack"));
+			javaGeneratedCallBacks.append(methodData.get("javaGeneratedCallBack"));		
+			
+			//vJavaDefines.append(methodData.get("vJavaDefine"));
+			vJavaMethods.append(methodData.get("vJavaMethod"));
+			vJavaHandleCases.append(methodData.get("vJavaHandleCase"));
+			vJavaGeneratedCallBacks.append(methodData.get("vJavaGeneratedCallBack"));			
+			
 			++methodIndex;
 		}
 
 		br.close();
 
 		// file templates
+		fileSnr.put("%defines%", defines.toString());
 		fileSnr.put("%hMethods%", hMethods.toString());
 		fileSnr.put("%cppMethods%", cppMethods.toString());
-		fileSnr.put("%javaMethods%", javaMethods.toString());
 		fileSnr.put("%methodToString%", methodToString.toString());		
 		fileSnr.put("%cppHandleCases%", cppHandleCases.toString());
-		fileSnr.put("%javaHandleCases%", javaHandleCases.toString());
-		// simple string additions
-		fileSnr.put("%defines%", defines.toString());
+
 		fileSnr.put("%javaDefines%", javaDefines.toString());
+		fileSnr.put("%javaHandleCases%", javaHandleCases.toString());
+		fileSnr.put("%javaMethods%", javaMethods.toString());
 		fileSnr.put("%generatedCallBacks%", cppGeneratedCallBacks.toString());
 		fileSnr.put("%javaGeneratedCallBacks%", javaGeneratedCallBacks.toString());
 
@@ -163,6 +178,16 @@ public class ArduinoMsgGenerator {
 		FileOutputStream mrlComm_updated_h = new FileOutputStream("src/resource/Arduino/MRLComm/MrlComm.h");
 		mrlComm_updated_h.write((top + "\n" + cppGeneratedCallBacks.toString() + "    // " + bottom).getBytes());
 		mrlComm_updated_h.close();
+		
+		idlToJava = idlToJava.replace("%arduino%", "arduino");
+		idlToJava = idlToJava.replace("%javaClass%", "Msg");
+		idlToJava = idlToJava.replace("%javaArduinoClass%", "Arduino");
+		
+		virtualJava = virtualJava.replace("%arduino%", "virtual");
+		virtualJava = virtualJava.replace("%javaClass%", "VirtualMsg");
+		virtualJava = virtualJava.replace("%javaArduinoClass%", "VirtualArduino");
+		
+		
 
 		// process substitutions
 		for (String searchKey : fileSnr.keySet()) {
@@ -171,22 +196,35 @@ public class ArduinoMsgGenerator {
 			idlToJava = idlToJava.replace(searchKey, fileSnr.get(searchKey));
 			arduinoMsgCodeTemplateH = arduinoMsgCodeTemplateH.replace(searchKey, fileSnr.get(searchKey));
 		}
+		
+		// replace java tags with virtual java tags so we can use the same template
+		fileSnr.put("%javaDefines%", javaDefines.toString());
+		fileSnr.put("%javaHandleCases%", vJavaHandleCases.toString());
+		fileSnr.put("%javaMethods%", vJavaMethods.toString());
+		fileSnr.put("%javaGeneratedCallBacks%", vJavaGeneratedCallBacks.toString());
+		
+		for (String searchKey : fileSnr.keySet()) {
+			virtualJava = virtualJava.replace(searchKey, fileSnr.get(searchKey));
+		}
 
 		// write out to files ..
 		FileOutputStream MsgH = new FileOutputStream("src/resource/Arduino/MRLComm/Msg.h");
 		FileOutputStream MsgCpp = new FileOutputStream("src/resource/Arduino/MRLComm/Msg.cpp");
 		FileOutputStream MsgJava = new FileOutputStream("src/org/myrobotlab/arduino/Msg.java");
+		FileOutputStream VirtualMsg = new FileOutputStream("src/org/myrobotlab/arduino/VirtualMsg.java");		
 		FileOutputStream ArduinoMsgCodedH = new FileOutputStream("src/resource/Arduino/MRLComm/ArduinoMsgCodec.h");
 
 		ArduinoMsgCodedH.write(arduinoMsgCodeTemplateH.getBytes());
 		MsgH.write(idlToHpp.getBytes());
 		MsgCpp.write(idlToCpp.getBytes());
 		MsgJava.write(idlToJava.getBytes());
+		VirtualMsg.write(virtualJava.getBytes());
 
 		ArduinoMsgCodedH.close();
 		MsgH.close();
 		MsgCpp.close();
 		MsgJava.close();
+		VirtualMsg.close();
 
 	}
 
@@ -531,20 +569,34 @@ public class ArduinoMsgGenerator {
 			methodSnr.put("hMethod", hMethod);
 			methodSnr.put("cppMethod", cppMethod);
 			methodSnr.put("cppHandleCase", "");
-			methodSnr.put("javaHandleCase", javaCaseHeader.toString() + javaCaseArduinoMethod + javaCaseParams + javaCaseArduinoMethodComment + javaCaseParams + "\t\t\t}" + javaCaseFooter);
+			methodSnr.put("cppGeneratedCallBacks", "");
+			
+			methodSnr.put("javaHandleCase", javaCaseHeader.toString() + javaCaseArduinoMethod + javaCaseParams + javaCaseArduinoMethodComment + javaCaseParams + "\n\t\t\t}" + javaCaseFooter);
 			methodSnr.put("javaGeneratedCallBack", javaGeneratedCallback + javaMethodParameters.toString() + "){}\n");
-			methodSnr.put("generatedCallBacks", "");
 			methodSnr.put("javaMethod", "");
+			
+			// vJava send methods
+			methodSnr.put("vJavaMethod", javaMethod);
+			methodSnr.put("vJavaHandleCase", "");
+			methodSnr.put("vJavaGeneratedCallBack", "");
+			
+			
 		} else {
-			// java send methods
-			methodSnr.put("javaMethod", javaMethod);
-			methodSnr.put("javaHandleCase", "");
-			methodSnr.put("javaGeneratedCallBack", "");
 			// cpp recv methods
 			methodSnr.put("hMethod", "");
 			methodSnr.put("cppMethod", "");
 			methodSnr.put("cppHandleCase", cppCaseHeader.toString()  + cppCaseArduinoMethod + cppCaseParams + caseFooter);
-			methodSnr.put("generatedCallBacks", cppGeneratedCallBack.toString());
+			methodSnr.put("cppGeneratedCallBacks", cppGeneratedCallBack.toString());
+
+			// java send methods
+			methodSnr.put("javaMethod", javaMethod);
+			methodSnr.put("javaHandleCase", "");
+			methodSnr.put("javaGeneratedCallBack", "");
+			
+			// vJava send methods
+			methodSnr.put("vJavaHandleCase", javaCaseHeader.toString() + javaCaseArduinoMethod + javaCaseParams + javaCaseArduinoMethodComment + javaCaseParams + "\n\t\t\t}" + javaCaseFooter);
+			methodSnr.put("vJavaGeneratedCallBack", javaGeneratedCallback + javaMethodParameters.toString() + "){}\n");
+			methodSnr.put("vJavaMethod", "");
 		}
 
 		log.info("\n\n{}", hMethod);

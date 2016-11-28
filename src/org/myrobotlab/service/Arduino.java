@@ -58,18 +58,16 @@ import org.myrobotlab.service.interfaces.PinArrayListener;
 import org.myrobotlab.service.interfaces.PinDefinition;
 import org.myrobotlab.service.interfaces.PinListener;
 import org.myrobotlab.service.interfaces.RecordControl;
-import org.myrobotlab.service.interfaces.SensorController;
-import org.myrobotlab.service.interfaces.SensorDataListener;
-import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.SerialDataListener;
 import org.myrobotlab.service.interfaces.SerialRelayListener;
 import org.myrobotlab.service.interfaces.ServoControl;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.myrobotlab.service.interfaces.UltrasonicSensorControl;
+import org.myrobotlab.service.interfaces.UltrasonicSensorController;
 import org.slf4j.Logger;
 
 public class Arduino extends Service implements Microcontroller, PinArrayControl, I2CBusController, I2CController, SerialDataListener, ServoController, MotorController,
-		NeoPixelController, SensorDataPublisher, DeviceController, SensorController, SensorDataListener, RecordControl, SerialRelayListener {
+		NeoPixelController, UltrasonicSensorController, DeviceController, RecordControl, SerialRelayListener {
 
 	public static class AckLock {
 		volatile boolean acknowledged = false;
@@ -326,10 +324,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	synchronized private Integer attachDevice(DeviceControl device, Object[] attachConfig) {
-		DeviceMapping map = new DeviceMapping(this, attachConfig);
+		DeviceMapping map = new DeviceMapping(device, attachConfig);
 		map.setId(nextDeviceId);
 		deviceList.put(device.getName(), map);
-		deviceIndex.put(0, map);
+		deviceIndex.put(nextDeviceId, map);
 		device.setController(this);
 		++nextDeviceId;
 		return map.getId();
@@ -413,7 +411,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			// most likely on a real board this send will never get to
 			// mrlcomm - because the board is not ready - but it doesnt hurt
 			// and in fact it helps VirtualArduino - since we currently do not
-			// have a DTR CDR line in the virtual port
+			// have a DTR CDR line in the virtual port as use this as a signal of 
+			// connection
 			msg.getBoardInfo();
 
 			log.info("waiting for boardInfo lock..........");
@@ -783,12 +782,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// This will only handle the creation of i2cBus.
 		if (i2cBus == null) {
 			i2cBus = new I2CBus(String.format("I2CBus%s", busAddress));
+			i2cBusAttach(i2cBus, busAddress);
 		}
-
-		// deviceAttach(i2cBus, getMrlDeviceType(i2cBus), busAddress);
-		// msg.i2cAttach(deviceId, getMrlDeviceType(i2cBus), deviceAddress);
-		Integer deviceId = attachDevice(control, new Object[] { busAddress, deviceAddress });
-		msg.i2cAttach(deviceId, busAddress, getMrlDeviceType(i2cBus), deviceAddress);
 
 		// This part adds the service to the mapping between
 		// busAddress||DeviceAddress
@@ -804,15 +799,31 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			i2cDevices.put(key, devicedata);
 		}
 	}
-
+	/**
+	 * Internal Arduino method to create an i2cBus object in MRLComm that is shared between all i2c devices
+	 * @param control
+	 * @param busAddress
+	 */
+	private void i2cBusAttach(I2CBusControl control, int busAddress){
+	
+		// deviceAttach(i2cBus, getMrlDeviceType(i2cBus), busAddress);
+		// msg.i2cAttach(deviceId, getMrlDeviceType(i2cBus), deviceAddress);
+		// Mat's correction !
+		// Integer deviceId = attachDevice(control, new Object[] { busAddress, deviceAddress });
+		// msg.i2cAttach(deviceId, busAddress, getMrlDeviceType(i2cBus), deviceAddress);
+		
+		Integer deviceId = attachDevice(i2cBus, new Object[] { busAddress });
+		msg.i2cBusAttach(deviceId, busAddress);
+	}
+	
 	@Override
 	public int i2cRead(I2CControl control, int busAddress, int deviceAddress, byte[] buffer, int size) {
 		i2cDataReturned = false;
 		// Get the device index to the MRL i2c bus
 		String i2cBus = String.format("I2CBus%s", busAddress);
-		DeviceMapping map;
-		map = deviceList.get(i2cBus);
-		int id = map.getId(); // Device index to the I2CBus
+		int deviceId = getDeviceId(i2cBus);
+		log.info(String.format("i2cRead requesting %s bytes",size));
+		msg.i2cRead(deviceId, deviceAddress, size);
 
 		int retry = 0;
 		int retryMax = 1000; // ( About 1000ms = s)
@@ -841,15 +852,31 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// Time out, no data returned
 		return -1;
 	}
+	
+	// HELP MATS !!! 
+	// < publishI2cData/deviceId/[] data
+	/** 
+	 * 
+	 * @param deviceId
+	 * @param data
+	 */
+	public void publishI2cData(Integer deviceId, int[] data) {
+		log.info("publishI2cData");
+		i2cReturnData(data);
+	}
 
+	/** This methods is called by the i2cBus object when data is returned from the i2cRead
+	 * It populates the i2cData area and sets the i2cDataReturned flag to true so that the 
+	 * loop in i2cRead can return the data to the caller
+	 * 
+	 */
 	@Override
-	public void i2cReturnData(SensorData data) {
-		int[] rawData = (int[]) data.getData();
+	public void i2cReturnData(int[] rawData) {
 		i2cDataSize = rawData.length;
 		for (int i = 0; i < i2cDataSize; i++) {
 			i2cData[i] = (byte) (rawData[i] & 0xff);
 		}
-		log.debug("i2cReturnData invoked");
+		log.debug(String.format("i2cReturnData invoked. i2cDataSize = %s %s %s",i2cDataSize, rawData[0], rawData[1]));
 		i2cDataReturned = true;
 	}
 
@@ -857,8 +884,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	// > i2cWrite/deviceId/deviceAddress/[] data
 	public void i2cWrite(I2CControl control, int busAddress, int deviceAddress, byte[] buffer, int size) {
 		String i2cBus = String.format("I2CBus%s", busAddress);
-		DeviceMapping deviceMapping = deviceList.get(i2cBus);
-		int id = deviceMapping.getId();
+		int deviceId = getDeviceId(i2cBus);
 
 		int data[] = new int[size];
 		for (int i = 0; i < size; ++i) {
@@ -866,7 +892,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 								// char & 0xff;
 		}
 
-		msg.i2cWrite(id, deviceAddress, data);
+		msg.i2cWrite(deviceId, deviceAddress, data);
 	}
 
 	@Override
@@ -879,15 +905,14 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			i2cDataReturned = false;
 			// Get the device index to the MRL i2c bus
 			String i2cBus = String.format("I2CBus%s", busAddress);
-			DeviceMapping map;
-			map = deviceList.get(i2cBus);
-			int id = map.getId(); // Device index to the I2CBus
+			int deviceId = getDeviceId(i2cBus);
+			
 			int msgBuffer[] = new int[4];
-			msgBuffer[0] = id;
+			msgBuffer[0] = deviceId;
 			msgBuffer[1] = deviceAddress;
 			msgBuffer[2] = readSize;
 			msgBuffer[3] = writeBuffer[0];
-			msg.i2cWriteRead(getDeviceId(control), deviceAddress, readSize, writeBuffer[0] & 0xFF);
+			msg.i2cWriteRead(deviceId, deviceAddress, readSize, writeBuffer[0] & 0xFF);
 			int retry = 0;
 			int retryMax = 1000; // ( About 1000ms = s)
 			try {
@@ -1200,63 +1225,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return portName;
 	}
 
-	/**
-	 * Arduino is a sensor listener - it listens to its own pins and enabled Pin
-	 * events
-	 */
-	@Override
-	@Deprecated // use specific sensor channel or onPinArray for raw pin data
-	public void onSensorData(SensorData data) {
 
-		// at the moment we do not need a 'type'
-		// all sensor array data will be sent here ..
-
-		// this is MRLComms raw data handled in the context of
-		// a Sensor's onSensorData - so this method is specific for
-		// transforming 'Arduino' specific data to a useful form
-		// Since Arduino's useful data are pins we convert the pin values
-		// read into an array of pins
-
-		// we publish both pins and arrays of pins
-		// it depends what other services have registered for
-
-		// regardless we need to convert it all to PinData
-
-		// it better be an array[] of ints with tuples in the form
-		// | address | msb | lsb | ...
-		int[] rawPinData = (int[]) data.getData();
-
-		int pinDataCnt = rawPinData.length
-				/ 3; /* length / (1 address + 1 msg + 1 lsb) */
-		if (rawPinData.length % 3 != 0) {
-			log.error("something is wrong - expecting 3 bytes per pin data");
-		}
-
-		PinData[] pinArray = new PinData[pinDataCnt];
-
-		// parse sort reduce ...
-		for (int i = 0; i < pinArray.length; ++i) {
-			PinData pinData = new PinData(rawPinData[3 * i], Serial.bytesToInt(rawPinData, (3 * i) + 1, 2));
-			pinArray[i] = pinData;
-			int address = pinData.getAddress();
-
-			// handle individual pins
-			if (pinListeners.containsKey(address)) {
-				List<PinListener> list = pinListeners.get(address);
-				for (int j = 0; j < list.size(); ++j) {
-					PinListener pinListner = list.get(j);
-					if (pinListner.isLocal()) {
-						pinListner.onPin(pinData);
-					} else {
-						invoke("publishPin", pinData);
-					}
-				}
-			}
-		}
-
-		// publish array
-		invoke("publishPinArray", new Object[] { pinArray });
-	}
 
 	public void pinMode(int pin, int mode) {
 		msg.pinMode(pin, mode);
@@ -1264,9 +1233,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		invoke("publishPinDefinition", pinDef);
 	}
 
-	/*
-	 * public BoardInfo publishBoardInfo(BoardInfo info) { return info; }
-	 */
+	
+	// publishing point
+	public BoardInfo publishBoardInfo(BoardInfo info) { return info; }
+	 
 
 	@Override
 	public void pinMode(int address, String mode) {
@@ -1379,8 +1349,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return status;
 	}
 
-	// public BoardInfo publishBoardInfo(int version/* byte */, int boardType/*
-	// byte */) {
 	public void publishBoardStatus(int b16i/* b16 */, int b32i/* b32 */, long bu32i/* bu32 */, String name2/* str */) {
 		log.info(" testMsg deviceType {} name {} config {}", bu32i, name2);
 		// return new BoardInfo(version, boardType);
@@ -1414,11 +1382,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	 */
 	public void publishHeartbeat() {
 		heartbeat = true;
-	}
-
-	// < publishI2cData/deviceId/[] data
-	public void publishI2cData(Integer deviceId, int[] data) {
-		log.info("publishI2cData");
 	}
 
 	public String publishMRLCommError(String errorMsg/* str */) {
@@ -1507,14 +1470,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	}
 
-	/**
-	 * SensorDataPublisher.publishSensorData - publishes SensorData
-	 */
-	@Override
-	public SensorData publishSensorData(SensorData data) {
-		return data;
-	}
-
 	public int publishServoEvent(Integer pos) {
 		return pos;
 	}
@@ -1592,25 +1547,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		deviceList.clear();
 		error_mrl_to_arduino_rx_cnt = 0;
 		error_arduino_to_mrl_rx_cnt = 0;
-	}
-
-	// FIXME -
-	@Override
-	public void sensorActivate(UltrasonicSensorControl sensor, Object... conf) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void sensorAttach(UltrasonicSensorControl sensor, int trigPin, int echoPin) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void sensorDeactivate(UltrasonicSensorControl sensor) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -2001,12 +1937,25 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// TODO Auto-generated method stub
 		return data;
 	}
+	
+	public DeviceControl getDevice(Integer deviceId){
+		return deviceIndex.get(deviceId).getDevice();
+	}
 
-	public void publishUltrasonicSensorData(Integer deviceId, Integer echoTime) {
-		// TODO Auto-generated method stub
-		
-		// get device Id 
-		
+	public Integer publishUltrasonicSensorData(Integer deviceId, Integer echoTime) {
+		log.info("echoTime {}", echoTime);
+		((UltrasonicSensor)getDevice(deviceId)).onUltrasonicSensorData(echoTime);
+		return echoTime;
+	}
+	
+	public void ultrasonicSensorAttach(UltrasonicSensorControl sensor, Integer triggerPin, Integer echoPin){
+		Integer deviceId = attachDevice(sensor, new Object[] { triggerPin, echoPin });
+		msg.ultrasonicSensorAttach(deviceId, triggerPin, echoPin);
+	}
+
+	@Override
+	public void ultrasonicSensorStartRanging(UltrasonicSensorControl sensor, Integer timeout) {
+		msg.ultrasonicSensorStartRanging(getDeviceId(sensor), timeout);
 	}
 
   public void serialAttach(SerialRelay serialRelay, int controllerAttachAs) {
@@ -2014,5 +1963,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
     msg.serialAttach(deviceId, controllerAttachAs);
   }
 
+	@Override
+	public void ultrasonicSensorStopRanging(UltrasonicSensorControl sensor) {
+		msg.ultrasonicSensorStopRanging(getDeviceId(sensor));
+	}
+	
 
 }
