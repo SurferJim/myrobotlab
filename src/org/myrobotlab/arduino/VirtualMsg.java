@@ -1,5 +1,10 @@
 package org.myrobotlab.arduino;
 
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
 import org.myrobotlab.logging.Level;
 
 /**
@@ -34,6 +39,8 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.VirtualArduino;
+
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import org.myrobotlab.service.VirtualArduino;
 import org.myrobotlab.service.Runtime;
@@ -67,6 +74,11 @@ public class VirtualMsg {
 	public static final int DEVICE_TYPE_NEOPIXEL = 9;
 	
 	boolean invoke = true;
+	
+	// recording related
+	transient FileOutputStream record = null;
+	transient StringBuilder rxBuffer = new StringBuilder();
+	transient StringBuilder txBuffer = new StringBuilder();	
 
 	// < publishMRLCommError/str errorMsg
 	public final static int PUBLISH_MRLCOMM_ERROR = 1;
@@ -757,6 +769,14 @@ public class VirtualMsg {
 			write(PUBLISH_MRLCOMM_ERROR); // msgType = 1
 			write(errorMsg);
  
+			if(record != null){
+				txBuffer.append("> publishMRLCommError");
+				txBuffer.append("/");
+				txBuffer.append(errorMsg);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -770,6 +790,16 @@ public class VirtualMsg {
 			write(version);
 			write(boardType);
  
+			if(record != null){
+				txBuffer.append("> publishBoardInfo");
+				txBuffer.append("/");
+				txBuffer.append(version);
+				txBuffer.append("/");
+				txBuffer.append(boardType);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -782,6 +812,14 @@ public class VirtualMsg {
 			write(PUBLISH_ACK); // msgType = 10
 			write(function);
  
+			if(record != null){
+				txBuffer.append("> publishAck");
+				txBuffer.append("/");
+				txBuffer.append(function);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -793,6 +831,12 @@ public class VirtualMsg {
 			write(1); // size
 			write(PUBLISH_HEARTBEAT); // msgType = 13
  
+			if(record != null){
+				txBuffer.append("> publishHeartbeat");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -805,6 +849,14 @@ public class VirtualMsg {
 			write(PUBLISH_ECHO); // msgType = 15
 			writebu32(sInt);
  
+			if(record != null){
+				txBuffer.append("> publishEcho");
+				txBuffer.append("/");
+				txBuffer.append(sInt);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -817,6 +869,14 @@ public class VirtualMsg {
 			write(PUBLISH_CUSTOM_MSG); // msgType = 18
 			write(msg);
  
+			if(record != null){
+				txBuffer.append("> publishCustomMsg");
+				txBuffer.append("/");
+				txBuffer.append(msg);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -830,6 +890,16 @@ public class VirtualMsg {
 			write(deviceId);
 			write(data);
  
+			if(record != null){
+				txBuffer.append("> publishI2cData");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(data);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -843,6 +913,16 @@ public class VirtualMsg {
 			write(deviceId);
 			write(deviceName);
  
+			if(record != null){
+				txBuffer.append("> publishAttachedDevice");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(deviceName);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -857,6 +937,18 @@ public class VirtualMsg {
 			writeb16(sram);
 			write(deviceSummary);
  
+			if(record != null){
+				txBuffer.append("> publishBoardStatus");
+				txBuffer.append("/");
+				txBuffer.append(microsPerLoop);
+				txBuffer.append("/");
+				txBuffer.append(sram);
+				txBuffer.append("/");
+				txBuffer.append(deviceSummary);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -869,6 +961,14 @@ public class VirtualMsg {
 			write(PUBLISH_DEBUG); // msgType = 35
 			write(debugMsg);
  
+			if(record != null){
+				txBuffer.append("> publishDebug");
+				txBuffer.append("/");
+				txBuffer.append(debugMsg);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -881,6 +981,14 @@ public class VirtualMsg {
 			write(PUBLISH_PIN_ARRAY); // msgType = 36
 			write(data);
  
+			if(record != null){
+				txBuffer.append("> publishPinArray");
+				txBuffer.append("/");
+				txBuffer.append(data);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -894,6 +1002,16 @@ public class VirtualMsg {
 			write(deviceId);
 			write(data);
  
+			if(record != null){
+				txBuffer.append("> publishSerialData");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(data);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -907,6 +1025,16 @@ public class VirtualMsg {
 			write(deviceId);
 			writeb16(echoTime);
  
+			if(record != null){
+				txBuffer.append("> publishUltrasonicSensorData");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(echoTime);
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -1185,7 +1313,28 @@ public class VirtualMsg {
 		}
 	}
 	
+	
+	public boolean isRecording() {
+		return record != null;
+	}
+	
 
+	public void record() throws Exception {
+		
+		if (record == null) {
+			record = new FileOutputStream(String.format("%s.ard", arduino.getName()));
+		}
+	}
+
+	public void stopRecording() {
+		if (record != null) {
+			try {
+				record.close();
+			} catch (Exception e) {
+			}
+			record = null;
+		}
+	}
 
 	public static void main(String[] args) {
 		try {
@@ -1210,18 +1359,17 @@ public class VirtualMsg {
 			
 			VirtualArduino arduino = (VirtualArduino)Runtime.start("arduino","VirtualArduino");
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
-			// arduino.onConnect(portName)
-			// arduino.connect(port);
+// 			arduino.connect(port);
 			
 			// test pins
-			// arduino.enablePin(5);
+// 			arduino.enablePin(5);
 			
 			arduino.disablePin(5);
 			
 			// test status list enabled
 			arduino.enableBoardStatus(true);
 			
-			// servo01.attach(arduino, 8);
+// 			servo01.attach(arduino, 8);
 			
 			servo01.moveTo(30);
 			servo01.moveTo(130);

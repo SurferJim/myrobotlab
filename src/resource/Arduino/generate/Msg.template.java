@@ -1,5 +1,10 @@
 package org.myrobotlab.arduino;
 
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
 import org.myrobotlab.logging.Level;
 
 /**
@@ -34,6 +39,8 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.VirtualArduino;
+
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import org.myrobotlab.service.%javaArduinoClass%;
 import org.myrobotlab.service.Runtime;
@@ -67,6 +74,11 @@ public class %javaClass% {
 	public static final int DEVICE_TYPE_NEOPIXEL = 9;
 	
 	boolean invoke = true;
+	
+	// recording related
+	transient FileOutputStream record = null;
+	transient StringBuilder rxBuffer = new StringBuilder();
+	transient StringBuilder txBuffer = new StringBuilder();	
 
 %javaDefines%
 
@@ -232,7 +244,28 @@ public class %javaClass% {
 		}
 	}
 	
+	
+	public boolean isRecording() {
+		return record != null;
+	}
+	
 
+	public void record() throws Exception {
+		
+		if (record == null) {
+			record = new FileOutputStream(String.format("%s.ard", arduino.getName()));
+		}
+	}
+
+	public void stopRecording() {
+		if (record != null) {
+			try {
+				record.close();
+			} catch (Exception e) {
+			}
+			record = null;
+		}
+	}
 
 	public static void main(String[] args) {
 		try {
