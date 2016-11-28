@@ -805,6 +805,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// Get the device index to the MRL i2c bus
 		String i2cBus = String.format("I2CBus%s", busAddress);
 		int deviceId = getDeviceId(i2cBus);
+		log.info(String.format("i2cRead requesting %s bytes",size));
 		msg.i2cRead(deviceId, deviceAddress, size);
 
 		int retry = 0;
@@ -835,11 +836,16 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return -1;
 	}
 	
-	// HELP MATS !!!
+	// HELP MATS !!! 
 	// < publishI2cData/deviceId/[] data
+	/** 
+	 * 
+	 * @param deviceId
+	 * @param data
+	 */
 	public void publishI2cData(Integer deviceId, int[] data) {
 		log.info("publishI2cData");
-		((I2CBusController)getDevice(deviceId)).i2cReturnData(data);
+		i2cReturnData(data);
 	}
 
 	/** This methods is called by the i2cBus object when data is returned from the i2cRead
@@ -853,7 +859,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		for (int i = 0; i < i2cDataSize; i++) {
 			i2cData[i] = (byte) (rawData[i] & 0xff);
 		}
-		log.debug("i2cReturnData invoked");
+		log.debug(String.format("i2cReturnData invoked. i2cDataSize = %s %s %s",i2cDataSize, rawData[0], rawData[1]));
 		i2cDataReturned = true;
 	}
 
