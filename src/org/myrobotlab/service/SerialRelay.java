@@ -18,9 +18,9 @@ public class SerialRelay extends Service implements SerialDevice, DeviceControl 
 
   public final static Logger log = LoggerFactory.getLogger(SerialRelay.class);
   
-  Arduino controller = null;
+  transient Arduino controller = null;
 
-  private SerialRelayListener listener;
+  private transient SerialRelayListener listener;
 
   private int controllerAttachAs;
 

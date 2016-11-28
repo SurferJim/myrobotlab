@@ -43,7 +43,7 @@ void MrlSerialRelay::update(){
 	byte buffer[MAX_MSG_SIZE];
 	byte pos=0;
 	if(serial->available()){
-    msg->publishDebug("data available");
+    //msg->publishDebug("data available");
 		while(serial->available()){
 			buffer[pos++] = serial->read();
 		}
