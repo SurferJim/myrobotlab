@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.myrobotlab.io.FileIO;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.service.Arduino;
 import org.slf4j.Logger;
 
 import com.sun.jna.Platform;
@@ -31,16 +32,12 @@ public class ArduinoUtils {
 		if (Platform.isMac()) {
 			return "Arduino";
 		}
-		
-		if (Platform.isLinux()){
-			return "arduino";
-		}
 
 		return "arduino_debug";
 	}
 
 	public static boolean uploadSketch(String port, String board) throws IOException, InterruptedException {
-		if (!(board.equalsIgnoreCase("uno") || board.equalsIgnoreCase("mega") || board.equalsIgnoreCase("megaADK"))) {
+		if (!(board.equalsIgnoreCase("uno") || board.equalsIgnoreCase("mega") || board.equalsIgnoreCase("megaADK") || board.equalsIgnoreCase("nano"))) {
 			// TODO: validate the proper set of values.
 			System.out.println(String.format("Invalid board type:%s", board));
 			exitValue = 1;
@@ -62,10 +59,14 @@ public class ArduinoUtils {
 		ArrayList<String> args = new ArrayList<String>();
 		args.add("--upload");
 		args.add("--port");
-		//args.add("--verify");
 		args.add(port);
 		args.add("--board");
-		args.add("arduino:avr:" + board);
+		if (board.equalsIgnoreCase("nano")) {
+			args.add("arduino:avr:" + board + ":cpu=atmega328");
+		}
+		else {
+			args.add("arduino:avr:" + board);
+		}
 		args.add(sketch.getAbsolutePath());
 		// args.add("--verbose-upload");
 		//args.add("--preserve-temp-files");

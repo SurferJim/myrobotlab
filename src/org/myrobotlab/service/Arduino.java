@@ -28,6 +28,7 @@ import org.myrobotlab.motor.MotorConfig;
 import org.myrobotlab.motor.MotorConfigDualPwm;
 import org.myrobotlab.motor.MotorConfigPulse;
 import org.myrobotlab.motor.MotorConfigSimpleH;
+import org.myrobotlab.service.data.SerialRelayData;
 import org.myrobotlab.service.data.DeviceMapping;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.PinData;
@@ -338,13 +339,14 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// see what our version is like...
 		Integer version = boardInfo.getVersion();
 
-		if (version == null) {
-			error("%s did not get response from arduino....", serial.getPortName());
-		} else if (!version.equals(MRLCOMM_VERSION)) {
-			error("MRLComm.ino responded with version %s expected version is %s", version, MRLCOMM_VERSION);
-		} else {
-			info("%s connected on %s responded version %s ... goodtimes...", serial.getName(), serial.getPortName(), version);
-		}
+
+    if (version == null) {
+      error("%s did not get response from arduino....", serial.getPortName());
+    } else if (!version.equals(MRLCOMM_VERSION)) {
+      error("MRLComm.ino responded with version %s expected version is %s", version, MRLCOMM_VERSION);
+    } else {
+      info("%s connected on %s %s responded version %s ... goodtimes...", serial.getName(), controller.getName(), serialPort, version);
+    }
 		broadcastState();
 	}
 
@@ -1761,41 +1763,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		pinDef.setValue(value);
 	}
 
-	public int[] publishSerialData(Integer deviceId, int[] data) {
-		// TODO Auto-generated method stub
-		return data;
-	}
-
-	public DeviceControl getDevice(Integer deviceId) {
-		return deviceIndex.get(deviceId).getDevice();
-	}
-
-	public Integer publishUltrasonicSensorData(Integer deviceId, Integer echoTime) {
-		log.info("echoTime {}", echoTime);
-		((UltrasonicSensor) getDevice(deviceId)).onUltrasonicSensorData(echoTime);
-		return echoTime;
-	}
-
-	public void ultrasonicSensorAttach(UltrasonicSensorControl sensor, Integer triggerPin, Integer echoPin) {
-		Integer deviceId = attachDevice(sensor, new Object[] { triggerPin, echoPin });
-		msg.ultrasonicSensorAttach(deviceId, triggerPin, echoPin);
-	}
-
-	@Override
-	public void ultrasonicSensorStartRanging(UltrasonicSensorControl sensor, Integer timeout) {
-		msg.ultrasonicSensorStartRanging(getDeviceId(sensor), timeout);
-	}
-
-	public void serialAttach(SerialRelay serialRelay, int controllerAttachAs) {
-		Integer deviceId = attachDevice(serialRelay, new Object[] { controllerAttachAs });
-		msg.serialAttach(deviceId, controllerAttachAs);
-	}
-
-	@Override
-	public void ultrasonicSensorStopRanging(UltrasonicSensorControl sensor) {
-		msg.ultrasonicSensorStopRanging(getDeviceId(sensor));
-	}
-
 	public static void main(String[] args) {
 		try {
 
@@ -1871,6 +1838,42 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		} catch (Exception e) {
 			Logging.logError(e);
 		}
+	}
+
+
+	public SerialRelayData publishSerialData(Integer deviceId, int[] data) {
+	  SerialRelayData serialData = new SerialRelayData(deviceId, data);
+		return serialData;
+	}
+	
+	public DeviceControl getDevice(Integer deviceId){
+		return deviceIndex.get(deviceId).getDevice();
+	}
+
+	public Integer publishUltrasonicSensorData(Integer deviceId, Integer echoTime) {
+		log.info("echoTime {}", echoTime);
+		((UltrasonicSensor)getDevice(deviceId)).onUltrasonicSensorData(echoTime);
+		return echoTime;
+	}
+	
+	public void ultrasonicSensorAttach(UltrasonicSensorControl sensor, Integer triggerPin, Integer echoPin){
+		Integer deviceId = attachDevice(sensor, new Object[] { triggerPin, echoPin });
+		msg.ultrasonicSensorAttach(deviceId, triggerPin, echoPin);
+	}
+
+	@Override
+	public void ultrasonicSensorStartRanging(UltrasonicSensorControl sensor, Integer timeout) {
+		msg.ultrasonicSensorStartRanging(getDeviceId(sensor), timeout);
+	}
+
+  public void serialAttach(SerialRelay serialRelay, int controllerAttachAs) {
+    Integer deviceId = attachDevice(serialRelay, new Object[] { controllerAttachAs });
+    msg.serialAttach(deviceId, controllerAttachAs);
+  }
+
+	@Override
+	public void ultrasonicSensorStopRanging(UltrasonicSensorControl sensor) {
+		msg.ultrasonicSensorStopRanging(getDeviceId(sensor));
 	}
 
 }

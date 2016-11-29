@@ -36,7 +36,8 @@ public class ArduinoChaosTest {
     Arduino arduino = (Arduino) Runtime.createAndStart("arduino", "Arduino");
     //Serial serial = (Serial) arduino.getSerial();
 
-    arduino.boardType= board;
+    arduino.setBoardUno();
+    // arduino.boardType= board;
     arduino.connect("COM30");
    
 
