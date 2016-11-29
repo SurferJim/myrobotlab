@@ -2312,4 +2312,14 @@ public class Runtime extends Service implements MessageListener, RepoInstallList
 		return serviceData;
 	}
 
+	public static void setLocale(String string, String string2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void setLocale(String string) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

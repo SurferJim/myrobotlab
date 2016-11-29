@@ -176,6 +176,11 @@ public class StringUtil {
     
     
   }
+
+public static String removeAccents(String cleanedText) {
+	// TODO Auto-generated method stub
+	return null;
+}
   
   
 
