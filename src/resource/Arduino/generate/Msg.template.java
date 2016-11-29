@@ -1,5 +1,10 @@
 package org.myrobotlab.arduino;
 
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
 import org.myrobotlab.logging.Level;
 
 /**
@@ -34,6 +39,8 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.VirtualArduino;
+
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import org.myrobotlab.service.%javaArduinoClass%;
 import org.myrobotlab.service.Runtime;
@@ -52,7 +59,7 @@ public class %javaClass% {
 
 	public static final int MAX_MSG_SIZE = 64;
 	public static final int MAGIC_NUMBER = 170; // 10101010
-	public static final int MRLCOMM_VERSION = 41;
+	public static final int MRLCOMM_VERSION = %MRLCOMM_VERSION%;
 
 	// ------ device type mapping constants
 
@@ -67,6 +74,11 @@ public class %javaClass% {
 	public static final int DEVICE_TYPE_NEOPIXEL = 9;
 	
 	boolean invoke = true;
+	
+	// recording related
+	transient FileOutputStream record = null;
+	transient StringBuilder rxBuffer = new StringBuilder();
+	transient StringBuilder txBuffer = new StringBuilder();	
 
 %javaDefines%
 
@@ -232,7 +244,28 @@ public class %javaClass% {
 		}
 	}
 	
+	
+	public boolean isRecording() {
+		return record != null;
+	}
+	
 
+	public void record() throws Exception {
+		
+		if (record == null) {
+			record = new FileOutputStream(String.format("%s.ard", arduino.getName()));
+		}
+	}
+
+	public void stopRecording() {
+		if (record != null) {
+			try {
+				record.close();
+			} catch (Exception e) {
+			}
+			record = null;
+		}
+	}
 
 	public static void main(String[] args) {
 		try {
@@ -257,6 +290,8 @@ public class %javaClass% {
 			
 			%javaArduinoClass% arduino = (%javaArduinoClass%)Runtime.start("arduino","%javaArduinoClass%");
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
+			
+			/*
 			arduino.connect(port);
 			
 			// test pins
@@ -273,7 +308,7 @@ public class %javaClass% {
 			servo01.moveTo(130);
 			
 			arduino.enableBoardStatus(false);
-			
+			*/
 			// test ack
 			
 			// test heartbeat

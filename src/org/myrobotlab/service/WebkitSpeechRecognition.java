@@ -59,7 +59,7 @@ public class WebkitSpeechRecognition extends Service implements SpeechRecognizer
     // TODO: is there a better place to do this? maybe recognized?
     // TODO: remove this! it probably should be invoking the command on publish
     // text.. only on recognized?!
-    // not sure.
+    // not sure.	
     String cleantext = text.toLowerCase().trim();
     /*
      * Double Speak FIX - I don't think a cmd should be sent from here because

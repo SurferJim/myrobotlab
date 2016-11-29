@@ -237,12 +237,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	 * null they are listening to "any" published pin
 	 */
 	Map<String, Set<Integer>> pinSets = new HashMap<String, Set<Integer>>();
-	// FIXME - implement in Msg
-	transient FileOutputStream record = null;
-	// for debuging & developing - need synchronized - both send & recv threads
-	transient StringBuffer recordRxBuffer = new StringBuffer();
 
-	transient StringBuffer recordTxBuffer = new StringBuffer();
 	public int retryConnectDelay = 1500;
 
 	// parameters for testing the getVersion retry stuff.
@@ -963,7 +958,18 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	// FIXME put recording in generated message structure !!!
 	@Override
 	public boolean isRecording() {
-		return record != null;
+		return msg.isRecording();
+	}
+	
+	// FIXME put recording into generated Msg
+	@Override
+	public void record() throws Exception {		
+		msg.record();
+	}
+
+	@Override
+	public void stopRecording() {
+		msg.stopRecording();
 	}
 
 	@Override
@@ -1292,13 +1298,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	public String publishAttachedDevice(int deviceId/* byte */, String deviceName/* str */) {
 
-		if (record != null) {
-			recordRxBuffer.append("/");
-			recordRxBuffer.append(deviceId);
-			recordRxBuffer.append("/");
-			recordRxBuffer.append(deviceName);
-		}
-
 		if (!deviceList.containsKey(deviceName)) {
 			error("PUBLISH_ATTACHED_DEVICE deviceName %s not found !", deviceName);
 		}
@@ -1318,14 +1317,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public BoardInfo publishBoardInfo(int version/* byte */, int boardType/* byte */) {
 		boardInfo.setVersion(version);
 		boardInfo.setType(boardType);
-
-		// FIXME - have record part of generated code !!!
-		if (record != null) {
-			recordRxBuffer.append("/");
-			recordRxBuffer.append(version);
-			recordRxBuffer.append("/");
-			recordRxBuffer.append(boardType);
-		}
 
 		log.info("Version return by Arduino: {}", boardInfo.getVersion());
 		log.info("Board type returned by Arduino: {}", boardInfo.getName());
@@ -1495,14 +1486,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	@Override
 	public int read(String pinName) {
 		return read(pinNameToAddress(pinName));
-	}
-
-	// FIXME put recording into generated Msg
-	@Override
-	public void record() throws Exception {
-		if (record == null) {
-			record = new FileOutputStream(String.format("%s.ard", getName()));
-		}
 	}
 
 	public void refresh() {
@@ -1738,16 +1721,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		}
 	}
 
-	@Override
-	public void stopRecording() {
-		if (record != null) {
-			try {
-				record.close();
-			} catch (Exception e) {
-			}
-			record = null;
-		}
-	}
 
 	@Override
 	public void stopService() {

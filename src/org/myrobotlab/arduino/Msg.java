@@ -1,5 +1,10 @@
 package org.myrobotlab.arduino;
 
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
 import org.myrobotlab.logging.Level;
 
 /**
@@ -34,6 +39,8 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.VirtualArduino;
+
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
@@ -52,7 +59,7 @@ public class Msg {
 
 	public static final int MAX_MSG_SIZE = 64;
 	public static final int MAGIC_NUMBER = 170; // 10101010
-	public static final int MRLCOMM_VERSION = 41;
+	public static final int MRLCOMM_VERSION = 46;
 
 	// ------ device type mapping constants
 
@@ -67,6 +74,11 @@ public class Msg {
 	public static final int DEVICE_TYPE_NEOPIXEL = 9;
 	
 	boolean invoke = true;
+	
+	// recording related
+	transient FileOutputStream record = null;
+	transient StringBuilder rxBuffer = new StringBuilder();
+	transient StringBuilder txBuffer = new StringBuilder();	
 
 	// < publishMRLCommError/str errorMsg
 	public final static int PUBLISH_MRLCOMM_ERROR = 1;
@@ -243,6 +255,17 @@ public class Msg {
 			} else { 
  				arduino.publishMRLCommError( errorMsg);
 			}
+			if(record != null){
+				rxBuffer.append("< publishMRLCommError");
+				rxBuffer.append("/");
+				rxBuffer.append(errorMsg);
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_BOARD_INFO: {
@@ -255,6 +278,19 @@ public class Msg {
 			} else { 
  				arduino.publishBoardInfo( version,  boardType);
 			}
+			if(record != null){
+				rxBuffer.append("< publishBoardInfo");
+				rxBuffer.append("/");
+				rxBuffer.append(version);
+				rxBuffer.append("/");
+				rxBuffer.append(boardType);
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_ACK: {
@@ -265,6 +301,17 @@ public class Msg {
 			} else { 
  				arduino.publishAck( function);
 			}
+			if(record != null){
+				rxBuffer.append("< publishAck");
+				rxBuffer.append("/");
+				rxBuffer.append(function);
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_HEARTBEAT: {
@@ -273,6 +320,15 @@ public class Msg {
 			} else { 
  				arduino.publishHeartbeat();
 			}
+			if(record != null){
+				rxBuffer.append("< publishHeartbeat");
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_ECHO: {
@@ -283,6 +339,17 @@ public class Msg {
 			} else { 
  				arduino.publishEcho( sInt);
 			}
+			if(record != null){
+				rxBuffer.append("< publishEcho");
+				rxBuffer.append("/");
+				rxBuffer.append(sInt);
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_CUSTOM_MSG: {
@@ -293,6 +360,17 @@ public class Msg {
 			} else { 
  				arduino.publishCustomMsg( msg);
 			}
+			if(record != null){
+				rxBuffer.append("< publishCustomMsg");
+				rxBuffer.append("/");
+				rxBuffer.append(Arrays.toString(msg));
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_I2C_DATA: {
@@ -305,6 +383,19 @@ public class Msg {
 			} else { 
  				arduino.publishI2cData( deviceId,  data);
 			}
+			if(record != null){
+				rxBuffer.append("< publishI2cData");
+				rxBuffer.append("/");
+				rxBuffer.append(deviceId);
+				rxBuffer.append("/");
+				rxBuffer.append(Arrays.toString(data));
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_ATTACHED_DEVICE: {
@@ -317,6 +408,19 @@ public class Msg {
 			} else { 
  				arduino.publishAttachedDevice( deviceId,  deviceName);
 			}
+			if(record != null){
+				rxBuffer.append("< publishAttachedDevice");
+				rxBuffer.append("/");
+				rxBuffer.append(deviceId);
+				rxBuffer.append("/");
+				rxBuffer.append(deviceName);
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_BOARD_STATUS: {
@@ -331,6 +435,21 @@ public class Msg {
 			} else { 
  				arduino.publishBoardStatus( microsPerLoop,  sram,  deviceSummary);
 			}
+			if(record != null){
+				rxBuffer.append("< publishBoardStatus");
+				rxBuffer.append("/");
+				rxBuffer.append(microsPerLoop);
+				rxBuffer.append("/");
+				rxBuffer.append(sram);
+				rxBuffer.append("/");
+				rxBuffer.append(Arrays.toString(deviceSummary));
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_DEBUG: {
@@ -341,6 +460,17 @@ public class Msg {
 			} else { 
  				arduino.publishDebug( debugMsg);
 			}
+			if(record != null){
+				rxBuffer.append("< publishDebug");
+				rxBuffer.append("/");
+				rxBuffer.append(debugMsg);
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_PIN_ARRAY: {
@@ -351,6 +481,17 @@ public class Msg {
 			} else { 
  				arduino.publishPinArray( data);
 			}
+			if(record != null){
+				rxBuffer.append("< publishPinArray");
+				rxBuffer.append("/");
+				rxBuffer.append(Arrays.toString(data));
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_SERIAL_DATA: {
@@ -363,6 +504,19 @@ public class Msg {
 			} else { 
  				arduino.publishSerialData( deviceId,  data);
 			}
+			if(record != null){
+				rxBuffer.append("< publishSerialData");
+				rxBuffer.append("/");
+				rxBuffer.append(deviceId);
+				rxBuffer.append("/");
+				rxBuffer.append(Arrays.toString(data));
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		case PUBLISH_ULTRASONIC_SENSOR_DATA: {
@@ -375,6 +529,19 @@ public class Msg {
 			} else { 
  				arduino.publishUltrasonicSensorData( deviceId,  echoTime);
 			}
+			if(record != null){
+				rxBuffer.append("< publishUltrasonicSensorData");
+				rxBuffer.append("/");
+				rxBuffer.append(deviceId);
+				rxBuffer.append("/");
+				rxBuffer.append(echoTime);
+			rxBuffer.append("\n");
+			try{
+				record.write(rxBuffer.toString().getBytes());
+				rxBuffer.setLength(0);
+			}catch(IOException e){}
+			}
+
 			break;
 		}
 		
@@ -390,6 +557,13 @@ public class Msg {
 			write(1); // size
 			write(GET_BOARD_INFO); // msgType = 2
  
+			if(record != null){
+				txBuffer.append("> getBoardInfo");
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -402,6 +576,15 @@ public class Msg {
 			write(ENABLE_BOARD_STATUS); // msgType = 4
 			writebool(enabled);
  
+			if(record != null){
+				txBuffer.append("> enableBoardStatus");
+				txBuffer.append("/");
+				txBuffer.append(enabled);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -416,6 +599,19 @@ public class Msg {
 			write(type);
 			writeb16(rate);
  
+			if(record != null){
+				txBuffer.append("> enablePin");
+				txBuffer.append("/");
+				txBuffer.append(address);
+				txBuffer.append("/");
+				txBuffer.append(type);
+				txBuffer.append("/");
+				txBuffer.append(rate);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -428,6 +624,15 @@ public class Msg {
 			write(SET_DEBUG); // msgType = 6
 			writebool(enabled);
  
+			if(record != null){
+				txBuffer.append("> setDebug");
+				txBuffer.append("/");
+				txBuffer.append(enabled);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -440,6 +645,15 @@ public class Msg {
 			write(SET_SERIAL_RATE); // msgType = 7
 			writeb32(rate);
  
+			if(record != null){
+				txBuffer.append("> setSerialRate");
+				txBuffer.append("/");
+				txBuffer.append(rate);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -451,6 +665,13 @@ public class Msg {
 			write(1); // size
 			write(SOFT_RESET); // msgType = 8
  
+			if(record != null){
+				txBuffer.append("> softReset");
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -463,6 +684,15 @@ public class Msg {
 			write(ENABLE_ACK); // msgType = 9
 			writebool(enabled);
  
+			if(record != null){
+				txBuffer.append("> enableAck");
+				txBuffer.append("/");
+				txBuffer.append(enabled);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -475,6 +705,15 @@ public class Msg {
 			write(ENABLE_HEARTBEAT); // msgType = 11
 			writebool(enabled);
  
+			if(record != null){
+				txBuffer.append("> enableHeartbeat");
+				txBuffer.append("/");
+				txBuffer.append(enabled);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -486,6 +725,13 @@ public class Msg {
 			write(1); // size
 			write(HEARTBEAT); // msgType = 12
  
+			if(record != null){
+				txBuffer.append("> heartbeat");
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -498,6 +744,15 @@ public class Msg {
 			write(ECHO); // msgType = 14
 			writebu32(sInt);
  
+			if(record != null){
+				txBuffer.append("> echo");
+				txBuffer.append("/");
+				txBuffer.append(sInt);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -510,6 +765,15 @@ public class Msg {
 			write(CONTROLLER_ATTACH); // msgType = 16
 			write(serialPort);
  
+			if(record != null){
+				txBuffer.append("> controllerAttach");
+				txBuffer.append("/");
+				txBuffer.append(serialPort);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -522,6 +786,15 @@ public class Msg {
 			write(CUSTOM_MSG); // msgType = 17
 			write(msg);
  
+			if(record != null){
+				txBuffer.append("> customMsg");
+				txBuffer.append("/");
+				txBuffer.append(Arrays.toString(msg));
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -534,6 +807,15 @@ public class Msg {
 			write(DEVICE_DETACH); // msgType = 19
 			write(deviceId);
  
+			if(record != null){
+				txBuffer.append("> deviceDetach");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -547,6 +829,17 @@ public class Msg {
 			write(deviceId);
 			write(i2cBus);
  
+			if(record != null){
+				txBuffer.append("> i2cBusAttach");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(i2cBus);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -561,6 +854,19 @@ public class Msg {
 			write(deviceAddress);
 			write(size);
  
+			if(record != null){
+				txBuffer.append("> i2cRead");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(deviceAddress);
+				txBuffer.append("/");
+				txBuffer.append(size);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -575,6 +881,19 @@ public class Msg {
 			write(deviceAddress);
 			write(data);
  
+			if(record != null){
+				txBuffer.append("> i2cWrite");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(deviceAddress);
+				txBuffer.append("/");
+				txBuffer.append(Arrays.toString(data));
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -590,6 +909,21 @@ public class Msg {
 			write(readSize);
 			write(writeValue);
  
+			if(record != null){
+				txBuffer.append("> i2cWriteRead");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(deviceAddress);
+				txBuffer.append("/");
+				txBuffer.append(readSize);
+				txBuffer.append("/");
+				txBuffer.append(writeValue);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -604,6 +938,19 @@ public class Msg {
 			write(pin);
 			writeb32(numPixels);
  
+			if(record != null){
+				txBuffer.append("> neoPixelAttach");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(pin);
+				txBuffer.append("/");
+				txBuffer.append(numPixels);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -621,6 +968,25 @@ public class Msg {
 			write(blue);
 			writeb16(speed);
  
+			if(record != null){
+				txBuffer.append("> neoPixelSetAnimation");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(animation);
+				txBuffer.append("/");
+				txBuffer.append(red);
+				txBuffer.append("/");
+				txBuffer.append(green);
+				txBuffer.append("/");
+				txBuffer.append(blue);
+				txBuffer.append("/");
+				txBuffer.append(speed);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -634,6 +1000,17 @@ public class Msg {
 			write(deviceId);
 			write(buffer);
  
+			if(record != null){
+				txBuffer.append("> neoPixelWriteMatrix");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(Arrays.toString(buffer));
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -647,6 +1024,17 @@ public class Msg {
 			write(pin);
 			write(value);
  
+			if(record != null){
+				txBuffer.append("> analogWrite");
+				txBuffer.append("/");
+				txBuffer.append(pin);
+				txBuffer.append("/");
+				txBuffer.append(value);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -660,6 +1048,17 @@ public class Msg {
 			write(pin);
 			write(value);
  
+			if(record != null){
+				txBuffer.append("> digitalWrite");
+				txBuffer.append("/");
+				txBuffer.append(pin);
+				txBuffer.append("/");
+				txBuffer.append(value);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -672,6 +1071,15 @@ public class Msg {
 			write(DISABLE_PIN); // msgType = 30
 			write(pin);
  
+			if(record != null){
+				txBuffer.append("> disablePin");
+				txBuffer.append("/");
+				txBuffer.append(pin);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -683,6 +1091,13 @@ public class Msg {
 			write(1); // size
 			write(DISABLE_PINS); // msgType = 31
  
+			if(record != null){
+				txBuffer.append("> disablePins");
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -696,6 +1111,17 @@ public class Msg {
 			write(pin);
 			write(mode);
  
+			if(record != null){
+				txBuffer.append("> pinMode");
+				txBuffer.append("/");
+				txBuffer.append(pin);
+				txBuffer.append("/");
+				txBuffer.append(mode);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -709,6 +1135,17 @@ public class Msg {
 			write(pin);
 			write(triggerValue);
  
+			if(record != null){
+				txBuffer.append("> setTrigger");
+				txBuffer.append("/");
+				txBuffer.append(pin);
+				txBuffer.append("/");
+				txBuffer.append(triggerValue);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -722,6 +1159,17 @@ public class Msg {
 			write(pin);
 			write(delay);
  
+			if(record != null){
+				txBuffer.append("> setDebounce");
+				txBuffer.append("/");
+				txBuffer.append(pin);
+				txBuffer.append("/");
+				txBuffer.append(delay);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -737,6 +1185,21 @@ public class Msg {
 			write(initPos);
 			writeb16(initVelocity);
  
+			if(record != null){
+				txBuffer.append("> servoAttach");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(pin);
+				txBuffer.append("/");
+				txBuffer.append(initPos);
+				txBuffer.append("/");
+				txBuffer.append(initVelocity);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -750,6 +1213,17 @@ public class Msg {
 			write(deviceId);
 			write(pin);
  
+			if(record != null){
+				txBuffer.append("> servoEnablePwm");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(pin);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -762,6 +1236,15 @@ public class Msg {
 			write(SERVO_DISABLE_PWM); // msgType = 41
 			write(deviceId);
  
+			if(record != null){
+				txBuffer.append("> servoDisablePwm");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -775,6 +1258,17 @@ public class Msg {
 			write(deviceId);
 			writeb16(maxVelocity);
  
+			if(record != null){
+				txBuffer.append("> servoSetMaxVelocity");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(maxVelocity);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -788,6 +1282,17 @@ public class Msg {
 			write(deviceId);
 			writeb16(velocity);
  
+			if(record != null){
+				txBuffer.append("> servoSetVelocity");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(velocity);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -803,6 +1308,21 @@ public class Msg {
 			write(max);
 			write(step);
  
+			if(record != null){
+				txBuffer.append("> servoSweepStart");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(min);
+				txBuffer.append("/");
+				txBuffer.append(max);
+				txBuffer.append("/");
+				txBuffer.append(step);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -815,6 +1335,15 @@ public class Msg {
 			write(SERVO_SWEEP_STOP); // msgType = 45
 			write(deviceId);
  
+			if(record != null){
+				txBuffer.append("> servoSweepStop");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -828,6 +1357,17 @@ public class Msg {
 			write(deviceId);
 			write(target);
  
+			if(record != null){
+				txBuffer.append("> servoWrite");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(target);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -841,6 +1381,17 @@ public class Msg {
 			write(deviceId);
 			writeb16(ms);
  
+			if(record != null){
+				txBuffer.append("> servoWriteMicroseconds");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(ms);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -854,12 +1405,23 @@ public class Msg {
 			write(deviceId);
 			write(relayPin);
  
+			if(record != null){
+				txBuffer.append("> serialAttach");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(relayPin);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
 	}
 
-	public void serialRelay(Integer deviceId/*byte*/, int[] data) {
+	public void serialRelay(Integer deviceId/*byte*/, int[] data/*[]*/) {
 		try {
 			write(MAGIC_NUMBER);
 			write(1 + 1 + (1 + data.length)); // size
@@ -867,6 +1429,17 @@ public class Msg {
 			write(deviceId);
 			write(data);
  
+			if(record != null){
+				txBuffer.append("> serialRelay");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(Arrays.toString(data));
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -881,6 +1454,19 @@ public class Msg {
 			write(triggerPin);
 			write(echoPin);
  
+			if(record != null){
+				txBuffer.append("> ultrasonicSensorAttach");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(triggerPin);
+				txBuffer.append("/");
+				txBuffer.append(echoPin);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -894,6 +1480,17 @@ public class Msg {
 			write(deviceId);
 			writeb32(timeout);
  
+			if(record != null){
+				txBuffer.append("> ultrasonicSensorStartRanging");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("/");
+				txBuffer.append(timeout);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -906,6 +1503,15 @@ public class Msg {
 			write(ULTRASONIC_SENSOR_STOP_RANGING); // msgType = 53
 			write(deviceId);
  
+			if(record != null){
+				txBuffer.append("> ultrasonicSensorStopRanging");
+				txBuffer.append("/");
+				txBuffer.append(deviceId);
+				txBuffer.append("\n");
+				record.write(txBuffer.toString().getBytes());
+				txBuffer.setLength(0);
+			}
+
 	  } catch (Exception e) {
 	  			serial.error(e);
 	  }
@@ -1184,7 +1790,28 @@ public class Msg {
 		}
 	}
 	
+	
+	public boolean isRecording() {
+		return record != null;
+	}
+	
 
+	public void record() throws Exception {
+		
+		if (record == null) {
+			record = new FileOutputStream(String.format("%s.ard", arduino.getName()));
+		}
+	}
+
+	public void stopRecording() {
+		if (record != null) {
+			try {
+				record.close();
+			} catch (Exception e) {
+			}
+			record = null;
+		}
+	}
 
 	public static void main(String[] args) {
 		try {
@@ -1209,6 +1836,8 @@ public class Msg {
 			
 			Arduino arduino = (Arduino)Runtime.start("arduino","Arduino");
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
+			
+			/*
 			arduino.connect(port);
 			
 			// test pins
@@ -1225,7 +1854,7 @@ public class Msg {
 			servo01.moveTo(130);
 			
 			arduino.enableBoardStatus(false);
-			
+			*/
 			// test ack
 			
 			// test heartbeat

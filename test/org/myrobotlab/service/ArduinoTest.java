@@ -219,7 +219,13 @@ public class ArduinoTest implements PinArrayListener {
 
 	@Test
 	public void testEnableBoardStatus() {
-		// fail("Not yet implemented");
+		arduino.connect(port);
+		org.myrobotlab.service.Test test = (org.myrobotlab.service.Test)Runtime.start("test", "Test");
+		test.subscribe(arduino.getName(), "publishBoardStatus");
+		arduino.enableBoardStatus(true);
+		// FIXME notify with timeout
+		
+		arduino.enableBoardStatus(false);
 	}
 
 	@Test
@@ -807,8 +813,7 @@ public class ArduinoTest implements PinArrayListener {
 	@Test
 	public final void testServoAttachServoInteger() throws Exception {
 		log.info("testServoAttachServoInteger");
-		Servo servo = (Servo) Runtime.start("servo", "Servo");
-		arduino.record();
+		Servo servo = (Servo) Runtime.start("servo", "Servo");		
 		arduino.connect(port);
 		// NOT THE WAY TO ATTACH SERVOS !!
 		// isAttached will not get set
@@ -965,8 +970,10 @@ public class ArduinoTest implements PinArrayListener {
 			ArduinoTest test = new ArduinoTest();
 			ArduinoTest.setUpBeforeClass();
 			
-			Runtime.start("webgui", "WebGui");
+			arduino.record();
+			// Runtime.start("webgui", "WebGui");
 			test.enablePin = 54;  // A0 for Mega
+			test.testEnableBoardStatus();
 			test.testEnablePinInt();
 			
 			boolean b = true;
