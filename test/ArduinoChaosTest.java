@@ -88,7 +88,7 @@ public class ArduinoChaosTest {
     servo.moveTo(90);
     Thread.sleep(1000);
     int pos = 90;
-    arduino.publishServoEvent(pos);
+    // arduino.publishServoEvent(pos);
     Thread.sleep(1000);
     int uS = 1400;
     servo.writeMicroseconds(uS);

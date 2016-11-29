@@ -329,8 +329,9 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		log.info("waiting for boardInfo lock..........");
 		synchronized (boardInfo) {
 			try {
+				long waitTime = System.currentTimeMillis();
 				boardInfo.wait(4500); // max wait 4.5 seconds - for port to
-				// open
+				log.info("waited {} ms for Arduino {} to say hello", System.currentTimeMillis() - waitTime, getName());
 			} catch (InterruptedException e) {
 			}
 		}
@@ -339,14 +340,13 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// see what our version is like...
 		Integer version = boardInfo.getVersion();
 
-
-    if (version == null) {
-      error("%s did not get response from arduino....", serial.getPortName());
-    } else if (!version.equals(MRLCOMM_VERSION)) {
-      error("MRLComm.ino responded with version %s expected version is %s", version, MRLCOMM_VERSION);
-    } else {
-      info("%s connected on %s %s responded version %s ... goodtimes...", serial.getName(), controller.getName(), serialPort, version);
-    }
+		if (version == null) {
+			error("%s did not get response from arduino....", serial.getPortName());
+		} else if (!version.equals(MRLCOMM_VERSION)) {
+			error("MRLComm.ino responded with version %s expected version is %s", version, MRLCOMM_VERSION);
+		} else {
+			info("%s connected on %s %s responded version %s ... goodtimes...", serial.getName(), controller.getName(), serialPort, version);
+		}
 		broadcastState();
 	}
 
@@ -374,13 +374,15 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			// have a DTR CDR line in the virtual port as use this as a signal
 			// of
 			// connection
-			msg.getBoardInfo();
+
+			getBoardInfo();
 
 			log.info("waiting for boardInfo lock..........");
 			synchronized (boardInfo) {
 				try {
-					boardInfo.wait(4500); // max wait 4.5 seconds - for port to
-											// open
+					long waitTime = System.currentTimeMillis();
+					boardInfo.wait(4500);
+					log.info("waited {} ms for Arduino {} to say hello", System.currentTimeMillis() - waitTime, getName());
 				} catch (InterruptedException e) {
 				}
 			}
@@ -515,10 +517,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	// > disablePin/pin
 	public void disablePin(int address) {
-		if (!isConnected()) {
-			error("must be connected to disable pins");
-			return;
-		}
 		msg.disablePin(address);
 		PinDefinition pinDef = pinIndex.get(address);
 		invoke("publishPinDefinition", pinDef);
@@ -586,7 +584,9 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		invoke("publishPinDefinition", pin); // broadcast pin change
 	}
 
+	// > getBoardInfo
 	public BoardInfo getBoardInfo() {
+		msg.getBoardInfo();
 		return boardInfo;
 	}
 
@@ -735,21 +735,14 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	 * @param control
 	 * @param busAddress
 	 */
+	// > i2cBusAttach/deviceId/i2cBus
 	private void i2cBusAttach(I2CBusControl control, int busAddress) {
-
-		// deviceAttach(i2cBus, getMrlDeviceType(i2cBus), busAddress);
-		// msg.i2cAttach(deviceId, getMrlDeviceType(i2cBus), deviceAddress);
-		// Mat's correction !
-		// Integer deviceId = attachDevice(control, new Object[] { busAddress,
-		// deviceAddress });
-		// msg.i2cAttach(deviceId, busAddress, getMrlDeviceType(i2cBus),
-		// deviceAddress);
-
 		Integer deviceId = attachDevice(i2cBus, new Object[] { busAddress });
 		msg.i2cBusAttach(deviceId, busAddress);
 	}
 
 	@Override
+	// > i2cRead/deviceId/deviceAddress/size
 	public int i2cRead(I2CControl control, int busAddress, int deviceAddress, byte[] buffer, int size) {
 		i2cDataReturned = false;
 		// Get the device index to the MRL i2c bus
@@ -785,14 +778,13 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// Time out, no data returned
 		return -1;
 	}
-
-	// HELP MATS !!!
-	// < publishI2cData/deviceId/[] data
+	
 	/**
 	 * 
 	 * @param deviceId
 	 * @param data
 	 */
+	// < publishI2cData/deviceId/[] data
 	public void publishI2cData(Integer deviceId, int[] data) {
 		log.info("publishI2cData");
 		i2cReturnData(data);
@@ -882,6 +874,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return true;
 	}
 
+	@Override
 	public boolean isConnected() {
 		// include that we must have gotten a valid MRLComm version number.
 		if (serial != null && serial.isConnected() && boardInfo.getVersion() != null) {
@@ -1173,12 +1166,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		invoke("publishPinDefinition", pinDef);
 	}
 
-	// publishing point
-	public BoardInfo publishBoardInfo(BoardInfo info) {
-		return info;
-	}
-
 	@Override
+	// > pinMode/pin/mode
 	public void pinMode(int address, String mode) {
 		if (mode != null && mode.equalsIgnoreCase("INPUT")) {
 			pinMode(address, INPUT);
@@ -1247,7 +1236,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return deviceName;
 	}
 
-	public BoardInfo publishBoardInfo(int version/* byte */, int boardType/* byte */) {
+	// < publishBoardInfo/version/boardType
+	public BoardInfo publishBoardInfo(Integer version/* byte */, Integer boardType/* byte */) {
 		boardInfo.setVersion(version);
 		boardInfo.setType(boardType);
 
@@ -1261,8 +1251,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			log.info("No change in board type");
 		}
 
-		invoke("publishBoardInfo", boardInfo);
-
 		synchronized (boardInfo) {
 			boardInfo.notifyAll();
 		}
@@ -1270,34 +1258,25 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return boardInfo;
 	}
 
-	public BoardStatus publishBoardStatus(BoardStatus status) {
-		return status;
-	}
-
-	public void publishBoardStatus(int b16i/* b16 */, int b32i/* b32 */, long bu32i/* bu32 */, String name2/* str */) {
-		log.info(" testMsg deviceType {} name {} config {}", bu32i, name2);
-		// return new BoardInfo(version, boardType);
-	}
-
+	// < publishBoardStatus/b16 microsPerLoop/b16 sram/[] deviceSummary
 	public BoardStatus publishBoardStatus(Integer microsPerLoop/* b16 */, Integer sram/* b16 */, int[] deviceSummary/* byte */) {
 		log.info("publishBoardStatus {} us, {} sram, {} devices", microsPerLoop, sram, deviceSummary);
 		return new BoardStatus(microsPerLoop, sram, deviceSummary);
 	}
 
+	// < publishCustomMsg/[] msg
 	public int[] publishCustomMsg(int[] msg/* [] */) {
 		return msg;
 	}
 
+	// < publishDebug/str debugMsg
 	public String publishDebug(String debugMsg/* str */) {
 		log.info("publishDebug {}", debugMsg);
 		return debugMsg;
 	}
 
-	// public void publishEcho(String name1, int b8, long bui32, int bi32, int
-	// b9, String name2, int[] config, long bui322) {
-	// public void publishEcho(String name1/*str*/, int b8/*byte*/, Long
-	// bui32/*bu32*/, int bi32/*b32*/, int b9/*byte*/, String name2/*str*/,
-	// int[] config/*[]*/, Long bui322/*bu32*/){
+	// < publishEcho/b32 sInt/str name1/b8/bu32 bui32/b32 bi32/b9/str name2/[] config/bu32 bui322
+	// < publishEcho/bu32 sInt
 	public void publishEcho(Long b32) {
 		log.info("b32 {} ", b32);
 	}
@@ -1305,10 +1284,12 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	/**
 	 * return heartbeat - prevents resetting
 	 */
+	// < publishHeartbeat
 	public void publishHeartbeat() {
 		heartbeat = true;
 	}
 
+	// < publishMRLCommError/str errorMsg
 	public String publishMRLCommError(String errorMsg/* str */) {
 		log.error(errorMsg);
 		return errorMsg;
@@ -1319,13 +1300,13 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	 * Arduino board the Arduino must be told to poll the desired pin(s). This
 	 * is done with a analogReadPollingStart(pin) or digitalReadPollingStart()
 	 */
-
 	public PinData publishPin(PinData pinData) {
 		// caching last value
 		pinIndex.get(pinData.getAddress()).setValue(pinData.getValue());
 		return pinData;
 	}
 
+	// < publishPinArray/[] data
 	public PinData[] publishPinArray(int[] data) {
 		log.info("publishPinArray {}", data);
 		// if subscribers -
@@ -1358,15 +1339,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	/**
-	 * publish all read pin data in one array at once
-	 */
-	public PinData[] publishPinArray(PinData[] pinData) {
-		// FIXME - update all cache
-		// pinIndex.get(pinEvent.getAddress()).setValue(pinEvent.getValue());
-		return pinData;
-	}
-
-	/**
 	 * method to communicate changes in pinmode or state changes
 	 * 
 	 * @param pinDef
@@ -1376,34 +1348,9 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return pinDef;
 	}
 
-	public Long publishPulse(Long pulseCount) {
-		return pulseCount;
-	}
-
-	/**
-	 * published stop of a pulse series this occurs when count # of pulses has
-	 * been reached or user intervention
-	 *
-	 * @param currentCount
-	 * @return
-	 */
-	public Integer publishPulseStop(Integer currentCount) {
-		return currentCount;
-	}
-
-	public void publishSensorData(Integer deviceId/* byte */, int[] data/* [] */) {
-
-	}
-
-	public int publishServoEvent(Integer pos) {
-		return pos;
-	}
-
-	public void publishServoEvent(Integer deviceId/* byte */, Integer eventType/* byte */, Integer currentPos/* byte */, Integer targetPos/* byte */) {
-	}
-
-	public Pin publishTrigger(Pin pin) {
-		return pin;
+	// FIXME - ask kwatters what he wants PinDefinition A0 ???
+	public PinData publishTrigger(Pin pin) {
+		return null;
 	}
 
 	public Integer publishVersion(Integer version) {
@@ -1412,7 +1359,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	@Override
-	public int read(int address) {
+	public int read(int address) { // FIXME - block on real read ???
 		return pinIndex.get(address).getValue();
 	}
 
@@ -1840,40 +1787,51 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		}
 	}
 
-
 	public SerialRelayData publishSerialData(Integer deviceId, int[] data) {
-	  SerialRelayData serialData = new SerialRelayData(deviceId, data);
+		SerialRelayData serialData = new SerialRelayData(deviceId, data);
 		return serialData;
 	}
-	
-	public DeviceControl getDevice(Integer deviceId){
+
+	public DeviceControl getDevice(Integer deviceId) {
 		return deviceIndex.get(deviceId).getDevice();
 	}
 
+	// FIXME should be in Control interface - for callback
+	// < publishUltrasonicSensorData/deviceId/b16 echoTime
 	public Integer publishUltrasonicSensorData(Integer deviceId, Integer echoTime) {
 		log.info("echoTime {}", echoTime);
-		((UltrasonicSensor)getDevice(deviceId)).onUltrasonicSensorData(echoTime);
+		((UltrasonicSensor) getDevice(deviceId)).onUltrasonicSensorData(echoTime);
 		return echoTime;
 	}
-	
-	public void ultrasonicSensorAttach(UltrasonicSensorControl sensor, Integer triggerPin, Integer echoPin){
+
+	@Override
+	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
+	public void ultrasonicSensorAttach(UltrasonicSensorControl sensor, Integer triggerPin, Integer echoPin) {
 		Integer deviceId = attachDevice(sensor, new Object[] { triggerPin, echoPin });
 		msg.ultrasonicSensorAttach(deviceId, triggerPin, echoPin);
 	}
 
 	@Override
+	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
 	public void ultrasonicSensorStartRanging(UltrasonicSensorControl sensor, Integer timeout) {
 		msg.ultrasonicSensorStartRanging(getDeviceId(sensor), timeout);
 	}
 
-  public void serialAttach(SerialRelay serialRelay, int controllerAttachAs) {
-    Integer deviceId = attachDevice(serialRelay, new Object[] { controllerAttachAs });
-    msg.serialAttach(deviceId, controllerAttachAs);
-  }
+	public void serialAttach(SerialRelay serialRelay, int controllerAttachAs) {
+		Integer deviceId = attachDevice(serialRelay, new Object[] { controllerAttachAs });
+		msg.serialAttach(deviceId, controllerAttachAs);
+	}
 
 	@Override
+	// > ultrasonicSensorStopRanging/deviceId
 	public void ultrasonicSensorStopRanging(UltrasonicSensorControl sensor) {
 		msg.ultrasonicSensorStopRanging(getDeviceId(sensor));
+	}
+
+	// FIXME - reconcile - Arduino's input is int[] - this one is not used
+	@Override
+	public PinData[] publishPinArray(PinData[] pinData) {
+		return pinData;
 	}
 
 }

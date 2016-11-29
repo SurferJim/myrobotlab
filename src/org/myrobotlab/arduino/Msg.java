@@ -1837,7 +1837,7 @@ public class Msg {
 			Arduino arduino = (Arduino)Runtime.start("arduino","Arduino");
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
 			
-			/*
+			
 			arduino.connect(port);
 			
 			// test pins
@@ -1854,7 +1854,7 @@ public class Msg {
 			servo01.moveTo(130);
 			
 			arduino.enableBoardStatus(false);
-			*/
+			
 			// test ack
 			
 			// test heartbeat
