@@ -62,9 +62,6 @@ class Device {
     // Msg is the generated interface for all communication
     Msg* msg;
 
-  protected:
-
-    void attachDevice();
 };
 
 #endif

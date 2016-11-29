@@ -52,7 +52,7 @@ angular.module('mrlapp.service.ArduinoGui', []).controller('ArduinoGuiCtrl', ['$
             $scope.versionStatus = null ;
         }
         if ($scope.isConnected) {
-            msg.send("getVersion");
+            msg.send("getBoardInfo");
         }
     }
     ;

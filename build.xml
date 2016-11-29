@@ -556,7 +556,8 @@
 		<!-- compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}/classes" debug="true" includeantruntime="false">			
 			<!-- exclude name="org/myrobotlab/service/ExcludeBrokenFile.java" / --> 
-			<exclude name="org/myrobotlab/opencv/OpenCVFilterMotionTemplate.java"/> 			
+			<exclude name="org/myrobotlab/opencv/OpenCVFilterMotionTemplate.java"/> 	
+			<exclude name="resource/**"/> 
 			<classpath refid="compile.classpath" />
 		</javac>
 		<echo>compile end</echo>
