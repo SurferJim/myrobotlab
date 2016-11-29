@@ -6,13 +6,16 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.data.SerialRelayData;
 import org.myrobotlab.service.interfaces.DeviceControl;
 import org.myrobotlab.service.interfaces.DeviceController;
 import org.myrobotlab.service.interfaces.SerialDevice;
 import org.myrobotlab.service.interfaces.SerialRelayListener;
 import org.slf4j.Logger;
 
+
 public class SerialRelay extends Service implements SerialDevice, DeviceControl {
+
 
   private static final long serialVersionUID = 1L;
 
@@ -23,6 +26,7 @@ public class SerialRelay extends Service implements SerialDevice, DeviceControl 
   private transient SerialRelayListener listener;
 
   private int controllerAttachAs;
+  
 
   public SerialRelay(String n) {
     super(n);
@@ -129,16 +133,16 @@ public class SerialRelay extends Service implements SerialDevice, DeviceControl 
     controller = null;
   }
 
-  public int[] onSerialData(int[] data) {
-    //if (deviceId == controller.getDeviceId(this)){
+  public int[] onSerialData(SerialRelayData data) {
+    if (data.deviceId == controller.getDeviceId(this)){
       if (listener instanceof Arduino){
-        for(int newByte:data){
+        for(int newByte:data.data){
           ((Arduino) listener).onByte(((int) newByte & 0xFF));
         }
       }
-      return data;
-    //}
-    //return new int[] {0};//new byte[] {0};
+      return data.data;
+    }
+    return new int[0];//new byte[] {0};
   }
 
 }
