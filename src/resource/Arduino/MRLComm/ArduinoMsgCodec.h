@@ -13,6 +13,15 @@
 #define MAGIC_NUMBER            170 // 10101010
 #define MAX_MSG_SIZE			64
 
+#define DEVICE_TYPE_UNKNOWN		0
+#define DEVICE_TYPE_ARDUINO		1
+#define DEVICE_TYPE_ULTRASONICSENSOR		2
+#define DEVICE_TYPE_STEPPER		3
+#define DEVICE_TYPE_MOTOR		4
+#define DEVICE_TYPE_SERVO		5
+#define DEVICE_TYPE_I2C		6
+#define DEVICE_TYPE_NEOPIXEL		7
+
 
 // < publishMRLCommError/str errorMsg
 #define PUBLISH_MRLCOMM_ERROR 1

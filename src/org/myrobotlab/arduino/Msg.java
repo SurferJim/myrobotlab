@@ -62,16 +62,6 @@ public class Msg {
 	public static final int MRLCOMM_VERSION = 46;
 
 	// ------ device type mapping constants
-
-	public static final int DEVICE_TYPE_NOT_FOUND = 0;
-
-	public static final int DEVICE_TYPE_ARDUINO = 1;
-	public static final int DEVICE_TYPE_ULTRASONIC = 4;
-	public static final int DEVICE_TYPE_STEPPER = 5;
-	public static final int DEVICE_TYPE_MOTOR = 6;
-	public static final int DEVICE_TYPE_SERVO = 7;
-	public static final int DEVICE_TYPE_I2C = 8;
-	public static final int DEVICE_TYPE_NEOPIXEL = 9;
 	
 	boolean invoke = true;
 	
@@ -80,6 +70,15 @@ public class Msg {
 	transient StringBuilder rxBuffer = new StringBuilder();
 	transient StringBuilder txBuffer = new StringBuilder();	
 
+	public static final int DEVICE_TYPE_UNKNOWN	 = 		0;
+	public static final int DEVICE_TYPE_ARDUINO	 = 		1;
+	public static final int DEVICE_TYPE_ULTRASONICSENSOR	 = 		2;
+	public static final int DEVICE_TYPE_STEPPER	 = 		3;
+	public static final int DEVICE_TYPE_MOTOR	 = 		4;
+	public static final int DEVICE_TYPE_SERVO	 = 		5;
+	public static final int DEVICE_TYPE_I2C	 = 		6;
+	public static final int DEVICE_TYPE_NEOPIXEL	 = 		7;
+		
 	// < publishMRLCommError/str errorMsg
 	public final static int PUBLISH_MRLCOMM_ERROR = 1;
 	// > getBoardInfo
@@ -1812,6 +1811,47 @@ public class Msg {
 			record = null;
 		}
 	}
+	
+	public static String deviceTypeToString(int typeId) {
+		switch(typeId){
+		case 0 :  {
+			return "unknown";
+
+		}
+		case 1 :  {
+			return "Arduino";
+
+		}
+		case 2 :  {
+			return "UltrasonicSensor";
+
+		}
+		case 3 :  {
+			return "Stepper";
+
+		}
+		case 4 :  {
+			return "Motor";
+
+		}
+		case 5 :  {
+			return "Servo";
+
+		}
+		case 6 :  {
+			return "I2c";
+
+		}
+		case 7 :  {
+			return "NeoPixel";
+
+		}
+		
+		default: {
+			return "unknown";
+		}
+		}
+	}
 
 	public static void main(String[] args) {
 		try {
@@ -1837,7 +1877,7 @@ public class Msg {
 			Arduino arduino = (Arduino)Runtime.start("arduino","Arduino");
 			Servo servo01 = (Servo)Runtime.start("servo01","Servo");
 			
-			
+			/*
 			arduino.connect(port);
 			
 			// test pins
@@ -1854,7 +1894,7 @@ public class Msg {
 			servo01.moveTo(130);
 			
 			arduino.enableBoardStatus(false);
-			
+			*/
 			// test ack
 			
 			// test heartbeat

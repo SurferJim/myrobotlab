@@ -719,7 +719,8 @@ public class ArduinoGUI extends ServiceGUI implements ActionListener, TabControl
 
           if (arduino.isConnected()) {
             onConnect(arduino.getPortName());
-            send("getVersion");
+            // send("getVersion");
+            arduino.getBoardInfo();
           }
           
           BoardInfo boardInfo = myArduino.getBoardInfo();

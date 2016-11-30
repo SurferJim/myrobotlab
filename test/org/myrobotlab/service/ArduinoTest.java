@@ -740,7 +740,7 @@ public class ArduinoTest implements PinArrayListener {
 		arduino.disconnect();
 		arduino.connect(port);
 		assertTrue(arduino.isConnected());
-		assertEquals(Msg.MRLCOMM_VERSION, arduino.getVersion().intValue());
+		assertEquals(Msg.MRLCOMM_VERSION, arduino.getBoardInfo().getVersion().intValue());
 		log.info("testConnect - end");
 	}
 
@@ -789,7 +789,7 @@ public class ArduinoTest implements PinArrayListener {
 	@Test
 	public final void testGetVersion() {
 		log.info("testGetVersion");
-		assertEquals(Msg.MRLCOMM_VERSION, arduino.getVersion().intValue());
+		assertEquals(Msg.MRLCOMM_VERSION, arduino.getBoardInfo().getVersion().intValue());
 	}
 
 

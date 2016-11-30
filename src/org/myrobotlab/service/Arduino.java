@@ -16,6 +16,7 @@ import java.util.Map;
 import org.myrobotlab.arduino.ArduinoUtils;
 import org.myrobotlab.arduino.BoardInfo;
 import org.myrobotlab.arduino.BoardStatus;
+import org.myrobotlab.arduino.DeviceSummary;
 import org.myrobotlab.arduino.Msg;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceType;
@@ -28,10 +29,10 @@ import org.myrobotlab.motor.MotorConfig;
 import org.myrobotlab.motor.MotorConfigDualPwm;
 import org.myrobotlab.motor.MotorConfigPulse;
 import org.myrobotlab.motor.MotorConfigSimpleH;
-import org.myrobotlab.service.data.SerialRelayData;
 import org.myrobotlab.service.data.DeviceMapping;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.data.SerialRelayData;
 import org.myrobotlab.service.interfaces.DeviceControl;
 import org.myrobotlab.service.interfaces.DeviceController;
 import org.myrobotlab.service.interfaces.I2CBusControl;
@@ -246,8 +247,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	/**
-	 * attach a pin listener who listens to a specific pin FIXME - implement the
-	 * 'specific' pin
+	 * attach a pin listener who listens to a specific pin
 	 */
 	@Override
 	public void attach(PinListener listener, int address) {
@@ -264,11 +264,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			pinListeners.put(address, list);
 
 		} else {
-			// setup for pub sub
-			// FIXME - there is an architectual problem here
-			// locally it works - but remotely - outbox would need to know
-			// specifics of
-			// the data its sending
 			addListener("publishPin", name, "onPin");
 		}
 	}
@@ -586,7 +581,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	// > getBoardInfo
 	public BoardInfo getBoardInfo() {
-		msg.getBoardInfo();
+		// msg.getBoardInfo(); do not do this - 
+		// results in a serial infinit loop
 		return boardInfo;
 	}
 
@@ -657,25 +653,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 	public Sketch getSketch() {
 		return sketch;
-	}
-
-	/**
-	 * improved design for blocking async calls is in getBoardInfo()
-	 * 
-	 * @return
-	 */
-	@Deprecated // use getBoardInfo
-	public Integer getVersion() {
-
-		// version is dependent on board info
-		if (boardInfo.isValid()) {
-			return boardInfo.getVersion();
-		}
-
-		getBoardInfo();
-
-		// broadcast state ??
-		return boardInfo.getVersion();
 	}
 
 	/**
@@ -1261,7 +1238,18 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	// < publishBoardStatus/b16 microsPerLoop/b16 sram/[] deviceSummary
 	public BoardStatus publishBoardStatus(Integer microsPerLoop/* b16 */, Integer sram/* b16 */, int[] deviceSummary/* byte */) {
 		log.info("publishBoardStatus {} us, {} sram, {} devices", microsPerLoop, sram, deviceSummary);
-		return new BoardStatus(microsPerLoop, sram, deviceSummary);
+		DeviceSummary[] ds = new DeviceSummary[deviceSummary.length/2];
+		for (int i = 0; i < deviceSummary.length/2; ++i){
+			int id = deviceSummary[i];
+			int typeId = deviceSummary[i+1];
+			DeviceSummary ds0 = new DeviceSummary(getDeviceName(id), id, Msg.deviceTypeToString(typeId), typeId);
+			ds[i] = ds0;
+		}
+		return new BoardStatus(microsPerLoop, sram, ds);
+	}
+
+	private String getDeviceName(int deviceId) {
+		return getDevice(deviceId).getName();
 	}
 
 	// < publishCustomMsg/[] msg

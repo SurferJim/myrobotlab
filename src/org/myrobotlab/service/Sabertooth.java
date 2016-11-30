@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.myrobotlab.arduino.BoardInfo;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceType;
 import org.myrobotlab.logging.Level;
@@ -16,7 +17,6 @@ import org.myrobotlab.service.interfaces.DeviceControl;
 import org.myrobotlab.service.interfaces.Microcontroller;
 import org.myrobotlab.service.interfaces.MotorControl;
 import org.myrobotlab.service.interfaces.MotorController;
-import org.myrobotlab.service.interfaces.SerialDataListener;
 import org.myrobotlab.service.interfaces.SerialDevice;
 import org.slf4j.Logger;
 
@@ -429,7 +429,7 @@ public class Sabertooth extends Service implements Microcontroller, MotorControl
 	}
 
 	@Override
-	public Integer getVersion() {
+	public BoardInfo getBoardInfo() {
 		// TODO Auto-generated method stub
 		return null;
 	}

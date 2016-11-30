@@ -140,7 +140,7 @@ public class ArduinoChaosTest {
     arduino.setSerialRate(Serial.BAUD_RATE_115200);
     
     Thread.sleep(1000);
-    arduino.getVersion();
+    arduino.getBoardInfo();
     
     Thread.sleep(1000);
     // TODO: what does "12" mean?  12 hertz?!

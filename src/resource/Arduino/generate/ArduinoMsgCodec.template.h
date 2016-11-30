@@ -13,6 +13,7 @@
 #define MAGIC_NUMBER            170 // 10101010
 #define MAX_MSG_SIZE			64
 
+%cppDeviceTypes%
 
 %defines%
 

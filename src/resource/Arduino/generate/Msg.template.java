@@ -62,16 +62,6 @@ public class %javaClass% {
 	public static final int MRLCOMM_VERSION = %MRLCOMM_VERSION%;
 
 	// ------ device type mapping constants
-
-	public static final int DEVICE_TYPE_NOT_FOUND = 0;
-
-	public static final int DEVICE_TYPE_ARDUINO = 1;
-	public static final int DEVICE_TYPE_ULTRASONIC = 4;
-	public static final int DEVICE_TYPE_STEPPER = 5;
-	public static final int DEVICE_TYPE_MOTOR = 6;
-	public static final int DEVICE_TYPE_SERVO = 7;
-	public static final int DEVICE_TYPE_I2C = 8;
-	public static final int DEVICE_TYPE_NEOPIXEL = 9;
 	
 	boolean invoke = true;
 	
@@ -80,6 +70,7 @@ public class %javaClass% {
 	transient StringBuilder rxBuffer = new StringBuilder();
 	transient StringBuilder txBuffer = new StringBuilder();	
 
+%javaDeviceTypes%		
 %javaDefines%
 
 /**
@@ -264,6 +255,15 @@ public class %javaClass% {
 			} catch (Exception e) {
 			}
 			record = null;
+		}
+	}
+	
+	public static String deviceTypeToString(int typeId) {
+		switch(typeId){
+%deviceTypeToString%		
+		default: {
+			return "unknown";
+		}
 		}
 	}
 

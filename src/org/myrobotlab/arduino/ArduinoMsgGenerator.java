@@ -7,8 +7,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -30,6 +32,8 @@ public class ArduinoMsgGenerator {
 	}
 
 	static final HashSet<String> keywords = new HashSet<String>();
+	
+	static final List<String> deviceList = new ArrayList<String>();
 
 	/**
 	 * supresses building of MrlComm::{Name} method if method already exists in
@@ -39,9 +43,22 @@ public class ArduinoMsgGenerator {
 	 */
 
 	ArduinoMsgGenerator() {
+		// add your keywords
 		keywords.add("pinMode");
 		keywords.add("digitalWrite");
 		keywords.add("analogWrite");
+		
+		// ------ device type mapping constants
+
+		// add your mrl devices
+		deviceList.add("unknown");
+		deviceList.add("Arduino");
+		deviceList.add("UltrasonicSensor");
+		deviceList.add("Stepper");
+		deviceList.add("Motor");
+		deviceList.add("Servo");
+		deviceList.add("I2c");
+		deviceList.add("NeoPixel");
 	}
 
 	static public final String toString(String filename) throws IOException {
@@ -85,6 +102,17 @@ public class ArduinoMsgGenerator {
 		// search and replace
 		Map<String, String> fileSnr = new TreeMap<String, String>();
 
+		StringBuilder deviceTypeToString = new StringBuilder();
+		StringBuilder cppDeviceTypes = new StringBuilder();
+		StringBuilder javaDeviceTypes = new StringBuilder();
+		for (int i = 0; i < deviceList.size(); ++i){
+			String deviceName = deviceList.get(i);
+			deviceTypeToString.append("\t\tcase " + i + " :  {\n\t\t\treturn \""+deviceName+"\";\n\n\t\t}\n");
+			cppDeviceTypes.append("#define DEVICE_TYPE_" + deviceName.toUpperCase() + "\t\t" + i + "\n");
+			javaDeviceTypes.append("\tpublic static final int DEVICE_TYPE_" + deviceName.toUpperCase() + "\t = \t\t" + i + ";\n");
+		}
+				
+		
 		// accumulators
 		StringBuilder defines = new StringBuilder();
 
@@ -173,7 +201,11 @@ public class ArduinoMsgGenerator {
 		fileSnr.put("%javaMethods%", javaMethods.toString());
 		fileSnr.put("%generatedCallBacks%", cppGeneratedCallBacks.toString());
 		fileSnr.put("%javaGeneratedCallBacks%", javaGeneratedCallBacks.toString());
-
+		
+		fileSnr.put("%deviceTypeToString%", deviceTypeToString.toString());
+		fileSnr.put("%cppDeviceTypes%", cppDeviceTypes.toString());
+		fileSnr.put("%javaDeviceTypes%", javaDeviceTypes.toString());
+		
 		// FIXME - will move to MrlComm.h
 		String mrlComm_h = toString("src/resource/Arduino/MRLComm/MrlComm.h");
 		String top = mrlComm_h.substring(0, mrlComm_h.indexOf("<generatedCallBacks>") + "<generatedCallBacks>".length());
