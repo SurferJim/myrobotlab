@@ -690,6 +690,7 @@ public class Servo extends Service implements ServoControl {
 		this.pin = pin;
 		this.controller = controller;
 		this.controllerName = controller.getName();
+		isControllerSet = true;
 
 		broadcastState();
 	}
