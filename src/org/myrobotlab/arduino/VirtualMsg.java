@@ -76,8 +76,9 @@ public class VirtualMsg {
 	public static final int DEVICE_TYPE_STEPPER	 = 		3;
 	public static final int DEVICE_TYPE_MOTOR	 = 		4;
 	public static final int DEVICE_TYPE_SERVO	 = 		5;
-	public static final int DEVICE_TYPE_I2C	 = 		6;
-	public static final int DEVICE_TYPE_NEOPIXEL	 = 		7;
+	public static final int DEVICE_TYPE_SERIAL	 = 		6;
+	public static final int DEVICE_TYPE_I2C	 = 		7;
+	public static final int DEVICE_TYPE_NEOPIXEL	 = 		8;
 		
 	// < publishMRLCommError/str errorMsg
 	public final static int PUBLISH_MRLCOMM_ERROR = 1;
@@ -1375,10 +1376,14 @@ public class VirtualMsg {
 
 		}
 		case 6 :  {
-			return "I2c";
+			return "Serial";
 
 		}
 		case 7 :  {
+			return "I2c";
+
+		}
+		case 8 :  {
 			return "NeoPixel";
 
 		}

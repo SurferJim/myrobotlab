@@ -57,6 +57,7 @@ public class ArduinoMsgGenerator {
 		deviceList.add("Stepper");
 		deviceList.add("Motor");
 		deviceList.add("Servo");
+		deviceList.add("Serial");
 		deviceList.add("I2c");
 		deviceList.add("NeoPixel");
 	}

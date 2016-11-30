@@ -1,3 +1,4 @@
+#include "ArduinoMsgCodec.h"
 #include "Msg.h"
 #include "Device.h"
 

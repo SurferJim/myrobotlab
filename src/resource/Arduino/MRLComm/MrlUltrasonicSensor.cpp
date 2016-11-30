@@ -2,7 +2,7 @@
 #include "Device.h"
 #include "MrlUltrasonicSensor.h"
 
-MrlUltrasonicSensor::MrlUltrasonicSensor(int deviceId) : Device(deviceId, DEVICE_TYPE_ULTRASONIC) {
+MrlUltrasonicSensor::MrlUltrasonicSensor(int deviceId) : Device(deviceId, DEVICE_TYPE_ULTRASONICSENSOR) {
 	msg->publishDebug("ctor MrlUltrasonicSensor " + String(deviceId));
 	timeoutUS=1000; //this need to be set
 	trigPin=0;//this need to be set

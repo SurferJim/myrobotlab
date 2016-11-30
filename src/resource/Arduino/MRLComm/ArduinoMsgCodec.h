@@ -19,8 +19,9 @@
 #define DEVICE_TYPE_STEPPER		3
 #define DEVICE_TYPE_MOTOR		4
 #define DEVICE_TYPE_SERVO		5
-#define DEVICE_TYPE_I2C		6
-#define DEVICE_TYPE_NEOPIXEL		7
+#define DEVICE_TYPE_SERIAL		6
+#define DEVICE_TYPE_I2C		7
+#define DEVICE_TYPE_NEOPIXEL		8
 
 
 // < publishMRLCommError/str errorMsg
