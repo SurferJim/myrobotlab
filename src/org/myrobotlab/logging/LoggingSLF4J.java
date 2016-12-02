@@ -141,13 +141,7 @@ public class LoggingSLF4J extends Logging {
 
   @Override
   public String getLevel() {
-    /*
-     * Map<String,String> levels=newTreeMap(); LoggerContext
-     * context=(LoggerContext)LoggerFactory.getILoggerFactory(); for ( Logger
-     * logger : context.getLoggerList()) { if (logger.getLevel() != null) {
-     * levels.put(logger.getName(),logger.getLevel().toString()); } }
-     */
-
+ 
     Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     Level level = logger.getLevel();
     if (level.equals(Level.DEBUG)) {
@@ -202,6 +196,8 @@ public class LoggingSLF4J extends Logging {
       logger.setLevel(Level.WARN);
     } else if ("ERROR".equalsIgnoreCase(level)) { // && log4j {
       logger.setLevel(Level.ERROR);
+    } else if ("DISABLE".equalsIgnoreCase(level)) { // && log4j {
+    	removeAllAppenders();
       // } else if ("FATAL".equalsIgnoreCase(level)) { // && log4j {
       // logger.setLevel(Level.FATAL);
     } else { // && log4j {

@@ -35,8 +35,6 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 	String portName = "COM42";
 	final BoardInfo boardInfo = new BoardInfo();
 	String boardType;
-	
-	
 
 	transient FileOutputStream record = null;
 	// for debuging & developing - need synchronized - both send & recv threads
@@ -50,26 +48,20 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 	public VirtualArduino(String n) {
 		super(n);
 		uart = (Serial) createPeer("uart");
+		setBoardUno();
 		boardInfo.setVersion(MRLCOMM_VERSION);
 	}
 
 	@Override
 	public void startService() {
 		super.startService();
-		try {
-			uart = (Serial) startPeer("uart");
-			connectVirtualUart(portName, portName + ".UART");
-			uart.addByteListener(this);
-			
-			msg = new VirtualMsg(this, uart);
-			
-			// since we don't have a real DTR CDR lines like
-			// the Arduino
-			// load 3 publishBoards on serial line
-			
-		} catch (Exception e) {
-			log.error("starting service threw", e);
-		}
+		uart = (Serial) startPeer("uart");
+		uart.addByteListener(this);
+		msg = new VirtualMsg(this, uart);
+	}
+	
+	public Serial getSerial() {
+		return uart;
 	}
 
 	public void setPortName(String portName) {
@@ -112,19 +104,18 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 	}
 
 	transient int[] ioCmd = new int[MAX_MSG_SIZE];
-	
+
 	transient VirtualMsg msg;
 
 	int error_arduino_to_mrl_rx_cnt = 0;
 
 	int error_mrl_to_arduino_rx_cnt = 0;
-	
+
 	boolean ackEnabled = false;
 
 	transient AckLock ackRecievedLock = new AckLock();
 
 	boolean enableBoardStatus = false;
-
 
 	@Override
 	public Integer onByte(Integer newByte) {
@@ -182,18 +173,15 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 				msg.processCommand(ioCmd);
 
 				if (ackEnabled) {
-					/* we doon need no stink'ing ack'ing
-					synchronized (ackRecievedLock) {
-						try {
-							ackRecievedLock.wait(2000);
-						} catch (InterruptedException e) {// don't care}
-						}
-
-						if (!ackRecievedLock.acknowledged) {
-							log.error("Ack not received : {} {}", Msg.methodToString(ioCmd[0]), numAck);
-						}
-					}
-					*/
+					/*
+					 * we doon need no stink'ing ack'ing synchronized
+					 * (ackRecievedLock) { try { ackRecievedLock.wait(2000); }
+					 * catch (InterruptedException e) {// don't care} }
+					 * 
+					 * if (!ackRecievedLock.acknowledged) { log.error(
+					 * "Ack not received : {} {}", Msg.methodToString(ioCmd[0]),
+					 * numAck); } }
+					 */
 				}
 
 				// clean up memory/buffers
@@ -213,16 +201,19 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 		return newByte;
 	}
 
+	public void connect(String portName) throws IOException{
+		connectVirtualUart(portName, portName + ".UART");
+	}
 
 	@Override
 	public String onConnect(String portName) {
 		for (int i = 0; i < 3; ++i) {
 			// TODO msg.publishBoardInfo();
 			/*
-			MrlMsg msg = new MrlMsg(PUBLISH_BOARD_INFO);
-			msg.append(boardInfo.getVersion()).append(boardInfo.getBoardType());
-			sendMsg(msg);
-			*/ 
+			 * MrlMsg msg = new MrlMsg(PUBLISH_BOARD_INFO);
+			 * msg.append(boardInfo.getVersion()).append(boardInfo.getBoardType(
+			 * )); sendMsg(msg);
+			 */
 		}
 		return portName;
 	}
@@ -294,198 +285,195 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 		// FIXME - debug logging in Msg / VirtualMsg
 		log.info("enablePin {} {} {}", address, type, rate);
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void setDebug(Boolean enabled) {
-		
+
 	}
 
 	public void setSerialRate(Integer rate) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void softReset() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void enableAck(Boolean enabled) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void enableHeartbeat(Boolean enabled) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void heartbeat() {
-		// TODO Auto-generated method stub
-		
+		msg.publishHeartbeat();
 	}
 
 	public void echo(Long sInt) {
-		// TODO Auto-generated method stub
-		
+		log.info("varduino.echo {}", sInt);
+		msg.publishEcho(sInt);
 	}
 
 	public void controllerAttach(Integer serialPort) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void customMsg(int[] msg2) {
-		// TODO Auto-generated method stub
-		
+		msg.publishCustomMsg(msg2);
 	}
 
 	public void i2cBusAttach(Integer deviceId, Integer i2cBus) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void i2cRead(Integer deviceId, Integer deviceAddress, Integer size) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void i2cWrite(Integer deviceId, Integer deviceAddress, int[] data) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void i2cWriteRead(Integer deviceId, Integer deviceAddress, Integer readSize, Integer writeValue) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void neoPixelAttach(Integer deviceId, Integer pin, Integer numPixels) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void analogWrite(Integer pin, Integer value) {
-		// TODO Auto-generated method stub
-		
+		log.info("analogWrite({}, {})", pin, value);
 	}
 
 	public void digitalWrite(Integer pin, Integer value) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void disablePin(Integer pin) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void disablePins() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void pinMode(Integer pin, Integer mode) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void servoAttach(Integer deviceId, Integer pin, Integer initPos, Integer initVelocity) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void servoEnablePwm(Integer deviceId, Integer pin) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void servoDisablePwm(Integer deviceId) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void servoSetMaxVelocity(Integer deviceId, Integer maxVelocity) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void servoSetVelocity(Integer deviceId, Integer velocity) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void servoSweepStart(Integer deviceId, Integer min, Integer max, Integer step) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void servoSweepStop(Integer deviceId) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void servoWrite(Integer deviceId, Integer target) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void servoWriteMicroseconds(Integer deviceId, Integer ms) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void serialAttach(Integer deviceId, Integer relayPin) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void serialRelay(Integer deviceId, int[] data) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void ultrasonicSensorAttach(Integer deviceId, Integer triggerPin, Integer echoPin) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void ultrasonicSensorStartRanging(Integer deviceId, Integer timeout) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void deviceDetach(Integer deviceId) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void neoPixelSetAnimation(Integer deviceId, Integer animation, Integer red, Integer green, Integer blue, Integer speed) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void neoPixelWriteMatrix(Integer deviceId, int[] buffer) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void setDebounce(Integer pin, Integer delay) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void setTrigger(Integer pin, Integer triggerValue) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void ultrasonicSensorStopRanging(Integer deviceId) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	public static void main(String[] args) {
 		try {
 
@@ -499,7 +487,7 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 			Runtime.start("gui", "GUIService");
 			Runtime.start("webgui", "WebGui");
 			// Runtime.start("python", "Python");
-			
+
 			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
 			arduino.record();
 			log.info("ports " + Arrays.toString(arduino.getSerial().getPortNames().toArray()));
@@ -507,7 +495,7 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 				varduino = (VirtualArduino) Runtime.create("varduino", "VirtualArduino");
 				varduino.setPortName(port);
 				Runtime.start("varduino", "VirtualArduino");
-				varduino.setBoardMega();//.setBoardUno();
+				varduino.setBoardMega();// .setBoardUno();
 			}
 			arduino.connect(port);
 			arduino.enablePin(54);
@@ -516,6 +504,5 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 			log.error("main threw", e);
 		}
 	}
-
 
 }

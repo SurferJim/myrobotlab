@@ -1863,12 +1863,13 @@ public abstract class Service extends MessageService implements Runnable, Serial
    * 
    * }
    */
-
-  public String setLogLevel(String level) {
+/*
+  static public String setLogLevel(String level) {
     Logging logging = LoggingFactory.getInstance();
     logging.setLevel(this.getClass().getCanonicalName(), level);
     return level;
   }
+*/
 
   /**
    * rarely should this be used. Gateways use it to provide x-route natting

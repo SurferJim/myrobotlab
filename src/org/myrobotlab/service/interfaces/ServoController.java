@@ -25,8 +25,6 @@
 
 package org.myrobotlab.service.interfaces;
 
-
-
 public interface ServoController extends DeviceController {
 
 	void servoAttach(ServoControl servo, int pin);
@@ -35,17 +33,16 @@ public interface ServoController extends DeviceController {
 
 	void servoSweepStop(ServoControl servo);
 
-	// FIXME - method should be renamed to servoMoveTo  (Write is Arduino specific)
 	void servoWrite(ServoControl servo);
 
 	void servoWriteMicroseconds(ServoControl servo, int uS);
 
 	void servoDetach(ServoControl servo);
 
-  void servoSetMaxVelocity(ServoControl servo);
+	void servoSetMaxVelocity(ServoControl servo);
 
-  void servoSetVelocity(ServoControl servo);
+	void servoSetVelocity(ServoControl servo);
 
-void servoAttach(ServoControl servo, int pin, Integer targetOutput, Integer velocity);
+	void servoAttach(ServoControl servo, int pin, Integer targetOutput, Integer velocity);
 
 }

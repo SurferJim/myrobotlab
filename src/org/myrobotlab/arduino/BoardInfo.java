@@ -27,7 +27,7 @@ public class BoardInfo {
 	}
 
 	public boolean isUnknown() {
-		return boardName.equals("unknown");
+		return (boardName == null) || boardName.equals("unknown");
 	}
 
 	public void setType(int boardId) {

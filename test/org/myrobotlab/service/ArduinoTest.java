@@ -39,18 +39,18 @@ public class ArduinoTest implements PinArrayListener {
 	public final static Logger log = LoggerFactory.getLogger(ArduinoTest.class);
 
 	static boolean userVirtualHardware = true;
-	
+
 	static String port = "COM4";
 
 	static Arduino arduino = null;
 	static Serial serial = null;
 
-	static VirtualDevice virtual = null;
+	static VirtualArduino virtual = null;
 	static Python logic = null;
 	static Serial uart = null;
 
-	int servoPin = 9;
-	int enablePin;
+	int servoPin = 8;
+	int enablePin = 15;
 
 	// FIXME - test for re-entrant !!!!
 	// FIXME - single switch for virtual versus "real" hardware
@@ -64,15 +64,9 @@ public class ArduinoTest implements PinArrayListener {
 
 		// FIXME - needs a seemless switch
 		if (userVirtualHardware) {
-			
-			virtual = (VirtualDevice) Runtime.start("virtual", "VirtualDevice");
-			
-			virtual.createVirtualArduino(port);
 
-			logic = virtual.getLogic();
-
-			uart = virtual.getUart(port);
-	
+			virtual = (VirtualArduino) Runtime.start("virtual", "VirtualArduino");
+			uart = virtual.getSerial();
 			uart.setTimeout(100); // don't want to hang when decoding results...
 
 		}
@@ -80,27 +74,24 @@ public class ArduinoTest implements PinArrayListener {
 		// arduino.connect(port);
 
 	}
-
+	
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		
+
 		// expected state of arduino is no devices ?
 		// & connected ?
 		// arduino.connect(port);
-		
+
 		serial.clear();
 		serial.setTimeout(100);
 
 		uart.clear();
 		uart.setTimeout(100);
 	}
-	
-	///////// begin generated /////////////////////
-	
 
 	@Test
 	public void testReleaseService() {
@@ -123,23 +114,29 @@ public class ArduinoTest implements PinArrayListener {
 	}
 
 	@Test
-	public void testIntsToStringIntArray() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testIntsToStringIntArrayInt() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testIntsToStringIntArrayIntInt() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
 	public void testArduino() {
 		// fail("Not yet implemented");
+	}
+
+	@Test
+	public final void testAnalogWrite() throws InterruptedException, IOException {
+		log.info("testAnalogWrite");
+
+		uart.startRecording();
+		arduino.analogWrite(10, 0);
+		// assertEquals("analogWrite/10/0\n", decoded);
+
+		arduino.analogWrite(10, 127);
+
+		// assertEquals("analogWrite/10/127\n", decoded);
+
+		arduino.analogWrite(10, 128);
+		// assertEquals("analogWrite/10/128\n", decoded);
+
+		arduino.analogWrite(10, 255);
+		// assertEquals("analogWrite/10/255\n", decoded);
+
+		arduino.error("test");
 	}
 
 	@Test
@@ -164,7 +161,15 @@ public class ArduinoTest implements PinArrayListener {
 
 	@Test
 	public void testConnectString() {
-		// fail("Not yet implemented");
+		for (int i = 0; i < 20; ++i) {
+			arduino.connect(port);
+			// arduino.enableAck(true);
+			arduino.echo(30003030L + i);
+			arduino.echo(2L);
+			arduino.echo(-1L);
+			arduino.disconnect();
+		}
+
 	}
 
 	@Test
@@ -174,11 +179,6 @@ public class ArduinoTest implements PinArrayListener {
 
 	@Test
 	public void testControllerAttach() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
-	public void testCreateI2cDevice() {
 		// fail("Not yet implemented");
 	}
 
@@ -193,18 +193,19 @@ public class ArduinoTest implements PinArrayListener {
 	}
 
 	@Test
-	public void testDeviceAttach() {
-		// fail("Not yet implemented");
-	}
-
-	@Test
 	public void testDeviceDetach() {
 		// fail("Not yet implemented");
 	}
 
 	@Test
-	public void testDisableBoardStatus() {
-		// fail("Not yet implemented");
+	public final void testDigitalWrite() {
+		log.info("testDigitalWrite");
+		arduino.digitalWrite(10, 1);
+		// assertEquals("digitalWrite/10/1\n", uart.decode());
+		arduino.digitalWrite(10, 0);
+		// assertEquals("digitalWrite/10/0\n", uart.decode());
+		// arduino.digitalWrite(10, 255);
+		// assertEquals("digitalWrite/10/0", uart.decode());
 	}
 
 	@Test
@@ -218,13 +219,27 @@ public class ArduinoTest implements PinArrayListener {
 	}
 
 	@Test
-	public void testEnableBoardStatus() {
+	public final void testDisconnect() throws IOException {
+		log.info("testDisconnect");
+		arduino.disconnect();
+		assertTrue(!arduino.isConnected());
+		arduino.digitalWrite(10, 1);
+		assertEquals(0, uart.available());
 		arduino.connect(port);
-		org.myrobotlab.service.Test test = (org.myrobotlab.service.Test)Runtime.start("test", "Test");
+		assertTrue(arduino.isConnected());
+		uart.clear();
+		arduino.digitalWrite(10, 1);
+		// assertEquals("digitalWrite/10/1\n", uart.decode());
+	}
+
+	@Test
+	public void testEnableBoardStatus() {
+
+		org.myrobotlab.service.Test test = (org.myrobotlab.service.Test) Runtime.start("test", "Test");
 		test.subscribe(arduino.getName(), "publishBoardStatus");
 		arduino.enableBoardStatus(true);
 		// FIXME notify with timeout
-		
+
 		arduino.enableBoardStatus(false);
 	}
 
@@ -290,7 +305,6 @@ public class ArduinoTest implements PinArrayListener {
 	public void testGetSerial() {
 		// fail("Not yet implemented");
 	}
-
 
 	@Test
 	public void testHeartbeat() {
@@ -617,12 +631,10 @@ public class ArduinoTest implements PinArrayListener {
 		// fail("Not yet implemented");
 	}
 
-
 	@Test
 	public void testSetBoardMegaADK() {
 		// fail("Not yet implemented");
 	}
-
 
 	@Test
 	public void testSetController() {
@@ -709,30 +721,7 @@ public class ArduinoTest implements PinArrayListener {
 		// fail("Not yet implemented");
 	}
 
-	
-	////////  end generated ///////////////////////
-
-
-	@Test
-	public final void testAnalogWrite() throws InterruptedException, IOException {
-		log.info("testAnalogWrite");
-
-		uart.startRecording();
-		arduino.analogWrite(10, 0);
-		// assertEquals("analogWrite/10/0\n", decoded);
-
-		arduino.analogWrite(10, 127);
-
-		// assertEquals("analogWrite/10/127\n", decoded);
-
-		arduino.analogWrite(10, 128);
-		// assertEquals("analogWrite/10/128\n", decoded);
-
-		arduino.analogWrite(10, 255);
-		// assertEquals("analogWrite/10/255\n", decoded);
-
-		arduino.error("test");
-	}
+	//////// end generated ///////////////////////
 
 	@Test
 	public final void testConnect() throws IOException {
@@ -742,31 +731,6 @@ public class ArduinoTest implements PinArrayListener {
 		assertTrue(arduino.isConnected());
 		assertEquals(Msg.MRLCOMM_VERSION, arduino.getBoardInfo().getVersion().intValue());
 		log.info("testConnect - end");
-	}
-
-	@Test
-	public final void testDigitalWrite() {
-		log.info("testDigitalWrite");
-		arduino.digitalWrite(10, 1);
-		// assertEquals("digitalWrite/10/1\n", uart.decode());
-		arduino.digitalWrite(10, 0);
-		// assertEquals("digitalWrite/10/0\n", uart.decode());
-		// arduino.digitalWrite(10, 255);
-		// assertEquals("digitalWrite/10/0", uart.decode());
-	}
-
-	@Test
-	public final void testDisconnect() throws IOException {
-		log.info("testDisconnect");
-		arduino.disconnect();
-		assertTrue(!arduino.isConnected());
-		arduino.digitalWrite(10, 1);
-		assertEquals(0, uart.available());
-		arduino.connect(port);
-		assertTrue(arduino.isConnected());
-		uart.clear();
-		arduino.digitalWrite(10, 1);
-		// assertEquals("digitalWrite/10/1\n", uart.decode());
 	}
 
 	@Test
@@ -792,8 +756,6 @@ public class ArduinoTest implements PinArrayListener {
 		assertEquals(Msg.MRLCOMM_VERSION, arduino.getBoardInfo().getVersion().intValue());
 	}
 
-
-
 	@Test
 	public final void testPinModeIntString() {
 		log.info("testPinModeIntString");
@@ -808,12 +770,10 @@ public class ArduinoTest implements PinArrayListener {
 		// assertEquals("pinMode/8/1\n", uart.decode());
 	}
 
-
-
 	@Test
 	public final void testServoAttachServoInteger() throws Exception {
 		log.info("testServoAttachServoInteger");
-		Servo servo = (Servo) Runtime.start("servo", "Servo");		
+		Servo servo = (Servo) Runtime.start("servo", "Servo");
 		arduino.connect(port);
 		// NOT THE WAY TO ATTACH SERVOS !!
 		// isAttached will not get set
@@ -840,7 +800,8 @@ public class ArduinoTest implements PinArrayListener {
 		// assertEquals(servoPin, servo.getPin().intValue());
 		assertEquals(arduino.getName(), servo.getController().getName());
 
-		// assertEquals("servoAttach/7/9/5/115/101/114/118/111\n", uart.decode());
+		// assertEquals("servoAttach/7/9/5/115/101/114/118/111\n",
+		// uart.decode());
 		servo.moveTo(0);
 		// assertEquals("servoWrite/7/0\n", uart.decode());
 		servo.moveTo(90);
@@ -855,11 +816,11 @@ public class ArduinoTest implements PinArrayListener {
 		// assertEquals("servoDetach/7/0\n", uart.decode());
 
 		servo.moveTo(10);
-		
 
 		// re-attach
 		servo.attach();
-		// assertEquals("servoAttach/7/9/5/115/101/114/118/111\n", uart.decode());
+		// assertEquals("servoAttach/7/9/5/115/101/114/118/111\n",
+		// uart.decode());
 		assertTrue(servo.isAttached());
 		// // assertEquals(servoPin, servo.getPin().intValue());
 		assertEquals(arduino.getName(), servo.getController());
@@ -869,7 +830,6 @@ public class ArduinoTest implements PinArrayListener {
 
 		servo.releaseService();
 	}
-
 
 	@Test
 	public void testSetBoardMega() {
@@ -901,7 +861,6 @@ public class ArduinoTest implements PinArrayListener {
 		arduino.setBoard(boardType);
 	}
 
-
 	public static class JUnitListener extends RunListener {
 
 		public void testAssumptionFailure(Failure failure) {
@@ -932,7 +891,7 @@ public class ArduinoTest implements PinArrayListener {
 			log.info("testStarted");
 		}
 	}
-	
+
 	@Override
 	public boolean isLocal() {
 		return true;
@@ -950,15 +909,17 @@ public class ArduinoTest implements PinArrayListener {
 
 	public static void main(String[] args) {
 		try {
-			
+
 			// FIXME - Test service started or reference retrieved
 			// FIXME - subscribe to publishError
 			// FIXME - check for any error
-			// FIXME - basic design - expected state is connected and ready - between classes it
-			// should connect - also dumping serial comm at different levels so virtual arduino in 
+			// FIXME - basic design - expected state is connected and ready -
+			// between classes it
+			// should connect - also dumping serial comm at different levels so
+			// virtual arduino in
 			// Python can model "real" serial comm
 
-			LoggingFactory.init(Level.INFO);	
+			LoggingFactory.init(Level.INFO);
 			// Runtime.start("webgui", "WebGui");
 			// Runtime.start("gui", "GUIService");
 
@@ -966,22 +927,37 @@ public class ArduinoTest implements PinArrayListener {
 			userVirtualHardware = false;
 			port = "COM10";
 			// port = "COM4";
-			
+			// port = "COM99";
+
 			ArduinoTest test = new ArduinoTest();
 			ArduinoTest.setUpBeforeClass();
 			
+			Runtime.start("webgui", "WebGui");
+
 			arduino.record();
+
+			if (virtual != null){
+				virtual.connect(port);
+			}			
+			arduino.connect(port);
+			
+			test.testServoAttachServoInteger();
+			
+			// arduino.setBoardUno(); always better to "not" set
+
 			// Runtime.start("webgui", "WebGui");
-			test.enablePin = 54;  // A0 for Mega
+			test.enablePin = (arduino.getBoardType().contains("mega")) ? 54 : 15; // A0
+																					// for
+																					// Mega
 			test.testEnableBoardStatus();
 			test.testEnablePinInt();
-			
+
 			boolean b = true;
-			if (b){
+			if (b) {
 				return;
 			}
-			
-			// test specific method 
+
+			// test specific method
 			test.testServoAttachServoInteger();
 
 			// run junit as java app
@@ -995,6 +971,5 @@ public class ArduinoTest implements PinArrayListener {
 			Logging.logError(e);
 		}
 	}
-
 
 }

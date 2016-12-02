@@ -268,7 +268,7 @@ public class Servo extends Service implements ServoControl {
 	@Override
 	public void attach(int pin) {
 		lastActivityTime = System.currentTimeMillis();
-		getController().servoAttach(this, pin);
+		controller.servoAttach(this, pin);
 		this.pin = pin;
 		isAttached = true;
 		broadcastState();
@@ -279,8 +279,7 @@ public class Servo extends Service implements ServoControl {
 	 */
 	@Override
 	public void detach() {
-		getController().servoDetach(this);
-		isAttached = false;
+		controller.servoDetach(this);
 		broadcastState();
 	}
 
@@ -362,7 +361,7 @@ public class Servo extends Service implements ServoControl {
 		targetPos = pos;
 		targetOutput = mapper.calcInt(targetPos);
 
-		getController().servoWrite(this);
+		controller.servoWrite(this);
 		lastActivityTime = System.currentTimeMillis();
 
 		if (isEventsEnabled) {
@@ -415,21 +414,15 @@ public class Servo extends Service implements ServoControl {
 			info("setting controller to null");
 			this.controllerName = null;
 			this.controller = null;
+			this.isAttached = false;
 			return;
 		}
 
 		log.info(String.format("%s setController %s", getName(), controller.getName()));
 
-		// FIXME - remove - the controller or MRLComm will take care of this
-		// check
-		/*
-		 * if (isAttached()) { warn(
-		 * "can not set controller %s when servo %s is attached", controller,
-		 * getName()); return false; }
-		 */
-
 		this.controller = (ServoController) controller;
 		this.controllerName = controller.getName();
+		this.isAttached = true;
 		broadcastState();
 	}
 
@@ -437,6 +430,7 @@ public class Servo extends Service implements ServoControl {
 	public void unsetController() {
 		this.controller = null;
 		this.controllerName = null;
+		this.isAttached = false;
 		broadcastState();
 	}
 
@@ -527,7 +521,7 @@ public class Servo extends Service implements ServoControl {
 	public void stop() {
 		isSweeping = false;
 		sweeper = null;
-		getController().servoSweepStop(this);
+		controller.servoSweepStop(this);
 		broadcastState();
 	}
 
@@ -557,7 +551,7 @@ public class Servo extends Service implements ServoControl {
 
 		// FIXME - CONTROLLER TYPE SWITCH
 		if (speedControlOnUC) {
-			getController().servoSweepStart(this); // delay &
+			controller.servoSweepStart(this); // delay &
 			// step
 			// implemented
 		} else {
@@ -725,7 +719,7 @@ public class Servo extends Service implements ServoControl {
 	public void setMaxVelocity(int velocity) {
 		this.maxVelocity = velocity;
 		if (isControllerSet()) {
-			getController().servoSetMaxVelocity(this);
+			controller.servoSetMaxVelocity(this);
 		}
 	}
 
@@ -735,7 +729,7 @@ public class Servo extends Service implements ServoControl {
 		}
 		this.velocity = velocity;
 		if (isControllerSet()) {
-			getController().servoSetVelocity(this);
+			controller.servoSetVelocity(this);
 		}
 	}
 
@@ -757,7 +751,7 @@ public class Servo extends Service implements ServoControl {
 		// targetPos = pos;
 		targetOutput = moveTo;
 
-		getController().servoWrite(this);
+		controller.servoWrite(this);
 		lastActivityTime = System.currentTimeMillis();
 
 		if (isEventsEnabled) {

@@ -187,7 +187,7 @@ int MrlComm::getCustomMsgSize() {
 void MrlComm::processCommand() {
 	msg->processCommand();
 	if (ackEnabled) {
-		msg->publishAck(1);
+		msg->publishAck(msg->getMethod());
 	}
 }
 

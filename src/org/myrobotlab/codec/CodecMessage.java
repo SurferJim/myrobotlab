@@ -21,9 +21,10 @@ public class CodecMessage implements Codec {
   @Override
   public void encode(OutputStream out, Object obj) throws IOException {
 	  byte[] json = null;
-	  synchronized (mapper) { // GRRR .. GSON is NOT Thread Safe !
+	 //  synchronized (mapper) { // GRRR .. GSON is NOT Thread Safe !
+	  log.info("about to serialize a {}", obj.getClass().getCanonicalName());
 	    json = mapper.toJson(obj).getBytes();
-	  }
+	 //  }
     out.write(json);
     // jackson stream way !
     // mapper.writeValue(out, obj);

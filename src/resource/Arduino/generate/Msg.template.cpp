@@ -75,10 +75,7 @@ void Msg::processCommand() {
 		break;
 	} // end switch
 	  // ack that we got a command (should we ack it first? or after we process the command?)
-
 	lastHeartbeatUpdate = millis();
-	publishAck(ioCmd[0]);
-
 } // process Command
 
 void Msg::add(const int value) {
@@ -230,4 +227,8 @@ void Msg::flush() {
 
 void Msg::begin(HardwareSerial& hardwareSerial){
 	serial = &hardwareSerial;
+}
+
+byte Msg::getMethod(){
+	return ioCmd[0];
 }

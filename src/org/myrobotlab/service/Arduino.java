@@ -58,8 +58,6 @@ import org.myrobotlab.service.interfaces.UltrasonicSensorController;
 public class Arduino extends Service implements Microcontroller, PinArrayControl, I2CBusController, I2CController, SerialDataListener, ServoController, MotorController,
 		NeoPixelController, UltrasonicSensorController, DeviceController, RecordControl, SerialRelayListener {
 
-	private static final long serialVersionUID = 1L;
-
 	public static class AckLock {
 		volatile boolean acknowledged = false;
 	}
@@ -80,6 +78,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			this.data = data;
 		}
 	}
+
+	private static final long serialVersionUID = 1L;
 
 	public transient static final int BOARD_TYPE_ID_UNKNOWN = 0;
 	public transient static final int BOARD_TYPE_ID_MEGA = 1;
@@ -102,10 +102,105 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public static final int MRL_IO_SERIAL_2 = 3;
 	public static final int MRL_IO_SERIAL_3 = 4;
 
+	/**
+	 * This static method returns all the details of the class without it having
+	 * to be constructed. It has description, categories, dependencies, and peer
+	 * definitions.
+	 *
+	 * @return ServiceType - returns all the data
+	 *
+	 */
+	static public ServiceType getMetaData() {
+
+		ServiceType meta = new ServiceType(Arduino.class.getCanonicalName());
+		meta.addDescription("This service interfaces with an Arduino micro-controller");
+		meta.addCategory("microcontroller");
+		meta.addPeer("serial", "Serial", "serial device for this Arduino");
+		return meta;
+	}
+
+
+	public static void main(String[] args) {
+		try {
+
+			LoggingFactory.init(Level.INFO);
+
+			/*
+			 * InMoov i01 = (InMoov)Runtime.start("i01", "InMoov");
+			 * VirtualDevice virtual = (VirtualDevice)Runtime.start("virtual",
+			 * "VirtualDevice"); virtual.createVirtualSerial("COM7");
+			 * 
+			 * String leftPort = "COM5"; String rightPort = "COM7";
+			 * i01.startAll(leftPort, rightPort);
+			 * 
+			 * InMoovTorso torso = i01.startTorso(leftPort);
+			 * i01.torso.topStom.detach(); i01.torso.topStom.attach("i01.left",
+			 * 49);
+			 */
+
+			Runtime.start("webgui", "WebGui");
+			Runtime.start("gui", "GUIService");
+			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
+			Serial serial = arduino.getSerial();
+			// Runtime.start("gui", "GUIService");
+			List<String> ports = serial.getPortNames();
+			log.info(Arrays.toString(ports.toArray()));
+			arduino.setBoardMega();
+			// log.info(arduino.getBoardType());
+			// if connect - possibly you can set the board type correctly
+			// arduino.getBoardInfo();
+			arduino.setBoardMega();
+			arduino.connect("COM4");
+			arduino.enablePin(54);
+
+			boolean done = true;
+			if (done) {
+				return;
+			}
+
+			// arduino.uploadSketch("C:\\tools\\arduino-1.6.9");
+
+			Servo servo = (Servo) Runtime.start("servo", "Servo");
+			// Runtime.start("gui", "GUIService");
+			servo.attach(arduino, 7);
+			// servo.detach(arduino);
+			servo.attach(9);
+
+			// servo.detach(arduino);
+			// arduino.servoDetach(servo); Arduino power save - "detach()"
+
+			servo.moveTo(0);
+			servo.moveTo(180);
+			servo.setInverted(true);
+			servo.moveTo(0);
+			servo.moveTo(180);
+			servo.setInverted(true);
+			servo.moveTo(0);
+			servo.moveTo(180);
+			// arduino.attachDevice(servo, null);
+			// servo.attach();
+			int angle = 0;
+			int max = 5000;
+			while (true) {
+				// System.out.println(angle);
+				angle++;
+				servo.moveTo(angle % 180);
+				if (angle > max) {
+					break;
+				}
+			}
+			System.out.println("done with loop..");
+			log.info("here");
+
+		} catch (Exception e) {
+			Logging.logError(e);
+		}
+	}
+
+	// FIXME - not working correctly yet
 	boolean ackEnabled = false;
 
 	transient AckLock ackRecievedLock = new AckLock();
-
 	/**
 	 * path of the Arduino IDE must be set by user
 	 */
@@ -119,6 +214,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	 * but not forced to use the mrlBoardInfo.
 	 */
 	final BoardInfo boardInfo = new BoardInfo();
+
 	/**
 	 * board type - UNO Mega etc..
 	 * 
@@ -175,19 +271,19 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	int msgSize;
 
 	Integer nextDeviceId = 0;
-
 	int numAck = 0;
-
 	transient Map<String, PinArrayListener> pinArrayListeners = new HashMap<String, PinArrayListener>();
 
 	/**
 	 * the definitive sequence of pins - "true address"
 	 */
 	Map<Integer, PinDefinition> pinIndex = null;
+
 	/**
 	 * map of pin listeners
 	 */
 	transient Map<Integer, List<PinListener>> pinListeners = new HashMap<Integer, List<PinListener>>();
+
 	/**
 	 * pin named map of all the pins on the board
 	 */
@@ -201,23 +297,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public Sketch sketch;
 
 	public String uploadSketchResult;
-
-	/**
-	 * This static method returns all the details of the class without it having
-	 * to be constructed. It has description, categories, dependencies, and peer
-	 * definitions.
-	 *
-	 * @return ServiceType - returns all the data
-	 *
-	 */
-	static public ServiceType getMetaData() {
-
-		ServiceType meta = new ServiceType(Arduino.class.getCanonicalName());
-		meta.addDescription("This service interfaces with an Arduino micro-controller");
-		meta.addCategory("microcontroller");
-		meta.addPeer("serial", "Serial", "serial device for this Arduino");
-		return meta;
-	}
 
 	public Arduino(String n) {
 		super(n);
@@ -345,6 +424,24 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		broadcastState();
 	}
 
+	// @Calamity - I like your method signature - but I think it
+	// should create a MrlSerial device and read and write similar to the I2C
+	// MrlDevice instead of replacing the service's serial service
+	// @grog - I don't mind using a MrlSerial device, as both way will
+	// essentially do the same thing. The difference is only where the
+	// messages will be send in MRLComm (processCommand vs update methods). It
+	// could not be the same way as I2C because I2C read
+	// block and blocking is evil
+	// two thing I had in mind when I did it:
+	// 1- be able to connect MRLComm to a master MRLComm using different
+	// communication protocol (Serial, I2C, bluetooth, wifi)
+	// but this also can be done with different device type
+	// 2- I also had in mind of having the Master arduino and it's slaves (chain
+	// of slave) act as one device. So they could talk
+	// and interract with each other without having to go back to the javaland.
+	// Not sure if it's a good idea or not, but that's
+	// one of the reason I had go that way
+
 	public void connect(String port) {
 		connect(port, Serial.BAUD_115200, 8, 1, 0);
 	}
@@ -359,7 +456,9 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	@Override
 	public void connect(String port, int rate, int databits, int stopbits, int parity) {
 
-		try {
+		try { 
+			// FIXME - GroG asks, who put the try here  - shouldn't it throw if we can't connect
+			// how would you recover?
 
 			serial.connect(port, rate, databits, stopbits, parity);
 
@@ -401,24 +500,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 		broadcastState();
 	}
-
-	// @Calamity - I like your method signature - but I think it
-	// should create a MrlSerial device and read and write similar to the I2C
-	// MrlDevice instead of replacing the service's serial service
-	// @grog - I don't mind using a MrlSerial device, as both way will
-	// essentially do the same thing. The difference is only where the
-	// messages will be send in MRLComm (processCommand vs update methods). It
-	// could not be the same way as I2C because I2C read
-	// block and blocking is evil
-	// two thing I had in mind when I did it:
-	// 1- be able to connect MRLComm to a master MRLComm using different
-	// communication protocol (Serial, I2C, bluetooth, wifi)
-	// but this also can be done with different device type
-	// 2- I also had in mind of having the Master arduino and it's slaves (chain
-	// of slave) act as one device. So they could talk
-	// and interract with each other without having to go back to the javaland.
-	// Not sure if it's a good idea or not, but that's
-	// one of the reason I had go that way
 
 	public void controllerAttach(Arduino controller, int serialPort) {
 		attachedController.put(serialPort, controller);
@@ -539,13 +620,19 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		broadcastState();
 	}
 
+	// > enableAck/bool enabled
+	public void enableAck(boolean enabled){
+		ackEnabled = enabled;
+		msg.enableAck(enabled);
+	}
+
 	// > enableBoardStatus/bool enabled
 	public void enableBoardStatus(Boolean enabled) {
 		msg.enableBoardStatus(enabled);
 	}
 
 	// > enableHeartbeat/bool enabled
-	public void enabledHeartbeat(Boolean enabled) {
+	public void enableHeartbeat(Boolean enabled) {
 		if (enabled) {
 			heartbeat = true;
 			addTask("heartbeat", 1000, "heartbeat");
@@ -583,6 +670,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public BoardInfo getBoardInfo() {
 		// msg.getBoardInfo(); do not do this - 
 		// results in a serial infinit loop
+		// msg.getBoardInfo();
 		return boardInfo;
 	}
 
@@ -594,6 +682,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	@Override
 	public DeviceController getController() {
 		return this;
+	}
+
+	public DeviceControl getDevice(Integer deviceId) {
+		return deviceIndex.get(deviceId).getDevice();
 	}
 
 	Integer getDeviceId(DeviceControl device) {
@@ -610,6 +702,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		}
 		log.error("getDeviceId could not find device {}", name);
 		return null;
+	}
+
+	private String getDeviceName(int deviceId) {
+		return getDevice(deviceId).getName();
 	}
 
 	/**
@@ -651,6 +747,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return serial;
 	}
 
+	
 	public Sketch getSketch() {
 		return sketch;
 	}
@@ -755,17 +852,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// Time out, no data returned
 		return -1;
 	}
-	
-	/**
-	 * 
-	 * @param deviceId
-	 * @param data
-	 */
-	// < publishI2cData/deviceId/[] data
-	public void publishI2cData(Integer deviceId, int[] data) {
-		log.info("publishI2cData");
-		i2cReturnData(data);
-	}
 
 	/**
 	 * This methods is called by the i2cBus object when data is returned from
@@ -864,17 +950,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	@Override
 	public boolean isRecording() {
 		return msg.isRecording();
-	}
-
-	// FIXME put recording into generated Msg
-	@Override
-	public void record() throws Exception {
-		msg.record();
-	}
-
-	@Override
-	public void stopRecording() {
-		msg.stopRecording();
 	}
 
 	@Override
@@ -996,7 +1071,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public void neoPixelAttach(NeoPixel neopixel, int pin, int numPixels) {
 		msg.neoPixelAttach(getDeviceId(neopixel)/* byte */, pin/* byte */, numPixels/* b32 */);
 	}
-
+	
 	@Override
 	// > neoPixelSetAnimation/deviceId/animation/red/green/blue/b16 speed
 	public void neoPixelSetAnimation(NeoPixel neopixel, int animation, int red, int green, int blue, int speed) {
@@ -1089,7 +1164,9 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
 				msg.processCommand(ioCmd);
 
-				if (ackEnabled) {
+				// Our 'first' getBoardInfo may not receive a acknowledgement 
+				// so this should be disabled until boadInfo is valid
+				if (boardInfo.isValid() && ackEnabled) {
 					synchronized (ackRecievedLock) {
 						try {
 							ackRecievedLock.wait(2000);
@@ -1248,10 +1325,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return new BoardStatus(microsPerLoop, sram, ds);
 	}
 
-	private String getDeviceName(int deviceId) {
-		return getDevice(deviceId).getName();
-	}
-
 	// < publishCustomMsg/[] msg
 	public int[] publishCustomMsg(int[] msg/* [] */) {
 		return msg;
@@ -1268,6 +1341,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public void publishEcho(Long b32) {
 		log.info("b32 {} ", b32);
 	}
+	
+	public void echo(Long bu32){
+		msg.echo(bu32);
+	}
 
 	/**
 	 * return heartbeat - prevents resetting
@@ -1275,6 +1352,17 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	// < publishHeartbeat
 	public void publishHeartbeat() {
 		heartbeat = true;
+	}
+
+	/**
+	 * 
+	 * @param deviceId
+	 * @param data
+	 */
+	// < publishI2cData/deviceId/[] data
+	public void publishI2cData(Integer deviceId, int[] data) {
+		log.info("publishI2cData");
+		i2cReturnData(data);
 	}
 
 	// < publishMRLCommError/str errorMsg
@@ -1326,6 +1414,12 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return pinArray;
 	}
 
+	// FIXME - reconcile - Arduino's input is int[] - this one is not used
+	@Override
+	public PinData[] publishPinArray(PinData[] pinData) {
+		return pinData;
+	}
+
 	/**
 	 * method to communicate changes in pinmode or state changes
 	 * 
@@ -1336,9 +1430,22 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return pinDef;
 	}
 
+	public SerialRelayData publishSerialData(Integer deviceId, int[] data) {
+		SerialRelayData serialData = new SerialRelayData(deviceId, data);
+		return serialData;
+	}
+
 	// FIXME - ask kwatters what he wants PinDefinition A0 ???
 	public PinData publishTrigger(Pin pin) {
 		return null;
+	}
+
+	// FIXME should be in Control interface - for callback
+	// < publishUltrasonicSensorData/deviceId/b16 echoTime
+	public Integer publishUltrasonicSensorData(Integer deviceId, Integer echoTime) {
+		log.info("echoTime {}", echoTime);
+		((UltrasonicSensor) getDevice(deviceId)).onUltrasonicSensorData(echoTime);
+		return echoTime;
 	}
 
 	public Integer publishVersion(Integer version) {
@@ -1354,6 +1461,12 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	@Override
 	public int read(String pinName) {
 		return read(pinNameToAddress(pinName));
+	}
+
+	// FIXME put recording into generated Msg
+	@Override
+	public void record() throws Exception {
+		msg.record();
 	}
 
 	public void refresh() {
@@ -1399,6 +1512,11 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		deviceList.clear();
 		error_mrl_to_arduino_rx_cnt = 0;
 		error_arduino_to_mrl_rx_cnt = 0;
+	}
+
+	public void serialAttach(SerialRelay serialRelay, int controllerAttachAs) {
+		Integer deviceId = attachDevice(serialRelay, new Object[] { controllerAttachAs });
+		msg.serialAttach(deviceId, controllerAttachAs);
 	}
 
 	/**
@@ -1565,8 +1683,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	/**
 	 * send a reset to MrlComm - all devices removed, all polling is stopped and
 	 * all other counters are reset
-	 *
-	 * TODO - reset servos ? motors ? etc. ?
 	 */
 	// > softReset
 	public void softReset() {
@@ -1587,6 +1703,11 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		} catch (Exception e) {
 			Logging.logError(e);
 		}
+	}
+
+	@Override
+	public void stopRecording() {
+		msg.stopRecording();
 	}
 
 	@Override
@@ -1616,8 +1737,27 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	@Override
-	public void unsetController() {
+	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
+	public void ultrasonicSensorAttach(UltrasonicSensorControl sensor, Integer triggerPin, Integer echoPin) {
+		Integer deviceId = attachDevice(sensor, new Object[] { triggerPin, echoPin });
+		msg.ultrasonicSensorAttach(deviceId, triggerPin, echoPin);
+	}
 
+	@Override
+	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
+	public void ultrasonicSensorStartRanging(UltrasonicSensorControl sensor, Integer timeout) {
+		msg.ultrasonicSensorStartRanging(getDeviceId(sensor), timeout);
+	}
+
+	@Override
+	// > ultrasonicSensorStopRanging/deviceId
+	public void ultrasonicSensorStopRanging(UltrasonicSensorControl sensor) {
+		msg.ultrasonicSensorStopRanging(getDeviceId(sensor));
+	}
+
+	@Override
+	public void unsetController() {
+		// NOOP as Arduino is its own controller
 	}
 
 	public void uploadSketch(String arduinoPath) throws IOException {
@@ -1679,7 +1819,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		log.info(uploadSketchResult);
 		broadcastState();
 	}
-
+	
 	/**
 	 * PinArrayControl method
 	 */
@@ -1697,129 +1837,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// cache value
 		pinDef.setValue(value);
 	}
-
-	public static void main(String[] args) {
-		try {
-
-			LoggingFactory.init(Level.INFO);
-
-			/*
-			 * InMoov i01 = (InMoov)Runtime.start("i01", "InMoov");
-			 * VirtualDevice virtual = (VirtualDevice)Runtime.start("virtual",
-			 * "VirtualDevice"); virtual.createVirtualSerial("COM7");
-			 * 
-			 * String leftPort = "COM5"; String rightPort = "COM7";
-			 * i01.startAll(leftPort, rightPort);
-			 * 
-			 * InMoovTorso torso = i01.startTorso(leftPort);
-			 * i01.torso.topStom.detach(); i01.torso.topStom.attach("i01.left",
-			 * 49);
-			 */
-
-			Runtime.start("webgui", "WebGui");
-			Runtime.start("gui", "GUIService");
-			Arduino arduino = (Arduino) Runtime.start("arduino", "Arduino");
-			Serial serial = arduino.getSerial();
-			// Runtime.start("gui", "GUIService");
-			List<String> ports = serial.getPortNames();
-			log.info(Arrays.toString(ports.toArray()));
-			arduino.setBoardMega();
-			// log.info(arduino.getBoardType());
-			// if connect - possibly you can set the board type correctly
-			// arduino.getBoardInfo();
-			arduino.setBoardMega();
-			arduino.connect("COM4");
-			arduino.enablePin(54);
-
-			boolean done = true;
-			if (done) {
-				return;
-			}
-
-			// arduino.uploadSketch("C:\\tools\\arduino-1.6.9");
-
-			Servo servo = (Servo) Runtime.start("servo", "Servo");
-			// Runtime.start("gui", "GUIService");
-			servo.attach(arduino, 7);
-			// servo.detach(arduino);
-			servo.attach(9);
-
-			// servo.detach(arduino);
-			// arduino.servoDetach(servo); Arduino power save - "detach()"
-
-			servo.moveTo(0);
-			servo.moveTo(180);
-			servo.setInverted(true);
-			servo.moveTo(0);
-			servo.moveTo(180);
-			servo.setInverted(true);
-			servo.moveTo(0);
-			servo.moveTo(180);
-			// arduino.attachDevice(servo, null);
-			// servo.attach();
-			int angle = 0;
-			int max = 5000;
-			while (true) {
-				// System.out.println(angle);
-				angle++;
-				servo.moveTo(angle % 180);
-				if (angle > max) {
-					break;
-				}
-			}
-			System.out.println("done with loop..");
-			log.info("here");
-
-		} catch (Exception e) {
-			Logging.logError(e);
-		}
-	}
-
-	public SerialRelayData publishSerialData(Integer deviceId, int[] data) {
-		SerialRelayData serialData = new SerialRelayData(deviceId, data);
-		return serialData;
-	}
-
-	public DeviceControl getDevice(Integer deviceId) {
-		return deviceIndex.get(deviceId).getDevice();
-	}
-
-	// FIXME should be in Control interface - for callback
-	// < publishUltrasonicSensorData/deviceId/b16 echoTime
-	public Integer publishUltrasonicSensorData(Integer deviceId, Integer echoTime) {
-		log.info("echoTime {}", echoTime);
-		((UltrasonicSensor) getDevice(deviceId)).onUltrasonicSensorData(echoTime);
-		return echoTime;
-	}
-
-	@Override
-	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
-	public void ultrasonicSensorAttach(UltrasonicSensorControl sensor, Integer triggerPin, Integer echoPin) {
-		Integer deviceId = attachDevice(sensor, new Object[] { triggerPin, echoPin });
-		msg.ultrasonicSensorAttach(deviceId, triggerPin, echoPin);
-	}
-
-	@Override
-	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
-	public void ultrasonicSensorStartRanging(UltrasonicSensorControl sensor, Integer timeout) {
-		msg.ultrasonicSensorStartRanging(getDeviceId(sensor), timeout);
-	}
-
-	public void serialAttach(SerialRelay serialRelay, int controllerAttachAs) {
-		Integer deviceId = attachDevice(serialRelay, new Object[] { controllerAttachAs });
-		msg.serialAttach(deviceId, controllerAttachAs);
-	}
-
-	@Override
-	// > ultrasonicSensorStopRanging/deviceId
-	public void ultrasonicSensorStopRanging(UltrasonicSensorControl sensor) {
-		msg.ultrasonicSensorStopRanging(getDeviceId(sensor));
-	}
-
-	// FIXME - reconcile - Arduino's input is int[] - this one is not used
-	@Override
-	public PinData[] publishPinArray(PinData[] pinData) {
-		return pinData;
-	}
+	
+	
 
 }
