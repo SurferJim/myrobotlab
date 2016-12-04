@@ -439,7 +439,7 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 
 	}
 
-	public void ultrasonicSensorStartRanging(Integer deviceId, Integer timeout) {
+	public void ultrasonicSensorStartRanging(Integer deviceId) {
 		// TODO Auto-generated method stub
 
 	}

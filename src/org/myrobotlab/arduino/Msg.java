@@ -182,7 +182,7 @@ public class Msg {
 	public final static int PUBLISH_SERIAL_DATA = 50;
 	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
 	public final static int ULTRASONIC_SENSOR_ATTACH = 51;
-	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
+	// > ultrasonicSensorStartRanging/deviceId
 	public final static int ULTRASONIC_SENSOR_START_RANGING = 52;
 	// > ultrasonicSensorStopRanging/deviceId
 	public final static int ULTRASONIC_SENSOR_STOP_RANGING = 53;
@@ -1472,20 +1472,17 @@ public class Msg {
 	  }
 	}
 
-	public void ultrasonicSensorStartRanging(Integer deviceId/*byte*/, Integer timeout/*b32*/) {
+	public void ultrasonicSensorStartRanging(Integer deviceId/*byte*/) {
 		try {
 			write(MAGIC_NUMBER);
-			write(1 + 1 + 4); // size
+			write(1 + 1); // size
 			write(ULTRASONIC_SENSOR_START_RANGING); // msgType = 52
 			write(deviceId);
-			writeb32(timeout);
  
 			if(record != null){
 				txBuffer.append("> ultrasonicSensorStartRanging");
 				txBuffer.append("/");
 				txBuffer.append(deviceId);
-				txBuffer.append("/");
-				txBuffer.append(timeout);
 				txBuffer.append("\n");
 				record.write(txBuffer.toString().getBytes());
 				txBuffer.setLength(0);

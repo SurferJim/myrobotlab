@@ -2,13 +2,11 @@ package org.myrobotlab.service.interfaces;
 
 public interface UltrasonicSensorController extends DeviceController {
 	
-	public void attach(UltrasonicSensorControl control, Integer pin);
-	
 	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
-	public void ultrasonicSensorAttach(UltrasonicSensorControl sensor, Integer triggerPin, Integer echoPin);
-	
+	public void attach(UltrasonicSensorControl control, Integer triggerPin, Integer echoPin) throws Exception;
+
 	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
-	public void ultrasonicSensorStartRanging(UltrasonicSensorControl sensor, Integer timeout);
+	public void ultrasonicSensorStartRanging(UltrasonicSensorControl sensor);
 	
 	// > ultrasonicSensorStopRanging/deviceId
 	public void ultrasonicSensorStopRanging(UltrasonicSensorControl sensor);

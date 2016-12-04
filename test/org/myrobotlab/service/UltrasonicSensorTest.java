@@ -222,8 +222,7 @@ public class UltrasonicSensorTest {
 
     sensor.stopRanging();
 
-    sensor.startRanging(5);
-    sensor.startRanging(10);
+    sensor.startRanging();
 
     sensor.startRanging();
 

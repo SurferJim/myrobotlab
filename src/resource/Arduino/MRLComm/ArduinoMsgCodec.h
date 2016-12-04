@@ -126,7 +126,7 @@
 #define PUBLISH_SERIAL_DATA 50
 // > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
 #define ULTRASONIC_SENSOR_ATTACH 51
-// > ultrasonicSensorStartRanging/deviceId/b32 timeout
+// > ultrasonicSensorStartRanging/deviceId
 #define ULTRASONIC_SENSOR_START_RANGING 52
 // > ultrasonicSensorStopRanging/deviceId
 #define ULTRASONIC_SENSOR_STOP_RANGING 53

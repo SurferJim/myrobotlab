@@ -1438,18 +1438,11 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		return null;
 	}
 	
-	@Override
-	public void attach(UltrasonicSensorControl control, Integer pin) {
-		if (isAttached(control)){
-			log.info("{} already attached", control.getName());
-		}
-		
-	}
 
 	// FIXME should be in Control interface - for callback
 	// < publishUltrasonicSensorData/deviceId/b16 echoTime
 	public Integer publishUltrasonicSensorData(Integer deviceId, Integer echoTime) {
-		log.info("echoTime {}", echoTime);
+		// log.info("echoTime {}", echoTime);
 		((UltrasonicSensor) getDevice(deviceId)).onUltrasonicSensorData(echoTime);
 		return echoTime;
 	}
@@ -1771,16 +1764,26 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	@Override
-	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
-	public void ultrasonicSensorAttach(UltrasonicSensorControl sensor, Integer triggerPin, Integer echoPin) {
+	public void attach(UltrasonicSensorControl sensor, Integer triggerPin, Integer echoPin) throws Exception {
+		// refer to
+		// http://myrobotlab.org/content/control-controller-manifesto
+		if (isAttached(sensor)){
+			log.info("{} already attached", sensor.getName());
+			return;
+		}
+		
+		// critical init code
 		Integer deviceId = attachDevice(sensor, new Object[] { triggerPin, echoPin });
 		msg.ultrasonicSensorAttach(deviceId, triggerPin, echoPin);
+		
+		// call the other service's attach
+		sensor.attach(this, triggerPin, echoPin);
 	}
 
 	@Override
 	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
-	public void ultrasonicSensorStartRanging(UltrasonicSensorControl sensor, Integer timeout) {
-		msg.ultrasonicSensorStartRanging(getDeviceId(sensor), timeout);
+	public void ultrasonicSensorStartRanging(UltrasonicSensorControl sensor) {
+		msg.ultrasonicSensorStartRanging(getDeviceId(sensor));
 	}
 
 	@Override

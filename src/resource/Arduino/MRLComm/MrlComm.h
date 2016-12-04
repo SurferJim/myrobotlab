@@ -138,8 +138,8 @@ public:
 	void serialRelay( byte deviceId,  byte dataSize, const byte*data);
 	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
 	void ultrasonicSensorAttach( byte deviceId,  byte triggerPin,  byte echoPin);
-	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
-	void ultrasonicSensorStartRanging( byte deviceId,  long timeout);
+	// > ultrasonicSensorStartRanging/deviceId
+	void ultrasonicSensorStartRanging( byte deviceId);
 	// > ultrasonicSensorStopRanging/deviceId
 	void ultrasonicSensorStopRanging( byte deviceId);
     // </generatedCallBacks>

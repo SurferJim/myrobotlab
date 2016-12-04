@@ -21,7 +21,7 @@ public class LoggingFactory {
 
 
 public static void init() {
-	init(null);
+	init("INFO");
 }
 
 public static void init(String level) {

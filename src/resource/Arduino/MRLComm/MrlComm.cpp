@@ -495,9 +495,9 @@ void MrlComm::ultrasonicSensorAttach(byte deviceId, byte triggerPin, byte echoPi
 	sensor->attach(triggerPin, echoPin);
 }
 // > ultrasonicSensorStartRanging/deviceId
-void MrlComm::ultrasonicSensorStartRanging(byte deviceId, long timeout) {
+void MrlComm::ultrasonicSensorStartRanging(byte deviceId) {
 	MrlUltrasonicSensor* sensor = (MrlUltrasonicSensor*)getDevice(deviceId);
-	sensor->startRanging(timeout);
+	sensor->startRanging();
 }
 // > ultrasonicSensorStopRanging/deviceId
 void MrlComm::ultrasonicSensorStopRanging(byte deviceId) {

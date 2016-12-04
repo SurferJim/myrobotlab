@@ -1,6 +1,8 @@
 #ifndef MrlUltrasonicSensor_h
 #define MrlUltrasonicSensor_h
 
+#include "NewPing.h"
+
 // ECHO FINITE STATE MACHINE - NON BLOCKING PULSIN
 #define ECHO_STATE_START                    1
 #define ECHO_STATE_TRIG_PULSE_BEGIN         2
@@ -17,19 +19,18 @@
  */
 class MrlUltrasonicSensor : public Device {
   public:
-    int trigPin;
-    int echoPin;
-    unsigned long ts;
-    unsigned long lastValue;
-    unsigned long timeoutUS;
+
+    unsigned int maxDistanceCm;
     bool isRanging = false;
+
+    NewPing* newping;
 
     MrlUltrasonicSensor(int deviceId);
     ~MrlUltrasonicSensor();
 
     void attach(byte trigPin, byte echoPin);
     void update();
-    void startRanging(long timeout);
+    void startRanging();
     void stopRanging();
 };
 

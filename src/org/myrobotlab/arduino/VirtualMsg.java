@@ -182,7 +182,7 @@ public class VirtualMsg {
 	public final static int PUBLISH_SERIAL_DATA = 50;
 	// > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
 	public final static int ULTRASONIC_SENSOR_ATTACH = 51;
-	// > ultrasonicSensorStartRanging/deviceId/b32 timeout
+	// > ultrasonicSensorStartRanging/deviceId
 	public final static int ULTRASONIC_SENSOR_START_RANGING = 52;
 	// > ultrasonicSensorStopRanging/deviceId
 	public final static int ULTRASONIC_SENSOR_STOP_RANGING = 53;
@@ -233,7 +233,7 @@ public class VirtualMsg {
 	// public void serialAttach(Integer deviceId/*byte*/, Integer relayPin/*byte*/){}
 	// public void serialRelay(Integer deviceId/*byte*/, int[] data/*[]*/){}
 	// public void ultrasonicSensorAttach(Integer deviceId/*byte*/, Integer triggerPin/*byte*/, Integer echoPin/*byte*/){}
-	// public void ultrasonicSensorStartRanging(Integer deviceId/*byte*/, Integer timeout/*b32*/){}
+	// public void ultrasonicSensorStartRanging(Integer deviceId/*byte*/){}
 	// public void ultrasonicSensorStopRanging(Integer deviceId/*byte*/){}
 	
 
@@ -736,12 +736,10 @@ public class VirtualMsg {
 		case ULTRASONIC_SENSOR_START_RANGING: {
 			Integer deviceId = ioCmd[startPos+1]; // bu8
 			startPos += 1;
-			Integer timeout = b32(ioCmd, startPos+1);
-			startPos += 4; //b32
 			if(invoke){
-				arduino.invoke("ultrasonicSensorStartRanging",  deviceId,  timeout);
+				arduino.invoke("ultrasonicSensorStartRanging",  deviceId);
 			} else { 
- 				arduino.ultrasonicSensorStartRanging( deviceId,  timeout);
+ 				arduino.ultrasonicSensorStartRanging( deviceId);
 			}
 			break;
 		}

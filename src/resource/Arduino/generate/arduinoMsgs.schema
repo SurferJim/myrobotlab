@@ -124,6 +124,6 @@
 # UltrasonicSensor
 # http://myrobotlab.org/service/UltrasonicSensor
 > ultrasonicSensorAttach/deviceId/triggerPin/echoPin
-> ultrasonicSensorStartRanging/deviceId/b32 timeout
+> ultrasonicSensorStartRanging/deviceId
 > ultrasonicSensorStopRanging/deviceId
 < publishUltrasonicSensorData/deviceId/b16 echoTime
