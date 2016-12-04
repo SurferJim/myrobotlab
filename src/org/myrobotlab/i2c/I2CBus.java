@@ -31,11 +31,6 @@ public class I2CBus implements DeviceController, I2CBusControl {
 	}
 
 	@Override
-	public boolean isAttached() {
-		return true;
-	}
-
-	@Override
 	public String getName() {
 		return name;
 	}
@@ -53,6 +48,11 @@ public class I2CBus implements DeviceController, I2CBusControl {
 	@Override
 	public void deviceDetach(DeviceControl device) {
 		// detach / cleanup if necessary
+	}
+	
+	@Override
+	public boolean isAttached() {
+		return controller != null;
 	}
 		
 }

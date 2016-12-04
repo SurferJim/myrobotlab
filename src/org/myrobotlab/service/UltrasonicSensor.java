@@ -84,7 +84,16 @@ public class UltrasonicSensor extends Service implements RangeListener, Ultrason
 		controller.ultrasonicSensorAttach(this, trigPin, echoPin);
 	}
 
-	public void attach(UltrasonicSensorController controller, int trigPin, int echoPin) throws Exception {
+	public void attach(UltrasonicSensorController controller, Integer trigPin, Integer echoPin) throws Exception {
+		if (isAttached(controller)){
+			log.info("{} is already attached to {} nothing to do", getName(), controller.getName());
+			return;
+		}
+		
+		if (this.controller != null){
+			log.info("{} controller is already set - detach first to set a different controller", controller.getName());
+		}
+		
 		if (!controller.isConnected()){
 			error("cannot attach if controller is not connected");
 		}
@@ -93,6 +102,11 @@ public class UltrasonicSensor extends Service implements RangeListener, Ultrason
 		this.echoPin = echoPin;
 		// FIXME - controller.ultrasonicSensorAttach(this, trigPin, echoPin);
 		// controller.deviceAttach(this, trigPin, echoPin);
+	}
+
+	private boolean isAttached(UltrasonicSensorController controller2) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	// FIXME - should be MicroController Interface ..
@@ -201,13 +215,6 @@ public class UltrasonicSensor extends Service implements RangeListener, Ultrason
 	}
 	
 
-
-	// FIXME should be done in "default" interface or abstract class :P
-	@Override
-	public boolean isAttached() {
-		return controller != null;
-	}
-
 	@Override
 	public void setController(DeviceController controller) {
 		this.controller = (UltrasonicSensorController)controller;
@@ -283,6 +290,11 @@ public class UltrasonicSensor extends Service implements RangeListener, Ultrason
 		} catch (Exception e) {
 			Logging.logError(e);
 		}
+	}
+
+	@Override
+	public boolean isAttached() {
+		return controller != null;
 	}
 
 

@@ -133,8 +133,8 @@ public class Motor extends Service implements MotorControl, EncoderListener {
 	}
 
 	@Override
-	public boolean isAttached() {
-		return controller != null;
+	public boolean isAttached(MotorController controller) {
+		return this.controller == controller;
 	}
 
 	@Override
@@ -412,6 +412,11 @@ public class Motor extends Service implements MotorControl, EncoderListener {
 	@Override
 	public MotorConfig getConfig() {
 		return config;
+	}
+
+	@Override
+	public boolean isAttached() {
+		return controller != null;
 	}
 
 }

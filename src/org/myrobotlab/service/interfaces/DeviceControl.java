@@ -29,13 +29,13 @@ public interface DeviceControl extends NameProvider {
 	 */
 	public DeviceController getController();
 
+
+	public void unsetController();
+	
 	/**
 	 * returns if the DeviceController has been set or not
-	 * 
 	 * @return
 	 */
 	public boolean isAttached();
-
-	public void unsetController();
 
 }

@@ -936,11 +936,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 	@Override
-	public boolean isAttached() {
-		return true;
-	}
-
-	@Override
 	public boolean isConnected() {
 		// include that we must have gotten a valid MRLComm version number.
 		if (serial != null && serial.isConnected() && boardInfo.getVersion() != null) {
@@ -1442,6 +1437,14 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public PinData publishTrigger(Pin pin) {
 		return null;
 	}
+	
+	@Override
+	public void attach(UltrasonicSensorControl control, Integer pin) {
+		if (isAttached(control)){
+			log.info("{} already attached", control.getName());
+		}
+		
+	}
 
 	// FIXME should be in Control interface - for callback
 	// < publishUltrasonicSensorData/deviceId/b16 echoTime
@@ -1546,8 +1549,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 
-	public boolean isAttached(ServoControl servo) {
-		return deviceList.containsKey(servo.getName());
+	public boolean isAttached(DeviceControl device) {
+		return deviceList.containsKey(device.getName());
 	}
 
 
@@ -1870,6 +1873,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	}
 
 
+	@Override
+	public boolean isAttached() {
+		return true; // I am my own controller ;)
+	}
 
 
 }

@@ -990,4 +990,11 @@ public class DiyServo extends Service implements ServoControl, MotorControl, Pin
 		return this.controller == controller;
 	}
 
+	@Override
+	public boolean isAttached(MotorController controller) {
+		return this.controller == controller;
+	}
+	
+	
+
 }

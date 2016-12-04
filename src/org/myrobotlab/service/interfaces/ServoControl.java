@@ -25,7 +25,7 @@
 
 package org.myrobotlab.service.interfaces;
 
-public interface ServoControl extends DeviceControl {
+public interface ServoControl extends DeviceControl, AbsolutePositionControl {
 
 	// FIXME - do we want to support this & what do we expect from
 	// 1. should it be energized when initially attached?
@@ -83,14 +83,6 @@ public interface ServoControl extends DeviceControl {
 	 * @return
 	 */
 	public void detach();
-
-	/**
-	 * Moves the servo to a specific location. Typically, a servo has 0 to 180
-	 * positions - each increment corresponding to a degree
-	 * 
-	 * @param newPos
-	 */
-	public void moveTo(int newPos);
 
 	/**
 	 * limits input of servo - to prevent damage or problems if servos should
