@@ -644,18 +644,18 @@ public class Servo extends Service implements ServoControl {
 	 * not specified
 	 */
 	@Override
-	public void attach(ServoController controller, int pin) throws Exception {
+	public void attach(ServoController controller, Integer pin) throws Exception {
 		attach(controller, pin, null, null);
 	}
 
-	public void attach(ServoController controller, int pin, Integer pos) throws Exception {
+	public void attach(ServoController controller, Integer pin, Integer pos) throws Exception {
 		attach(controller, pin, pos, null);
 	}
 
 	// FIXME - setController is very deficit in its abilities - compared to the
 	// complexity of this
 	@Override
-	public void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception {
+	public void attach(ServoController controller, Integer pin, Integer pos, Integer velocity) throws Exception {
 
 		if (isAttached(controller)) {
 			log.info("already attached to controller - nothing to do");
@@ -694,14 +694,6 @@ public class Servo extends Service implements ServoControl {
 		return this.controller == controller;
 	}
 
-	public void onAttachedDevice(String deviceName) {
-		if (deviceName.equals(this.getName())) {
-			isAttached = true;
-			isControllerSet = true;
-			setMaxVelocity(maxVelocity);
-			broadcastState();
-		}
-	}
 
 	@Override
 	public void detach(String controllerName) {

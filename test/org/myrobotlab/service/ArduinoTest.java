@@ -74,7 +74,7 @@ public class ArduinoTest implements PinArrayListener {
 		// arduino.connect(port);
 
 	}
-	
+
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 	}
@@ -773,73 +773,84 @@ public class ArduinoTest implements PinArrayListener {
 	@Test
 	public final void testServoAttachServoInteger() throws Exception {
 		log.info("testServoAttachServoInteger");
-		Servo servo = (Servo) Runtime.start("servo", "Servo");
-		arduino.connect(port);
-		// NOT THE WAY TO ATTACH SERVOS !!
-		// isAttached will not get set
-		// dont know a good fix - asside from not using it !
-		// arduino.servoAttach(servo, servoPin);
-		// re-entrant test
-		// arduino.servoAttach(servo, servoPin);
+		Servo servo = null;
+		Runtime.start("webgui", "WebGui");
+		for (int i = 0; i < 3; ++i) {
+			servo = (Servo) Runtime.start("servo", "Servo");
+			arduino.connect(port);
+			// NOT THE WAY TO ATTACH SERVOS !!
+			// isAttached will not get set
+			// dont know a good fix - asside from not using it !
+			// arduino.servoAttach(servo, servoPin);
+			// re-entrant test
+			// arduino.servoAttach(servo, servoPin);
 
-		// common way
-		// arduino.servoAttach(servo, servoPin);
-		// servo.attach(); // TEST ME WITHOUT PREVIOUS
-		servo.attach(arduino, servoPin);
+			// common way
+			// arduino.servoAttach(servo, servoPin);
+			// servo.attach(); // TEST ME WITHOUT PREVIOUS
+			servo.attach(arduino, servoPin);
 
-		// another way
-		// servo.setPin(servoPin);
-		// servo.setController(arduino);
+			// another way
+			// servo.setPin(servoPin);
+			// servo.setController(arduino);
+			
+			servo.setPin(servoPin);
+			arduino.attach(servo);
 
-		assertTrue(servo.isAttached());
-		
-		servo.attach(7);
-		servo.moveTo(30);
-		servo.moveTo(130);
+			assertTrue(servo.isAttached());
 
-		servo.attach(servoPin);
-		servo.moveTo(130);
-		servo.moveTo(30);
-		
-		// re-entrant test
-		arduino.servoAttach(servo, servoPin);
+			int velocity = 50;
+			// degree per second
+			servo.setVelocity(velocity);
+			// assertEquals(virtual.servoSetVelocity(velocity));
+			
+			servo.attach(7);
+			servo.moveTo(30);
+			servo.moveTo(130);
 
-		assertTrue(servo.isAttached());
-		// assertEquals(servoPin, servo.getPin().intValue());
-		assertEquals(arduino.getName(), servo.getController().getName());
+			servo.attach(servoPin);
+			
+			servo.moveTo(130);
+			// assertEquals(virtual.servoMoveTo(130));
+			servo.moveTo(30);
 
-		// assertEquals("servoAttach/7/9/5/115/101/114/118/111\n",
-		// uart.decode());
-		servo.moveTo(0);
-		// assertEquals("servoWrite/7/0\n", uart.decode());
-		servo.moveTo(90);
-		// assertEquals("servoWrite/7/90\n", uart.decode());
-		servo.moveTo(180);
-		// assertEquals("servoWrite/7/180\n", uart.decode());
-		servo.moveTo(0);
-		// assertEquals("servoWrite/7/0\n", uart.decode());
+			assertTrue(servo.isAttached());
+			assertEquals(arduino.getName(), servo.getController().getName());
 
-		// detach
-		servo.detach();
-		// assertEquals("servoDetach/7/0\n", uart.decode());
+			servo.moveTo(0);
+			// assertEquals(virtual.servoMoveTo(0));
+			servo.moveTo(90);
+			// assertEquals("servoWrite/7/90\n", uart.decode());
+			servo.moveTo(180);
+			// assertEquals("servoWrite/7/180\n", uart.decode());
+			servo.moveTo(0);
+			// assertEquals("servoWrite/7/0\n", uart.decode());
 
-		servo.moveTo(10);
+			// detach
+			servo.detach();
+			// assertEquals("servoDetach/7/0\n", uart.decode());
 
-		// re-attach
-		servo.attach();
-		// assertEquals("servoAttach/7/9/5/115/101/114/118/111\n",
-		// uart.decode());
-		assertTrue(servo.isAttached());
-		// // assertEquals(servoPin, servo.getPin().intValue());
-		assertEquals(arduino.getName(), servo.getController().getName());
+			servo.moveTo(10);
 
-		servo.moveTo(90);
-		// assertEquals("servoWrite/7/90\n", uart.decode());
-		
-		arduino.enableBoardStatus(true);
+			// re-attach
+			servo.attach();
+			// assertEquals("servoAttach/7/9/5/115/101/114/118/111\n",
+			// uart.decode());
+			assertTrue(servo.isAttached());
+			// // assertEquals(servoPin, servo.getPin().intValue());
+			assertEquals(arduino.getName(), servo.getController().getName());
+
+			servo.moveTo(90);
+			// assertEquals("servoWrite/7/90\n", uart.decode());
+
+			arduino.enableBoardStatus(true);
+
+			servo.startService();
+
+			servo.moveTo(90);
+		}
 
 		servo.releaseService();
-		
 		arduino.enableBoardStatus(false);
 	}
 
@@ -946,13 +957,13 @@ public class ArduinoTest implements PinArrayListener {
 
 			arduino.record();
 
-			if (virtual != null){
+			if (virtual != null) {
 				virtual.connect(port);
-			}			
+			}
 			arduino.connect(port);
-			
+
 			test.testServoAttachServoInteger();
-			
+
 			// arduino.setBoardUno(); always better to "not" set
 
 			// Runtime.start("webgui", "WebGui");

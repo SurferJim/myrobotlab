@@ -48,9 +48,9 @@ public interface ServoControl extends DeviceControl, AbsolutePositionControl {
 	
 
 	// preferred - sets control
-	void attach(ServoController controller, int pin) throws Exception;
-	void attach(ServoController controller, int pin, Integer pos) throws Exception;
-	void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception;
+	void attach(ServoController controller, Integer pin) throws Exception;
+	void attach(ServoController controller, Integer pin, Integer pos) throws Exception;
+	void attach(ServoController controller, Integer pin, Integer pos, Integer velocity) throws Exception;
 	
 	public boolean isAttached(ServoController controller);
 
@@ -67,6 +67,13 @@ public interface ServoControl extends DeviceControl, AbsolutePositionControl {
 	 * @return
 	 */
 	public void attach();
+	
+	/**
+	 * degrees per second rotational velocity
+	 * cm per second linear velocity ?
+	 * @param velocity
+	 */
+	public void setVelocity(Integer velocity);
 
 	/**
 	 * Re-attaches (re-energizes) the servo on its current pin FIXME - should be

@@ -35,20 +35,19 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.math.Mapper;
+import org.myrobotlab.motor.MotorConfig;
+import org.myrobotlab.motor.MotorConfigDualPwm;
+import org.myrobotlab.motor.MotorConfigSimpleH;
+import org.myrobotlab.sensor.Encoder;
 import org.myrobotlab.service.data.PinData;
 import org.myrobotlab.service.interfaces.DeviceController;
+import org.myrobotlab.service.interfaces.MotorControl;
+import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.NameProvider;
+import org.myrobotlab.service.interfaces.PinArrayControl;
 import org.myrobotlab.service.interfaces.PinListener;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.service.interfaces.ServoControl;
-import org.myrobotlab.motor.MotorConfig;
-import org.myrobotlab.motor.MotorConfigDualPwm;
-import org.myrobotlab.motor.MotorConfigPulse;
-import org.myrobotlab.motor.MotorConfigSimpleH;
-import org.myrobotlab.sensor.Encoder;
-import org.myrobotlab.service.interfaces.MotorControl;
-import org.myrobotlab.service.interfaces.MotorController;
-import org.myrobotlab.service.interfaces.PinArrayControl;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.slf4j.Logger;
 
@@ -882,7 +881,7 @@ public class DiyServo extends Service implements ServoControl, MotorControl, Pin
 	// I was hoping to be able to avoid that, but might be a better solution
    */
 	@Override
-	public void attach(ServoController controller, int pin, Integer pos) throws Exception {
+	public void attach(ServoController controller, Integer pin, Integer pos) throws Exception {
 		// TODO Auto-generated method stub
 
 	}
@@ -894,7 +893,7 @@ public class DiyServo extends Service implements ServoControl, MotorControl, Pin
 	}
 
 	@Override
-	public void attach(ServoController controller, int pin) throws Exception {
+	public void attach(ServoController controller, Integer pin) throws Exception {
 		// TODO Auto-generated method stub
 
 	}
@@ -980,7 +979,7 @@ public class DiyServo extends Service implements ServoControl, MotorControl, Pin
 	}
 
 	@Override
-	public void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception {
+	public void attach(ServoController controller, Integer pin, Integer pos, Integer velocity) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}
@@ -993,6 +992,12 @@ public class DiyServo extends Service implements ServoControl, MotorControl, Pin
 	@Override
 	public boolean isAttached(MotorController controller) {
 		return this.controller == controller;
+	}
+
+	@Override
+	public void setVelocity(Integer velocity) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	
