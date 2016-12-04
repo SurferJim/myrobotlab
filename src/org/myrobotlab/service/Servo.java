@@ -401,6 +401,7 @@ public class Servo extends Service implements ServoControl {
 	@Override
 	public void releaseService() {
 		detach();
+		detach(controller);
 		super.releaseService();
 	}
 
@@ -626,17 +627,14 @@ public class Servo extends Service implements ServoControl {
 		return speed;
 	}
 
-	@Override
 	public void attach(String controllerName, int pin) throws Exception {
 		attach((ServoController) Runtime.getService(controllerName), pin, null, null);
 	}
 
-	@Override
 	public void attach(String controllerName, int pin, Integer pos) throws Exception {
 		attach((ServoController) Runtime.getService(controllerName), pin, pos, null);
 	}
 
-	@Override
 	public void attach(String controllerName, int pin, Integer pos, Integer velocity) throws Exception {
 		attach((ServoController) Runtime.getService(controllerName), pin, pos, velocity);
 	}
@@ -659,7 +657,7 @@ public class Servo extends Service implements ServoControl {
 	@Override
 	public void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception {
 
-		if (this.controller == controller) {
+		if (isAttached(controller)) {
 			log.info("already attached to controller - nothing to do");
 			return;
 		} else if (this.controller != null && this.controller != controller) {
@@ -678,15 +676,22 @@ public class Servo extends Service implements ServoControl {
 
 		targetOutput = mapper.calcInt(targetPos);
 
-		controller.servoAttach(this, pin, this.targetOutput, this.velocity);
-
 		// SET THE DATA
 		this.pin = pin;
 		this.controller = controller;
 		this.controllerName = controller.getName();
 		isControllerSet = true;
 
+		// now attach the controller
+		// the controller better have
+		// isAttach(ServoControl) to prevent infinit loop
+		controller.attach(this, pin);
+		
 		broadcastState();
+	}
+
+	public boolean isAttached(ServoController controller) {
+		return this.controller == controller;
 	}
 
 	public void onAttachedDevice(String deviceName) {
@@ -848,6 +853,11 @@ public class Servo extends Service implements ServoControl {
 			Logging.logError(e);
 		}
 
+	}
+
+	@Override
+	public void setPin(int pin) {
+		this.pin = pin;
 	}
 
 }

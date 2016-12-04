@@ -824,11 +824,7 @@ public class DiyServo extends Service implements ServoControl, MotorControl, Pin
 		attach(pinArrayControlName, (int) pin);
 	}
 
-	@Override
-	public void attach(String pinArrayControlName, int pin) throws Exception {
-		attach((PinArrayControl) Runtime.getService(pinArrayControlName), pin);
-	}
-
+	
 	public void attach(PinArrayControl pinArrayControl, int pin) throws Exception {
 		this.pinArrayControl = pinArrayControl;
 		if (pinArrayControl != null) {
@@ -903,23 +899,6 @@ public class DiyServo extends Service implements ServoControl, MotorControl, Pin
 
 	}
 
-	@Override
-	public void attach(String controllerName, int pin, Integer pos) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void attach(String controllerName, int pin, Integer pos, Integer velocity) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public void lock() {
@@ -993,6 +972,22 @@ public class DiyServo extends Service implements ServoControl, MotorControl, Pin
 	public void unsetController() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void setPin(int pin) {
+		this.pin = pin;
+	}
+
+	@Override
+	public void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override // FIXME - could be in ServoBase
+	public boolean isAttached(ServoController controller) {
+		return this.controller == controller;
 	}
 
 }

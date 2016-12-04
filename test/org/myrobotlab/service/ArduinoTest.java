@@ -49,7 +49,7 @@ public class ArduinoTest implements PinArrayListener {
 	static Python logic = null;
 	static Serial uart = null;
 
-	int servoPin = 8;
+	int servoPin = 6;
 	int enablePin = 15;
 
 	// FIXME - test for re-entrant !!!!
@@ -792,7 +792,15 @@ public class ArduinoTest implements PinArrayListener {
 		// servo.setController(arduino);
 
 		assertTrue(servo.isAttached());
+		
+		servo.attach(7);
+		servo.moveTo(30);
+		servo.moveTo(130);
 
+		servo.attach(servoPin);
+		servo.moveTo(130);
+		servo.moveTo(30);
+		
 		// re-entrant test
 		arduino.servoAttach(servo, servoPin);
 
@@ -823,12 +831,16 @@ public class ArduinoTest implements PinArrayListener {
 		// uart.decode());
 		assertTrue(servo.isAttached());
 		// // assertEquals(servoPin, servo.getPin().intValue());
-		assertEquals(arduino.getName(), servo.getController());
+		assertEquals(arduino.getName(), servo.getController().getName());
 
 		servo.moveTo(90);
 		// assertEquals("servoWrite/7/90\n", uart.decode());
+		
+		arduino.enableBoardStatus(true);
 
 		servo.releaseService();
+		
+		arduino.enableBoardStatus(false);
 	}
 
 	@Test
@@ -931,8 +943,6 @@ public class ArduinoTest implements PinArrayListener {
 
 			ArduinoTest test = new ArduinoTest();
 			ArduinoTest.setUpBeforeClass();
-			
-			Runtime.start("webgui", "WebGui");
 
 			arduino.record();
 

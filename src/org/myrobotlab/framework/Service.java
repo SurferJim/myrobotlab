@@ -60,7 +60,6 @@ import org.myrobotlab.codec.Recorder;
 import org.myrobotlab.io.FileIO;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
-import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.math.MathUtils;
 import org.myrobotlab.net.CommunicationManager;
 import org.myrobotlab.net.Heartbeat;
@@ -2211,6 +2210,14 @@ public abstract class Service extends MessageService implements Runnable, Serial
 
     return null;
   }
+  /*
+  public void attach(String name) throws Exception {
+	  attach(Runtime.getService(name));
+  }
+  
+  public void attach(ServiceInterface name) throws Exception {
+  }
+  */
 
   // FIXME - meta data needs to be re-infused into instance
   public String getDescription() {

@@ -410,7 +410,6 @@ public class Pcf8574 extends Service implements I2CControl, PinArrayControl {
 		return pinData;
 	}
 
-	@Override
 	public void attach(String listener, int pinAddress) {
 		attach((PinListener) Runtime.getService(listener), pinAddress);
 	}

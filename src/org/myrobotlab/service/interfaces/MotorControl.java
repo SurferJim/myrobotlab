@@ -30,12 +30,8 @@ import org.myrobotlab.sensor.Encoder;
 
 public interface MotorControl extends DeviceControl { 
 
-	// a good canidate for Java-8 'default' interface method
-	// implementation of all attach(String name) { attach(Runtime.getService(name)); } 
-	public void attach(String controllerName) throws Exception;
 	public void attach(MotorController controller) throws Exception;
 
-	public void detach(String controllerName);
 	public void detach(MotorController controller);
 
 	double getPowerLevel();

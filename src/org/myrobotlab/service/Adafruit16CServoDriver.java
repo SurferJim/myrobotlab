@@ -573,7 +573,7 @@ public class Adafruit16CServoDriver extends Service implements I2CControl, Servo
 	 * Gyro/Accelerometer/Magnetometer device should implement.
 	 */
 
-
+	@Deprecated // use attach(ServoControl servo)
 	void servoAttach(ServoControl device, Object... conf) {
 		ServoControl servo = (ServoControl) device;
 		// should initial pos be a requirement ?
@@ -586,6 +586,15 @@ public class Adafruit16CServoDriver extends Service implements I2CControl, Servo
 		servoData.pwmFreq = pwmFreq;
 		servoMap.put(servoName, servoData);
 		invoke("publishAttachedDevice", servoName);
+	}
+	
+	public void attach(ServoControl servo) {
+		ServoData servoData = new ServoData();
+		servoData.pin = servo.getPin();
+		servoData.pwmFreqSet = false;
+		servoData.pwmFreq = pwmFreq;
+		servoMap.put(servo.getName(), servoData);
+		invoke("publishAttachedDevice", servo.getName());
 	}
 
 	void motorAttach(MotorControl device, Object... conf) {
@@ -834,9 +843,9 @@ public class Adafruit16CServoDriver extends Service implements I2CControl, Servo
 	}
 
 	@Override
-	public void servoAttach(ServoControl servo, int pin, Integer targetOutput, Integer velocity) {
-		// TODO Auto-generated method stub
-		
+	public void attach(ServoControl servo, int pin) {
+		servo.setPin(pin);
+		attach(servo);
 	}
 
 }

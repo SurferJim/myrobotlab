@@ -351,7 +351,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	 * String interface - this allows you to easily use url api requests like
 	 * /attach/nameOfListener/3
 	 */
-	@Override
 	public void attach(String listener, int address) {
 		attach((PinListener) Runtime.getService(listener), address);
 	}
@@ -459,6 +458,10 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		try { 
 			// FIXME - GroG asks, who put the try here  - shouldn't it throw if we can't connect
 			// how would you recover?
+			if (isConnected() && port.equals(serial.getPortName())){
+				log.info("already connected to port {}", port);
+				return;
+			}
 
 			serial.connect(port, rate, databits, stopbits, parity);
 
@@ -1518,6 +1521,42 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		Integer deviceId = attachDevice(serialRelay, new Object[] { controllerAttachAs });
 		msg.serialAttach(deviceId, controllerAttachAs);
 	}
+	
+	@Override
+	public void attach(ServoControl servo) throws Exception {
+		if (isAttached(servo)){
+			log.info("servo {} already attached", servo.getName());
+			return;
+		}
+		// query configuration out
+		int pin = servo.getPin();
+		int targetOutput = servo.getTargetOutput();
+		int velocity = servo.getVelocity();
+		
+		// this saves original "attach" configuration - and maintains internal data structures
+		// and does DeviceControl.attach(this)
+		Integer deviceId = attachDevice(servo, new Object[] { pin, targetOutput, velocity });
+		
+		// send data to micro-controller
+		msg.servoAttach(deviceId, pin, targetOutput, velocity);
+		
+		// the callback - servo better have a check
+		// isAttached(ServoControl) to prevent infinit loop
+		servo.attach(this, pin, targetOutput, velocity);
+	}
+
+
+	public boolean isAttached(ServoControl servo) {
+		return deviceList.containsKey(servo.getName());
+	}
+
+
+	@Override
+	public void attach(ServoControl servo, int pin) throws Exception {
+		servo.setPin(pin);
+		attach(servo);
+	}
+	
 
 	/**
 	 * Arduino's servo.attach(pin) which is just energizing on a pin
@@ -1528,14 +1567,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		msg.servoEnablePwm(getDeviceId(servo), pin);
 	}
 
-	/**
-	 * Create and attach a new MrlServo with all the needed configuration data
-	 */
-	// > servoAttach/deviceId/pin/initPos/b16 initVelocity
-	public void servoAttach(ServoControl servo, int pin, Integer targetOutput, Integer velocity) {
-		Integer deviceId = attachDevice(servo, new Object[] { pin, targetOutput, velocity });
-		msg.servoAttach(deviceId, pin, targetOutput, velocity);
-	}
 
 	@Override
 	// > servoDisablePwm/deviceId
@@ -1837,7 +1868,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 		// cache value
 		pinDef.setValue(value);
 	}
-	
-	
+
+
+
 
 }

@@ -51,27 +51,16 @@ public interface ServoControl extends DeviceControl {
 	void attach(ServoController controller, int pin) throws Exception;
 	void attach(ServoController controller, int pin, Integer pos) throws Exception;
 	void attach(ServoController controller, int pin, Integer pos, Integer velocity) throws Exception;
-
-	/**
-	 * String interface for controller is important because it allows an simple interface
-	 * for remote requests - in Java 8 interfaces are allowed to have implementations
-	 * and this should be implemented in the inteface - where it gets the controller by
-	 * name and does the attach(ServoController, pin)
-	 * 
-	 * @param controllerName
-	 * @param pin
-	 * @throws Exception
-	 */
-	void attach(String controllerName, int pin) throws Exception;
-	void attach(String controllerName, int pin, Integer pos) throws Exception;
-	void attach(String controllerName, int pin, Integer pos, Integer velocity) throws Exception;
+	
+	public boolean isAttached(ServoController controller);
 
 	// should this be in Device Control - its not "ServoControl" specific
 	void detach(ServoController controller);
-
 	void detach(String controllerName);
 
 	/**
+	 * VERY DIFFERENT FROM SERVICE ATTACHEMENT !!!
+	 * (an unfortunate use of name)
 	 * Re-attaches (re-energizes) the servo on its current pin FIXME - should be
 	 * renamed to energize
 	 * 
@@ -181,6 +170,7 @@ public interface ServoControl extends DeviceControl {
 	public int getMaxVelocity();
 
 	int getVelocity();
-
+	
+	void setPin(int pin);
 
 }
