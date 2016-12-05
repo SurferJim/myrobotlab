@@ -102,6 +102,9 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	public static final int MRL_IO_SERIAL_2 = 3;
 	public static final int MRL_IO_SERIAL_3 = 4;
 
+	public static final int DIGITAL = 0;
+	public static final int ANALOG = 1;
+
 	/**
 	 * This static method returns all the details of the class without it having
 	 * to be constructed. It has description, categories, dependencies, and peer
@@ -227,12 +230,6 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 	int byteCount;
 
 	public transient int controllerAttachAs = MRL_IO_NOT_DEFINED;
-
-	/**
-	 * number of ms to pause after sending a message to the Arduino
-	 */
-	public int delay = 0;
-
 	/**
 	 * id reference of sensor, key is the MRLComm device id
 	 */
@@ -471,8 +468,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 			// have a DTR CDR line in the virtual port as use this as a signal
 			// of
 			// connection
-
-			getBoardInfo();
+			msg.getBoardInfo();
+			// getBoardInfo();
 
 			log.info("waiting for boardInfo lock..........");
 			synchronized (boardInfo) {

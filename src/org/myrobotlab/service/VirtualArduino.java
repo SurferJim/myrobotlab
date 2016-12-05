@@ -7,10 +7,12 @@ import static org.myrobotlab.arduino.VirtualMsg.MRLCOMM_VERSION;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.myrobotlab.arduino.BoardInfo;
+import org.myrobotlab.arduino.Msg;
 import org.myrobotlab.arduino.VirtualMsg;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceType;
@@ -36,14 +38,101 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 	final BoardInfo boardInfo = new BoardInfo();
 	String boardType;
 
+	// The mighty device List. This contains all active devices that are
+	// attached to the arduino.
+	LinkedList<Device> deviceList = new LinkedList<Device>();
+
+	// list of pins currently being read from - can contain both digital and
+	// analog
+	LinkedList<Pin> pinList = new LinkedList<Pin>();
+
+	// MRLComm message buffer and current count from serial port ( MAGIC |
+	// MSGSIZE | FUNCTION | PAYLOAD ...
+	// unsigned char ioCmd[MAX_MSG_SIZE]; // message buffer for all inbound
+	// messages
+	String config;
+	// performance metrics and load timing
+	// global debug setting, if set to true publishDebug will write to the
+	// serial port.
+	int byteCount;
+	int msgSize;
+	boolean boardStatusEnabled;
+	int publishBoardStatusModulus; // the frequency in which to report the load
+									// timing metrics (in number of main loops)
+	long lastMicros; // timestamp of last loop (if stats enabled.)
+
+	boolean heartbeatEnabled = false;
+	long lastHeartbeatUpdate;
+
+	int[] customMsgBuffer = new int[Msg.MAX_MSG_SIZE];
+	int customMsgSize;
+
 	transient FileOutputStream record = null;
 	// for debuging & developing - need synchronized - both send & recv threads
 	transient StringBuffer recordRxBuffer = new StringBuffer();
 	transient StringBuffer recordTxBuffer = new StringBuffer();
 
-	private int byteCount;
+	private int loopCount;
+	
+	transient MrlComm mrlCommThread;
 
-	private int msgSize;
+	public class Device {
+		public int id;
+		public int type;
+
+		public void update() {
+			// TODO Auto-generated method stub
+
+		}
+	}
+
+	public class Pin {
+		public Pin(Integer address, Integer type, Integer rate) {
+			this.address = address;
+			this.type = type;
+			this.rate = rate;
+		}
+		
+		public int rate;
+		public long lastUpdate;
+		public int type;
+		public int value;
+		public int address;
+	}
+
+	public class MrlComm extends Thread {
+		VirtualArduino mrlComm;
+		public boolean isRunning = false;
+
+		public MrlComm(VirtualArduino virtual) {
+			super(virtual.getName() + ".MrlComm");
+			this.mrlComm = virtual;
+		}
+
+		public void run() {
+			isRunning = true;
+			// loop !
+			while (isRunning) {
+				// increment how many times we've run
+				// TODO: handle overflow here after 32k runs, i suspect this might blow up?
+				mrlComm.loopCount++;
+				// get a command and process it from
+				// the serial port (if available.)
+				// if (mrlComm.readMsg()) {
+				//	mrlComm.processCommand();
+				// }
+				// update devices
+				mrlComm.updateDevices();
+				// send back load time and memory
+				mrlComm.publishBoardStatus();
+
+				try {
+					Thread.sleep(5);
+				} catch (InterruptedException e) {
+				}
+			}
+		}
+	}
 
 	public VirtualArduino(String n) {
 		super(n);
@@ -52,14 +141,130 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 		boardInfo.setVersion(MRLCOMM_VERSION);
 	}
 
+	public long micros() {
+		return System.currentTimeMillis();
+	}
+
+	/***********************************************************************
+	 * UPDATE DEVICES BEGIN updateDevices updates each type of device put on the
+	 * device list depending on their type. This method processes each loop.
+	 * Typically this "back-end" processing will read data from pins, or change
+	 * states of non-blocking pulses, or possibly regulate a motor based on pid
+	 * values read from pins
+	 */
+	void updateDevices() {
+
+		// update self - the first device which
+		// is type Arduino
+		update();
+
+		// iterate through our device list and call update on them.
+		for (int i = 0; i < deviceList.size(); ++i) {
+			Device node = deviceList.get(i);
+			node.update();
+		}
+	}
+
+	private void update() {
+		long now = millis();
+		if ((now - lastHeartbeatUpdate > 1000) && heartbeatEnabled) {
+			softReset();
+			lastHeartbeatUpdate = now;
+			return;
+		}
+
+	  if (pinList.size() > 0) {
+
+			// size of payload - 1 byte for address + 2 bytes per pin read
+			// this is an optimization in that we send back "all" the read pin data in a
+			// standard 2 byte package - digital reads don't need both bytes, but the
+			// sending it all back in 1 msg and the simplicity is well worth it
+			// msg.addData(pinList.size() * 3 /* 1 address + 2 read bytes */);
+
+		  	int[] buffer = new int[pinList.size() * 3];
+			
+			// iterate through our device list and call update on them.
+			boolean dataCount = false;
+			for(int i = 0; i < pinList.size(); ++i){
+				Pin pin = pinList.get(i);
+				if (pin.rate == 0 || (now > pin.lastUpdate + (1000 / pin.rate))) {
+					pin.lastUpdate = now;
+					// TODO: move the analog read outside of this method and pass it in!
+					if (pin.type == Arduino.ANALOG) {
+						pin.value = analogRead(pin.address);
+					} else {
+						pin.value = digitalRead(pin.address);
+					}
+
+					// loading both analog & digital data
+					buffer[3*i] = pin.address;// 1 byte
+					buffer[3*i + 1] = pin.value  >> 8 & 0xFF;// 2 byte b16 value			
+					buffer[3*i + 2] = pin.value & 0xFF;// 2 byte b16 value
+					// ++dataCount;
+					dataCount = true;
+				}
+				// node = node.next;
+			}
+			if (dataCount) {
+				msg.publishPinArray(buffer);
+			}
+		}
+	}
+	
+	public int getRandom(int min, int max){
+		return min + (int)(Math.random() * ((max - min) + 1));
+	}
+
+	private int digitalRead(int address) {
+		return getRandom(0, 1);
+	}
+
+	private int analogRead(int address) {
+		return getRandom(0, 1024);
+	}
+
+	private long millis() {
+		return System.currentTimeMillis();
+	}
+
+	public void publishBoardStatus() {
+		// protect against a divide by zero in the division.
+		if (publishBoardStatusModulus == 0) {
+			publishBoardStatusModulus = 10000;
+		}
+
+		int avgTiming = 0;
+		long now = micros();
+
+		avgTiming = (int) (now - lastMicros) / publishBoardStatusModulus;
+
+		// report board status
+		if (boardStatusEnabled && (loopCount % publishBoardStatusModulus == 0)) {
+ 			int[] deviceSummary = new int[deviceList.size() * 2];
+			for (int i = 0; i < deviceList.size(); ++i) {
+				deviceSummary[i] = deviceList.get(i).id;
+				deviceSummary[i + 1] = deviceList.get(i).type;
+			}
+			msg.publishBoardStatus(avgTiming, getFreeRam(), deviceSummary);
+		}
+		// update the timestamp of this update.
+		lastMicros = now;
+
+	}
+
+	private Integer getFreeRam() {
+		return 925;
+	}
+
 	@Override
 	public void startService() {
 		super.startService();
 		uart = (Serial) startPeer("uart");
 		uart.addByteListener(this);
 		msg = new VirtualMsg(this, uart);
+		startMrlComm();
 	}
-	
+
 	public Serial getSerial() {
 		return uart;
 	}
@@ -115,7 +320,7 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 
 	transient AckLock ackRecievedLock = new AckLock();
 
-	boolean enableBoardStatus = false;
+	Boolean debug = false;
 
 	@Override
 	public Integer onByte(Integer newByte) {
@@ -201,7 +406,7 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 		return newByte;
 	}
 
-	public void connect(String portName) throws IOException{
+	public void connect(String portName) throws IOException {
 		connectVirtualUart(portName, portName + ".UART");
 	}
 
@@ -278,18 +483,30 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 	}
 
 	public void enableBoardStatus(Boolean enabled) {
-		enableBoardStatus = enabled;
+		boardStatusEnabled = enabled;
 	}
 
 	public void enablePin(Integer address, Integer type, Integer rate) {
-		// FIXME - debug logging in Msg / VirtualMsg
 		log.info("enablePin {} {} {}", address, type, rate);
-		// TODO Auto-generated method stub
+		// don't add it twice
+		for (int i = 0; i < pinList.size(); ++i) {
+			Pin pin = pinList.get(i);
+			if (pin.address == address) {
+				// TODO already exists error?
+				return;
+			}
+		}
 
+		if (type == Arduino.DIGITAL) {
+			pinMode(address, Arduino.INPUT);
+		}
+		Pin p = new Pin(address, type, rate);
+		p.lastUpdate = 0;
+		pinList.add(p);
 	}
 
 	public void setDebug(Boolean enabled) {
-
+		debug = enabled;
 	}
 
 	public void setSerialRate(Integer rate) {
@@ -472,6 +689,25 @@ public class VirtualArduino extends Service implements SerialDataListener, Recor
 	public void ultrasonicSensorStopRanging(Integer deviceId) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public void stopMrlComm(){
+		if (mrlCommThread != null){
+			mrlCommThread.isRunning = false;
+		}
+	}
+	
+	public void startMrlComm(){	
+		if (mrlCommThread != null){
+			stopMrlComm();
+		}
+		mrlCommThread = new MrlComm(this);
+		mrlCommThread.start();
+	}
+	
+	public void stopService(){
+		super.stopService();
+		stopMrlComm();
 	}
 
 	public static void main(String[] args) {

@@ -320,7 +320,7 @@ void MrlComm::enablePin(byte address, byte type, int rate) {
 		Pin* pin = pinList.get(i);
 		if (pin->address == address) {
 			// TODO already exists error?
-			break;
+			return;
 		}
 	}
 

@@ -17,13 +17,14 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
+import org.myrobotlab.arduino.BoardInfo;
 import org.myrobotlab.arduino.Msg;
-import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.Arduino.Sketch;
 import org.myrobotlab.service.data.PinData;
+import org.myrobotlab.service.interfaces.DeviceController;
 import org.myrobotlab.service.interfaces.PinArrayListener;
 import org.myrobotlab.service.interfaces.PinDefinition;
 import org.slf4j.Logger;
@@ -46,11 +47,11 @@ public class ArduinoTest implements PinArrayListener {
 	static Serial serial = null;
 
 	static VirtualArduino virtual = null;
-	static Python logic = null;
 	static Serial uart = null;
 
 	int servoPin = 6;
 	int enablePin = 15;
+	int writeAddress = 6;
 
 	// FIXME - test for re-entrant !!!!
 	// FIXME - single switch for virtual versus "real" hardware
@@ -64,15 +65,11 @@ public class ArduinoTest implements PinArrayListener {
 
 		// FIXME - needs a seemless switch
 		if (userVirtualHardware) {
-
 			virtual = (VirtualArduino) Runtime.start("virtual", "VirtualArduino");
 			uart = virtual.getSerial();
 			uart.setTimeout(100); // don't want to hang when decoding results...
-
+			virtual.connect(port);
 		}
-
-		// arduino.connect(port);
-
 	}
 
 	@AfterClass
@@ -263,17 +260,24 @@ public class ArduinoTest implements PinArrayListener {
 
 	@Test
 	public void testEnablePinIntInt() {
-		// fail("Not yet implemented");
+		arduino.connect(port);
+		arduino.enablePin(enablePin);
+		
 	}
 
 	@Test
 	public void testGetBoardInfo() {
-		// fail("Not yet implemented");
+		arduino.connect(port);
+		BoardInfo boardInfo = arduino.getBoardInfo();
+		assertTrue(boardInfo.isValid());
+		assertTrue(boardInfo.getVersion().intValue() == Msg.MRLCOMM_VERSION);
 	}
 
 	@Test
 	public void testGetController() {
-		// fail("Not yet implemented");
+		arduino.connect(port);
+		DeviceController d = arduino.getController();
+		assertNotNull(d);
 	}
 
 	@Test
@@ -618,7 +622,8 @@ public class ArduinoTest implements PinArrayListener {
 
 	@Test
 	public void testServoWrite() {
-		// fail("Not yet implemented");
+		arduino.connect(port);
+		arduino.write(writeAddress, 1);
 	}
 
 	@Test
@@ -753,6 +758,7 @@ public class ArduinoTest implements PinArrayListener {
 	@Test
 	public final void testGetVersion() {
 		log.info("testGetVersion");
+		arduino.connect(port);
 		assertEquals(Msg.MRLCOMM_VERSION, arduino.getBoardInfo().getVersion().intValue());
 	}
 
@@ -775,6 +781,8 @@ public class ArduinoTest implements PinArrayListener {
 		log.info("testServoAttachServoInteger");
 		Servo servo = null;
 		Runtime.start("webgui", "WebGui");
+		
+		// reentrancy make code strong !
 		for (int i = 0; i < 3; ++i) {
 			servo = (Servo) Runtime.start("servo", "Servo");
 			arduino.connect(port);
@@ -932,22 +940,12 @@ public class ArduinoTest implements PinArrayListener {
 
 	public static void main(String[] args) {
 		try {
-
-			// FIXME - Test service started or reference retrieved
-			// FIXME - subscribe to publishError
-			// FIXME - check for any error
-			// FIXME - basic design - expected state is connected and ready -
-			// between classes it
-			// should connect - also dumping serial comm at different levels so
-			// virtual arduino in
-			// Python can model "real" serial comm
-
-			LoggingFactory.init(Level.INFO);
+			LoggingFactory.init();
 			// Runtime.start("webgui", "WebGui");
 			// Runtime.start("gui", "GUIService");
 
 			// test a "real" arduino
-			userVirtualHardware = false;
+			userVirtualHardware = true;
 			port = "COM10";
 			// port = "COM4";
 			// port = "COM99";
@@ -962,6 +960,7 @@ public class ArduinoTest implements PinArrayListener {
 			}
 			arduino.connect(port);
 
+			test.testGetVersion();
 			test.testServoAttachServoInteger();
 
 			// arduino.setBoardUno(); always better to "not" set
