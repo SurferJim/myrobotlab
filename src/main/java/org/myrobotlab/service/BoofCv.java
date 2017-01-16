@@ -1,6 +1,6 @@
 package org.myrobotlab.service;
 
-import org.myrobotlab.boofcv.ObjectTracker;
+// import org.myrobotlab.boofcv.ObjectTracker;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceType;
 import org.myrobotlab.logging.Level;
@@ -75,9 +75,9 @@ public class BoofCv extends Service implements Point2DfPublisher, Point2DfListen
       // FactoryTrackerObjectQuad.meanShiftLikelihood(30,5,255,
       // MeanShiftLikelihoodType.HISTOGRAM,colorType);
 
-      ObjectTracker<GrayU8> app = new ObjectTracker<GrayU8>(tracker, 640, 480);
+      //ObjectTracker<GrayU8> app = new ObjectTracker<GrayU8>(tracker, 640, 480);
 
-      app.process();
+      // app.process();
 
       // BoofCV template = (BoofCV) Runtime.start("template", "BoofCV");
       // Runtime.start("gui", "GUIService");
