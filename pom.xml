@@ -12,12 +12,20 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<mrl.repo>C:\dev\workspace\repo</mrl.repo>
 	</properties>
-
+  
 	<dependencies>
+
+        <!--  TODO This should not be here!  there's some other config issue that makes this tools.jar not found for some reason. -->
+        <dependency>
+			<groupId>tools</groupId>
+			<artifactId>com.sun.jdk</artifactId>
+			<version>0.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/build-lib/tools.jar</systemPath>
+		</dependency>   
 
 		<!-- These will be the local dependencies that are not in maven central.. 
 			or some other repo -->
-
 		<dependency>
 			<groupId>program</groupId>
 			<artifactId>org.alicebot.ab</artifactId>
