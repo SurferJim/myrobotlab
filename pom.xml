@@ -31,7 +31,7 @@
 			<artifactId>org.alicebot.ab</artifactId>
 			<version>0.0.1-kw</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.alicebot.ab/0.0.1-kw/program-ab-kw-0.0.1.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.alicebot.ab/0.0.1-kw/program-ab-kw-0.0.1.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -39,7 +39,7 @@
 			<artifactId>com.sun.java3d</artifactId>
 			<version>1.5.1</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.sun.java3d/1.5.1/j3dutils.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.sun.java3d/1.5.1/j3dutils.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -47,7 +47,7 @@
 			<artifactId>com.sun.java3d</artifactId>
 			<version>1.5.1</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.sun.java3d/1.5.1/j3dcore.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.sun.java3d/1.5.1/j3dcore.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -55,7 +55,7 @@
 			<artifactId>com.sun.java3d</artifactId>
 			<version>1.5.1</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.sun.java3d/1.5.1/vecmath.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.sun.java3d/1.5.1/vecmath.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -63,7 +63,7 @@
 			<artifactId>com.leapmotion</artifactId>
 			<version>2.1.3</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.leapmotion/2.1.3/LeapJava.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.leapmotion/2.1.3/LeapJava.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -71,7 +71,7 @@
 			<artifactId>org.op.chess</artifactId>
 			<version>1.0.0</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.op.chess/1.0.0/ChessBoard.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.op.chess/1.0.0/ChessBoard.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -79,7 +79,7 @@
 			<artifactId>com.googlecode.simpleopenni</artifactId>
 			<version>1.96</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.googlecode.simpleopenni/1.96/SimpleOpenNI.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.googlecode.simpleopenni/1.96/SimpleOpenNI.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -87,7 +87,7 @@
 			<artifactId>org.eclipse.paho</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.eclipse.paho/1.0/org.eclipse.paho.client.mqttv3_1.0.0.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.eclipse.paho/1.0/org.eclipse.paho.client.mqttv3_1.0.0.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -95,7 +95,7 @@
 			<artifactId>feed4j</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/feed4j/1.0/feed4j.jar</systemPath>
+			<systemPath>${project.basedir}/repo/feed4j/1.0/feed4j.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -103,7 +103,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/emotionml-checker-java-1.1.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/emotionml-checker-java-1.1.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -111,7 +111,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/freetts-de-1.0.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/freetts-de-1.0.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -119,7 +119,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/freetts-en_us-1.0.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/freetts-en_us-1.0.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -127,7 +127,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/hsqldb-2.0.0.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/hsqldb-2.0.0.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -135,7 +135,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/icu4j-54.1.1.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/icu4j-54.1.1.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -143,7 +143,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/jtok-core-1.9.1.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/jtok-core-1.9.1.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -151,7 +151,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/marytts-common-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/marytts-common-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -159,7 +159,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/marytts-lang-de-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/marytts-lang-de-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -167,7 +167,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/marytts-lang-en-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/marytts-lang-en-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -175,7 +175,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/marytts-lang-fr-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/marytts-lang-fr-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -183,7 +183,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/marytts-lang-it-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/marytts-lang-it-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -191,7 +191,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/marytts-lang-ru-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/marytts-lang-ru-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -199,7 +199,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/marytts-lang-sv-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/marytts-lang-sv-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -207,7 +207,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/marytts-lang-te-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/marytts-lang-te-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -215,7 +215,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/marytts-lang-tr-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/marytts-lang-tr-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -223,7 +223,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/marytts-runtime-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/marytts-runtime-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -231,7 +231,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/marytts-signalproc-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/marytts-signalproc-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -239,7 +239,7 @@
 			<artifactId>marytts</artifactId>
 			<version>5.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/marytts/5.1.2/voice-cmu-slt-hsmm-5.1.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/marytts/5.1.2/voice-cmu-slt-hsmm-5.1.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -247,7 +247,7 @@
 			<artifactId>com.mxgraph.jgraph</artifactId>
 			<version>1.6.1.2</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.mxgraph.jgraph/1.6.1.2/jgraphx.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.mxgraph.jgraph/1.6.1.2/jgraphx.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -255,15 +255,15 @@
 			<artifactId>wiiuse.wiimote</artifactId>
 			<version>0.12b</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/wiiuse.wiimote/0.12b/wiiusej.jar</systemPath>
+			<systemPath>${project.basedir}/repo/wiiuse.wiimote/0.12b/wiiusej.jar</systemPath>
 		</dependency>
 
 		<dependency>
-			<groupId>slick</groupId>
-			<artifactId>org.saintandreas.jovr</artifactId>
+			<groupId>org.saintandreas.jovr</groupId>
+			<artifactId>slick</artifactId>
 			<version>0.7</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.saintandreas.jovr/0.7/slick-util.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.saintandreas.jovr/0.7/slick-util.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -271,7 +271,7 @@
 			<artifactId>edu.cmu.sphinx</artifactId>
 			<version>4-1.0beta6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/edu.cmu.sphinx/4-1.0beta6/batch.jar</systemPath>
+			<systemPath>${project.basedir}/repo/edu.cmu.sphinx/4-1.0beta6/batch.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -279,7 +279,7 @@
 			<artifactId>edu.cmu.sphinx</artifactId>
 			<version>4-1.0beta6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/edu.cmu.sphinx/4-1.0beta6/jsapi-1.0-base.jar</systemPath>
+			<systemPath>${project.basedir}/repo/edu.cmu.sphinx/4-1.0beta6/jsapi-1.0-base.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -287,7 +287,7 @@
 			<artifactId>edu.cmu.sphinx</artifactId>
 			<version>4-1.0beta6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/edu.cmu.sphinx/4-1.0beta6/sphinx4.jar</systemPath>
+			<systemPath>${project.basedir}/repo/edu.cmu.sphinx/4-1.0beta6/sphinx4.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -295,7 +295,7 @@
 			<artifactId>edu.cmu.sphinx</artifactId>
 			<version>4-1.0beta6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/edu.cmu.sphinx/4-1.0beta6/tags.jar</systemPath>
+			<systemPath>${project.basedir}/repo/edu.cmu.sphinx/4-1.0beta6/tags.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -303,7 +303,7 @@
 			<artifactId>edu.cmu.sphinx</artifactId>
 			<version>4-1.0beta6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/edu.cmu.sphinx/4-1.0beta6/TIDIGITS_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar</systemPath>
+			<systemPath>${project.basedir}/repo/edu.cmu.sphinx/4-1.0beta6/TIDIGITS_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -311,7 +311,7 @@
 			<artifactId>edu.cmu.sphinx</artifactId>
 			<version>4-1.0beta6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/edu.cmu.sphinx/4-1.0beta6/WSJ_8gau_13dCep_8kHz_31mel_200Hz_3500Hz.jar</systemPath>
+			<systemPath>${project.basedir}/repo/edu.cmu.sphinx/4-1.0beta6/WSJ_8gau_13dCep_8kHz_31mel_200Hz_3500Hz.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -319,7 +319,7 @@
 			<artifactId>edu.cmu.sphinx</artifactId>
 			<version>4-1.0beta6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/edu.cmu.sphinx/4-1.0beta6/WSJ_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar</systemPath>
+			<systemPath>${project.basedir}/repo/edu.cmu.sphinx/4-1.0beta6/WSJ_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -327,7 +327,7 @@
 			<artifactId>edu.northwestern.topcodes</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/edu.northwestern.topcodes/1.0/topcodes.jar</systemPath>
+			<systemPath>${project.basedir}/repo/edu.northwestern.topcodes/1.0/topcodes.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -335,7 +335,7 @@
 			<artifactId>com.wolfram.alpha</artifactId>
 			<version>1.1</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.wolfram.alpha/1.1/WolframAlpha-1.1.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.wolfram.alpha/1.1/WolframAlpha-1.1.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -343,7 +343,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-core.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-core.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -351,7 +351,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-core-javadoc.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-core-javadoc.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -359,7 +359,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-core-sources.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-core-sources.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -367,7 +367,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-device.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-device.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -375,7 +375,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-device-javadoc.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-device-javadoc.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -383,7 +383,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-device-sources.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-device-sources.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -391,7 +391,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-example.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-example.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -399,7 +399,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-example-javadoc.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-example-javadoc.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -407,7 +407,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-example-sources.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-example-sources.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -415,7 +415,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-gpio-extension.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-gpio-extension.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -423,7 +423,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-gpio-extension-javadoc.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-gpio-extension-javadoc.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -431,7 +431,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-gpio-extension-sources.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-gpio-extension-sources.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -439,7 +439,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-service.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-service.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -447,7 +447,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-service-javadoc.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-service-javadoc.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -455,7 +455,7 @@
 			<artifactId>com.pi4j.pi4j</artifactId>
 			<version>1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-service-sources.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.pi4j.pi4j/1.1-SNAPSHOT/pi4j-service-sources.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -463,7 +463,7 @@
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.jivesoftware.smack/4.1.6/jxmpp-core-0.4.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.jivesoftware.smack/4.1.6/jxmpp-core-0.4.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -471,7 +471,7 @@
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.jivesoftware.smack/4.1.6/jxmpp-util-cache-0.4.2.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.jivesoftware.smack/4.1.6/jxmpp-util-cache-0.4.2.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -479,7 +479,7 @@
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.jivesoftware.smack/4.1.6/smack-core-4.1.6.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.jivesoftware.smack/4.1.6/smack-core-4.1.6.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -487,7 +487,7 @@
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.jivesoftware.smack/4.1.6/smack-debug-4.1.6.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.jivesoftware.smack/4.1.6/smack-debug-4.1.6.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -495,7 +495,7 @@
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.jivesoftware.smack/4.1.6/smack-im-4.1.6.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.jivesoftware.smack/4.1.6/smack-im-4.1.6.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -503,7 +503,7 @@
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.jivesoftware.smack/4.1.6/smack-java7-4.1.6.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.jivesoftware.smack/4.1.6/smack-java7-4.1.6.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -511,7 +511,7 @@
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.jivesoftware.smack/4.1.6/smack-tcp-4.1.6.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.jivesoftware.smack/4.1.6/smack-tcp-4.1.6.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -519,7 +519,7 @@
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.jivesoftware.smack/4.1.6/xpp3-1.1.4c.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.jivesoftware.smack/4.1.6/xpp3-1.1.4c.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -527,23 +527,23 @@
 			<artifactId>org.node</artifactId>
 			<version>0.1.1</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.node/0.1.1/nodyn-0.1.1-20141121.193443-283.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.node/0.1.1/nodyn-0.1.1-20141121.193443-283.jar</systemPath>
 		</dependency>
 
-		<dependency>
+<!-- 		<dependency>
 			<groupId>jfugue</groupId>
 			<artifactId>org.jfugue.music</artifactId>
 			<version>4.0.3</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.jfugue.music/4.0.3/jfugue-4.0.3.jar</systemPath>
-		</dependency>
+			<systemPath>${project.basedir}/repo/org.jfugue.music/4.0.3/jfugue-4.0.3.jar</systemPath>
+		</dependency>  -->
 
 		<dependency>
-			<groupId>sosia</groupId>
-			<artifactId>pl.sarxos.webcam</artifactId>
+			<groupId>pl.sarxos.webcam</groupId>
+			<artifactId>sosia</artifactId>
 			<version>0.3.10</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/pl.sarxos.webcam/0.3.10/sosia.jar</systemPath>
+			<systemPath>${project.basedir}/repo/pl.sarxos.webcam/0.3.10/sosia.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -551,7 +551,7 @@
 			<artifactId>net.sourceforge.tess4j</artifactId>
 			<version>1.1</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/net.sourceforge.tess4j/1.1/ghost4j-0.3.1.jar</systemPath>
+			<systemPath>${project.basedir}/repo/net.sourceforge.tess4j/1.1/ghost4j-0.3.1.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -559,7 +559,7 @@
 			<artifactId>net.sourceforge.tess4j</artifactId>
 			<version>1.1</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/net.sourceforge.tess4j/1.1/jai_imageio.jar</systemPath>
+			<systemPath>${project.basedir}/repo/net.sourceforge.tess4j/1.1/jai_imageio.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -567,7 +567,7 @@
 			<artifactId>net.sourceforge.tess4j</artifactId>
 			<version>1.1</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/net.sourceforge.tess4j/1.1/tess4j.jar</systemPath>
+			<systemPath>${project.basedir}/repo/net.sourceforge.tess4j/1.1/tess4j.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -575,7 +575,7 @@
 			<artifactId>org.python.core</artifactId>
 			<version>2.7.0</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.python.core/2.7.0/jython-2.7.0.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.python.core/2.7.0/jython-2.7.0.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -583,7 +583,7 @@
 			<artifactId>com.thalmic.myo</artifactId>
 			<version>0.9.0</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/com.thalmic.myo/0.9.0/myo-java-0.9.1-SNAPSHOT.jar</systemPath>
+			<systemPath>${project.basedir}/repo/com.thalmic.myo/0.9.0/myo-java-0.9.1-SNAPSHOT.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -591,7 +591,7 @@
 			<artifactId>org.jfugue.music</artifactId>
 			<version>5.0</version>
 			<scope>system</scope>
-			<systemPath>${mrl.repo}/org.jfugue.music/5.0/jfugue-5.0.7.jar</systemPath>
+			<systemPath>${project.basedir}/repo/org.jfugue.music/5.0/jfugue-5.0.7.jar</systemPath>
 		</dependency>
 
 
@@ -612,12 +612,12 @@
 			<version>0.4.2</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.github.sarxos/webcam-capture -->
+		<!-- https://mvnrepository.com/artifact/com.github.sarxos/webcam-capture
 		<dependency>
 			<groupId>com.github.sarxos</groupId>
 			<artifactId>webcam-capture</artifactId>
 			<version>0.3.10</version>
-		</dependency>
+		</dependency>  -->
 
 		<!-- https://mvnrepository.com/artifact/it.sauronsoftware.cron4j/cron4j -->
 		<dependency>
@@ -625,9 +625,6 @@
 			<artifactId>cron4j</artifactId>
 			<version>2.2.5</version>
 		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/jfugue/jfugue <dependency> <groupId>jfugue</groupId> 
-			<artifactId>jfugue</artifactId> <version>4.0.3</version> </dependency> -->
 
 		<!-- https://mvnrepository.com/artifact/net.sf.jipcam/jipcam -->
 		<dependency>
@@ -659,11 +656,11 @@
 			<artifactId>oria-resources</artifactId>
 			<version>[1.0.4, 2)</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.saintandreas</groupId>
 			<artifactId>jovr</artifactId>
 			<version>0.7.0.0-SNAPSHOT</version>
-		</dependency>
+		</dependency>  -->
 
 
 		<!-- https://mvnrepository.com/artifact/log4j/log4j -->
@@ -672,7 +669,6 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.16</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.wikidata.wdtk</groupId>
@@ -743,8 +739,8 @@
 
 		<!-- https://mvnrepository.com/artifact/org.saintandreas/jovr -->
 		<dependency>
-			<groupId>org.saintandreas</groupId>
 			<artifactId>jovr</artifactId>
+			<groupId>org.saintandreas</groupId>
 			<version>0.7.0.0</version>
 		</dependency>
 
