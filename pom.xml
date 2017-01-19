@@ -9,6 +9,7 @@
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<mrl.repo>C:\dev\workspace\repo</mrl.repo>
 	</properties>
 
@@ -450,7 +451,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>jxmpp</groupId>
+			<groupId>jxmpp-core</groupId>
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
@@ -458,7 +459,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>jxmpp</groupId>
+			<groupId>jxmpp-util-cache</groupId>
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
@@ -466,7 +467,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>smack</groupId>
+			<groupId>smack-core</groupId>
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
@@ -474,7 +475,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>smack</groupId>
+			<groupId>smack-debug</groupId>
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
@@ -482,7 +483,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>smack</groupId>
+			<groupId>smack-im</groupId>
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
@@ -490,7 +491,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>smack</groupId>
+			<groupId>smack-java7</groupId>
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
@@ -498,7 +499,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>smack</groupId>
+			<groupId>smack-tcp</groupId>
 			<artifactId>org.jivesoftware.smack</artifactId>
 			<version>4.1.6</version>
 			<scope>system</scope>
