@@ -38,7 +38,6 @@ import java.awt.image.BufferedImage;
 import org.bytedeco.javacpp.opencv_core.CvScalar;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
 public class OpenCVFilterColorTrack extends OpenCVFilter {
@@ -143,7 +142,7 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 
   public void samplePoint(Integer x, Integer y) {
 
-    frameBuffer = OpenCV.IplImageToBufferedImage(hsv);
+    frameBuffer = OpenCVUtils.IplImageToBufferedImage(hsv);
     int rgb = frameBuffer.getRGB(x, y);
     Color c = new Color(rgb);
     log.error(x + "," + y + " h " + c.getRed() + " s " + c.getGreen() + " v " + c.getBlue());

@@ -1,7 +1,7 @@
 package org.myrobotlab.opencv;
 
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvEncodeImage;
-import static org.myrobotlab.opencv.VideoProcessor.INPUT_KEY;
+import static org.myrobotlab.opencv.VideoProcessorx.INPUT_KEY;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -22,7 +22,6 @@ import org.bytedeco.javacpp.opencv_core.CvMat;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
-import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.data.Point2Df;
 import org.myrobotlab.service.data.Rectangle;
 import org.slf4j.Logger;
@@ -194,7 +193,7 @@ public class OpenCVData implements Serializable {
 
 			IplImage img = (IplImage) sources.get(imgKey);
 
-			BufferedImage image = OpenCV.IplImageToBufferedImage(img);
+			BufferedImage image = OpenCVUtils.IplImageToBufferedImage(img);
 
 			serializable.put(bufferedImageKey, image);
 			return image;
@@ -575,5 +574,9 @@ public class OpenCVData implements Serializable {
 
 	public void put(String key) {
 		sources.put(key, null);
+	}
+
+	public static void clearSources() {
+		sources.clear();
 	}
 }

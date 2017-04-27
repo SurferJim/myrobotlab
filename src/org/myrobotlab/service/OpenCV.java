@@ -25,35 +25,27 @@
 
 package org.myrobotlab.service;
 
-/*
- TODO : 
- new filters - http://idouglasamoore-javacv.googlecode.com/git-history/02385ce192fb82f1668386e55ff71ed8d6f88ae3/src/main/java/com/googlecode/javacv/ObjectFinder.java
+import static org.bytedeco.javacpp.opencv_core.cvPoint;
+import static org.bytedeco.javacpp.opencv_imgproc.cvPutText;
+import static org.myrobotlab.opencv.VideoProcessorx.INPUT_KEY;
 
- static wild card imports for quickly finding static functions in eclipse
- */
-//import static org.bytedeco.javacpp.opencv_calib3d.*;
-//import static org.bytedeco.javacpp.opencv_contrib.*;
-//import static org.bytedeco.javacpp.opencv_core.*;
-import java.awt.Dimension;
 import java.awt.Rectangle;
-//import static org.bytedeco.javacpp.opencv_gpu.*;
-//import static org.bytedeco.javacpp.opencv_superres.*;
-//import static org.bytedeco.javacpp.opencv_ts.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.bytedeco.javacpp.opencv_core.CvPoint;
 import org.bytedeco.javacpp.opencv_core.CvPoint2D32f;
-import org.bytedeco.javacpp.opencv_core.CvRect;
+import org.bytedeco.javacpp.opencv_core.CvScalar;
 import org.bytedeco.javacpp.opencv_core.IplImage;
-import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.FrameGrabber;
-import org.bytedeco.javacv.Java2DFrameConverter;
-import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.bytedeco.javacpp.opencv_imgproc.CvFont;
+import org.myrobotlab.framework.Instantiator;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceType;
 import org.myrobotlab.image.ColoredPoint;
@@ -61,39 +53,25 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.io.FileIO;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.opencv.BlockingQueueGrabber;
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterDilate;
 import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
 import org.myrobotlab.opencv.OpenCVFilterFaceDetect2;
+import org.myrobotlab.opencv.OpenCVFilterInput;
 import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
-import org.myrobotlab.opencv.VideoProcessor;
+import org.myrobotlab.opencv.OpenCVFilterRecorder;
+import org.myrobotlab.opencv.Overlay;
+import org.myrobotlab.opencv.VideoProcessorx;
 import org.myrobotlab.reflection.Reflector;
 import org.myrobotlab.service.data.Point2Df;
+import org.myrobotlab.service.interfaces.VideoProcessWorker;
+import org.myrobotlab.service.interfaces.VideoProcessor;
 import org.myrobotlab.service.interfaces.VideoSource;
 import org.slf4j.Logger;
-
-/*
-
-import static org.bytedeco.javacpp.opencv_imgproc.*;
-import static org.bytedeco.javacpp.opencv_calib3d.*;
-import static org.bytedeco.javacpp.opencv_core.*;
-import static org.bytedeco.javacpp.opencv_features2d.*;
-import static org.bytedeco.javacpp.opencv_flann.*;
-import static org.bytedeco.javacpp.opencv_highgui.*;
-import static org.bytedeco.javacpp.opencv_imgcodecs.*;
-import static org.bytedeco.javacpp.opencv_ml.*;
-import static org.bytedeco.javacpp.opencv_objdetect.*;
-import static org.bytedeco.javacpp.opencv_photo.*;
-import static org.bytedeco.javacpp.opencv_shape.*;
-import static org.bytedeco.javacpp.opencv_stitching.*;
-import static org.bytedeco.javacpp.opencv_video.*;
-import static org.bytedeco.javacpp.opencv_videostab.*;
-
-*/
 
 /**
  * 
@@ -106,10 +84,10 @@ import static org.bytedeco.javacpp.opencv_videostab.*;
  * More Info about OpenCV : http://opencv.org/ JavaCV is maintained by Samuel
  * Audet : https://github.com/bytedeco/javacv
  * 
+ * TODO - make VideoProcessing Interfaces which use SerializableImages
+ * 
  */
-public class OpenCV extends Service implements VideoSource {
-
-	// FIXME - don't return BufferedImage return SerializableImage always !
+public class OpenCV extends Service implements VideoSource, VideoProcessor {
 
 	private static final long serialVersionUID = 1L;
 
@@ -124,6 +102,8 @@ public class OpenCV extends Service implements VideoSource {
 	transient public final static String INPUT_SOURCE_IMAGE_DIRECTORY = "slideshow";
 
 	// TODO - OpenCV constants / enums ? ... hmm not a big fan ...
+	// FIXME - if these are constants they need to be part of the array of
+	// possible filters ..
 	transient public static final String FILTER_LK_OPTICAL_TRACK = "LKOpticalTrack";
 	transient public static final String FILTER_PYRAMID_DOWN = "PyramidDown";
 	transient public static final String FILTER_GOOD_FEATURES_TO_TRACK = "GoodFeaturesToTrack";
@@ -132,14 +112,6 @@ public class OpenCV extends Service implements VideoSource {
 	transient public static final String FILTER_DILATE = "Dilate";
 	transient public static final String FILTER_FIND_CONTOURS = "FindContours";
 	transient public static final String FILTER_FACE_DETECT = "FaceDetect";
-
-	// directional constants
-	transient final static public String DIRECTION_FARTHEST_FROM_CENTER = "DIRECTION_FARTHEST_FROM_CENTER";
-	transient final static public String DIRECTION_CLOSEST_TO_CENTER = "DIRECTION_CLOSEST_TO_CENTER";
-	transient final static public String DIRECTION_FARTHEST_LEFT = "DIRECTION_FARTHEST_LEFT";
-	transient final static public String DIRECTION_FARTHEST_RIGHT = "DIRECTION_FARTHEST_RIGHT";
-	transient final static public String DIRECTION_FARTHEST_TOP = "DIRECTION_FARTHEST_TOP";
-	transient final static public String DIRECTION_FARTHEST_BOTTOM = "DIRECTION_FARTHEST_BOTTOM";
 
 	transient final static public String FOREGROUND = "foreground";
 	transient final static public String BACKGROUND = "background";
@@ -152,18 +124,81 @@ public class OpenCV extends Service implements VideoSource {
 			"FaceRecognizer", "Fauvist", "Ffmpeg", "FindContours", "Flip", "FloodFill", "FloorFinder",
 			"GoodFeaturesToTrack", "Gray", "HoughLines2", "Hsv", "Input", "InRange", "KinectDepth", "KinectDepthMask",
 			"KinectInterleave", "LKOpticalTrack", "Mask", "MatchTemplate", "MotionTemplate", "Mouse", "Not", "Output",
-			"PyramidDown", "PyramidUp", "RepetitiveAnd", "RepetitiveOr", "ResetImageRoi", "Resize", "SampleArray",
+			FILTER_PYRAMID_DOWN, "PyramidUp", "RepetitiveAnd", "RepetitiveOr", "ResetImageRoi", "Resize", "SampleArray",
 			"SampleImage", "SetImageROI", "SimpleBlobDetector", "Smooth", "Split", "State", "Surf", "Threshold",
 			"Transpose" };
 
-	// yep its public - cause a whole lotta data
-	// will get set on it before a setState
+	static final String FILTER_PKG_PREFIX = "org.myrobotlab.opencv.OpenCVFilter";
 
-	transient public VideoProcessor videoProcessor = new VideoProcessor();
+	/**
+	 * This static method returns all the details of the class without it having
+	 * to be constructed. It has description, categories, dependencies, and peer
+	 * definitions.
+	 * 
+	 * @return ServiceType - returns all the data
+	 * 
+	 */
+	static public ServiceType getMetaData() {
+
+		ServiceType meta = new ServiceType(OpenCV.class.getCanonicalName());
+		meta.addDescription("OpenCV (computer vision) service wrapping many of the functions and filters of OpenCV");
+		meta.addCategory("video", "vision", "sensor");
+		// meta.addPeer("streamer", "VideoStreamer", "video streaming service
+		// for
+		// webgui.");
+
+		meta.sharePeer("streamer", "streamer", "VideoStreamer", "Shared Video Streamer");
+		// meta.addDependency("org.bytedeco.javacpp","1.1");
+		meta.addDependency("org.bytedeco.javacv", "1.1");
+		meta.addDependency("pl.sarxos.webcam", "0.3.10");
+		return meta;
+	}
+
+	static public String[] getPossibleFilters() {
+		return POSSIBLE_FILTERS;
+	}
+
+	// processing
+	final transient VideoProcessWorker worker;
+
+	/**
+	 * the last source key - used to set the next filter's default source
+	 */
+	String lastSourceKey;
+	StringBuffer frameTitle = new StringBuffer();
+
+	// data
+	// transient public BlockingQueue<Object> blockingData = new
+	// LinkedBlockingQueue<Object>();
+	OpenCVData lastOpenCVData;
+	OpenCVData data;
+
+	// display
+	boolean showTimestamp = true;
+	boolean publishDisplay = true;
+	HashMap<String, Overlay> overlays = new HashMap<String, Overlay>();
+
+	transient CvFont font = new CvFont();
+
+	// selections
+	// FIXME - mark transient transient - but keep serializable !!!
+	OpenCVFilterInput selectedInputFilter = null;
+	OpenCVFilterRecorder selectedRecorderFilter = null;
+
+	String recordingSource = INPUT_KEY;
+
+	// filters
+	transient Map<String, OpenCVFilter> filters = new LinkedHashMap<String, OpenCVFilter>();
+
+	transient Queue<OpenCVFilter> addFilterQueue = new ConcurrentLinkedQueue<OpenCVFilter>();
+
+	transient Queue<String> removeFilterQueue = new ConcurrentLinkedQueue<String>();
+	/* moreStuff */
+
+	public VideoProcessorx videoProcessorx = new VideoProcessorx();
 
 	// mask for each named filter
 	transient public HashMap<String, IplImage> masks = new HashMap<String, IplImage>();
-
 	public boolean undockDisplay = false;
 
 	// track the state of opencv. capturing true/false?
@@ -178,60 +213,402 @@ public class OpenCV extends Service implements VideoSource {
 	// if possible.
 	// GROG : .. perhaps just a filter in the pipeline could stream it via http
 	transient public VideoStreamer streamer;
+
 	public boolean streamerEnabled = true;
+
+	boolean publishOpenCVData = true;
+
+	private int frameIndex;
+
+	private boolean showFrameNumbers;
 
 	public OpenCV(String n) {
 		super(n);
-		videoProcessor.setOpencv(this);
+		worker = new VideoProcessWorker(this);
+
+		// create a default "input" filter
+		selectedInputFilter = new OpenCVFilterInput(INPUT_KEY);
+		addFilter(selectedInputFilter);
+	}
+
+	/**
+	 * adds a filter if the video processing thread is not running it adds it
+	 * directly to the linked hashmap filter. If the video processing thread is
+	 * running it must add it to a thread safe queue to be processed by the the
+	 * other thread. This should make the system thread-safe
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	public OpenCVFilter addFilter(OpenCVFilter filter) {
+		filter.sourceKey = lastSourceKey;
+		if (capturing) {
+			addFilterQueue.add(filter);
+		} else {
+			filters.put(filter.name, filter);
+		}
+		lastSourceKey = filter.name;
+		filter.setVideoProcessor(this);
+		broadcastState();
+		return filter;
+	}
+
+	/**
+	 * add filter by name
+	 * 
+	 * @param filterName
+	 * @return
+	 */
+	public OpenCVFilter addFilter(String filterName) {
+		return addFilter(filterName, filterName);
+	}
+
+	/**
+	 * add filter by name and type
+	 * 
+	 * @param name
+	 * @param filterType
+	 * @return
+	 */
+	public OpenCVFilter addFilter(String name, String filterType) {
+		String type = FILTER_PKG_PREFIX + filterType;
+		OpenCVFilter filter = (OpenCVFilter) Instantiator.getNewInstance(type, name);
+		log.info("adding {} filter {}", type, name);
+		addFilterQueue.add(filter);
+		return addFilter(filter);
+	}
+
+	public void capture() {
+		save();
+
+		if (streamerEnabled) {
+			streamer = (VideoStreamer) startPeer("streamer");
+			streamer.attach(this);
+		}
+		// stopCapture(); // restart?
+		startVideoProcessing();
+		// GroG:FIXED I THINK
+		// there's a nasty race condition,
+		// so we sleep here for 500 milliseconds to make sure
+		// the video stream is up and running before we publish our state.
+		// sleep(500); - FIXME - fix race condition
+		capturing = true; // FIXME <-- change to event publishCapturing(true)
+		// invoke("publishCapturing", true);
+		broadcastState(); // let everyone know
+	}
+
+	public void captureFromImageFile(String filename) {
+		stopCapture();
+		setFrameGrabberType("org.myrobotlab.opencv.ImageFileFrameGrabber");
+		setInputSource(INPUT_SOURCE_IMAGE_FILE);
+		setInputFileName(filename);
+		capture();
+	}
+
+	public void captureFromResourceFile(String filename) throws IOException {
+		FileIO.extractResource(filename, filename);
+		captureFromImageFile(filename);
+	}
+
+	public void clearSources() {
+		OpenCVData.clearSources();
+	}
+
+	public IplImage get(String key) {
+		if (lastOpenCVData != null && lastOpenCVData.containsKey(key)) {
+			return lastOpenCVData.get(key);
+		}
+		return null;
+	}
+
+	public SerializableImage getDisplay() {
+		OpenCVData d = getOpenCVData();
+		SerializableImage ret = new SerializableImage(d.getBufferedImage(), d.getSelectedFilterName());
+		return ret;
+	}
+
+	public OpenCVData getFaceDetect() {
+		OpenCVFilterFaceDetect fd = new OpenCVFilterFaceDetect();
+		addFilter(fd);
+		OpenCVData d = getOpenCVData();
+		removeFilter(fd.name);
+		return d;
+	}
+
+	public OpenCVFilter getFilter(String name) {
+		return filters.get(name);
+	}
+
+	public List<OpenCVFilter> getFiltersCopy() {
+		return new ArrayList<OpenCVFilter>(filters.values());
+	}
+
+	// utility single shot functions - interesting idea
+	// shouldn't this return just the points ?
+	public OpenCVData getGoodFeatures() {
+		addFilter(FILTER_GOOD_FEATURES_TO_TRACK, FILTER_GOOD_FEATURES_TO_TRACK);
+		OpenCVData d = getOpenCVData();
+		removeFilter(FILTER_GOOD_FEATURES_TO_TRACK);
+		return d;
+	}
+
+	public OpenCVData getOpenCVData() {
+		return lastOpenCVData;
+	}
+
+	/**
+	 * Callback from the SwingGui to the appropriate filter funnel through here
+	 */
+	public void invokeFilterMethod(String filterName, String method, Object... params) {
+		OpenCVFilter filter = getFilter(filterName);
+		if (filter != null) {
+			Reflector.invokeMethod(filter, method, params);
+		} else {
+			log.error("invokeFilterMethod " + filterName + " does not exist");
+		}
 	}
 
 	@Override
-	public void stopService() {
-		if (videoProcessor != null) {
-			videoProcessor.stop();
-		}
-		super.stopService();
+	public boolean isCapturing() {
+		return capturing;
 	}
 
-	public final boolean publishDisplay(Boolean b) {
-		videoProcessor.publishDisplay = b;
-		return b;
+	public boolean isStreamerEnabled() {
+		return streamerEnabled;
 	}
 
 	/**
-	 * new way of converting IplImages to BufferedImages
+	 * main video processing loop sources is a globally accessible VideoSources
+	 * - but is not threadsafe data is thread safe - at least the references to
+	 * the data are threadsafe even if the data might not be (although it
+	 * "probably" is :)
 	 * 
-	 * @param src
-	 * @return
+	 * more importantly the references of data are synced with itself - so that
+	 * all references are from the same processing loop
 	 */
-	public static BufferedImage IplImageToBufferedImage(IplImage src) {
-		OpenCVFrameConverter.ToIplImage grabberConverter = new OpenCVFrameConverter.ToIplImage();
-		Java2DFrameConverter converter = new Java2DFrameConverter();
-		Frame frame = grabberConverter.convert(src);
-		return converter.getBufferedImage(frame, 1);
+	@Override
+	public void processVideo() {
+
+		capturing = true;
+
+		while (capturing) {
+			try {
+
+				/**
+				 * add or remove filters depending on the requests of the queues
+				 */
+
+				// process filter add requests
+				if (addFilterQueue.size() > 0) {
+					for (int i = 0; i < addFilterQueue.size(); ++i) {
+						OpenCVFilter f = addFilterQueue.poll();
+						if (f == null) {
+							continue;
+						}
+						if (f.sourceKey == null) {
+							f.sourceKey = lastSourceKey;
+							data.put(f.name);
+							lastSourceKey = f.name;
+						}
+						filters.put(f.name, f);
+					}
+					addFilterQueue.clear();
+					broadcastState(); // filters have changed
+				}
+
+				// process filter remove requests
+				if (removeFilterQueue.size() > 0) {
+					for (int i = 0; i < removeFilterQueue.size(); ++i) {
+						String name = removeFilterQueue.poll();
+						if (name == null) {
+							continue;
+						}
+						if (filters.containsKey(name)) {
+							filters.remove(name);
+						}
+					}
+					removeFilterQueue.clear();
+					broadcastState(); // filters have changed
+				}
+
+				/**
+				 * This is the creation of a new OpenCVData. References for
+				 * serializable data will be created new and added to in the
+				 * pipeline. Internally sources are static (non serializable)
+				 * and continue to be added or overwritten.
+				 * 
+				 * OpenCVData.sources is an index into what has previously
+				 * processed
+				 */
+				data = new OpenCVData(getName(), frameIndex);
+
+				// process each filter
+				for (String filterName : filters.keySet()) {
+					OpenCVFilter filter = filters.get(filterName);
+					if (Logging.performanceTiming)
+						Logging.logTime(String.format("pre set-filter %s", filter.name));
+
+					// set the selected filter
+					data.setFilter(filter);
+
+					// get the source image this filter is chained to
+					// should be safe and correct if operating in this
+					// service
+					// pipeline to another service needs to use data not
+					// sources
+					IplImage image = data.get(filter.sourceKey);
+					
+					// pre process handles image size & channel changes
+					filter.preProcess(frameIndex, image, data);
+					if (Logging.performanceTiming)
+						Logging.logTime(String.format("preProcess-filter %s", filter.name));
+
+					image = filter.process(image, data);
+
+					if (Logging.performanceTiming)
+						Logging.logTime(String.format("process-filter %s", filter.name));
+
+					// process the image - push into source as new output
+					// other pipelines will pull it off the from the sources
+					data.put(filter.name, image);
+
+					// no display || merge display || fork display
+					// currently there is no "display" in sources
+					// i've got a user selection to display a particular
+					// filter
+
+					// FIXME - display becomes an attribute of the filter itself
+					// -
+					// FIXME - filters by default "display" when they are
+					// selected and "un-display" when they are not
+					// FIXME - however - filters could be left in the display
+					// state if desired
+					// if (publishDisplay && displayFilterName != null &&
+					// displayFilterName.equals(filter.name)) {
+					if (publishDisplay) {
+
+						// data.setDisplayFilterName(displayFilterName);
+
+						// The fact that I'm in a filter loop
+						// and there is a display to publish means
+						// i've got to process a filter's display
+						// TODO - would be to have a set of displays if it's
+						// needed
+						// if displayFilter == null but we are told to
+						// display - then display INPUT
+
+						filter.display(image, data);
+
+						// if display frame
+						if (showFrameNumbers || showTimestamp) {
+
+							frameTitle.setLength(0);
+
+							if (showFrameNumbers) {
+								frameTitle.append("frame ");
+								frameTitle.append(frameIndex);
+								frameTitle.append(" ");
+							}
+
+							if (showTimestamp) {
+								frameTitle.append(System.currentTimeMillis());
+							}
+							// log.info("Adding text: " +
+							// frameTitle.toString());
+							cvPutText(image, frameTitle.toString(), cvPoint(20, 20), font, CvScalar.BLACK);
+							for (Overlay overlay : overlays.values()) {
+								// log.info("Overlay text:" + overlay.text);
+								cvPutText(image, overlay.text, overlay.pos, overlay.font, overlay.color);
+							}
+						}
+
+					} // end of display processing
+
+				} // for each filter
+
+				if (Logging.performanceTiming)
+					Logging.logTime("filters done");
+
+				// copy key references from sources to data
+				// the references will presist and so will the data
+				// for as long as the OpenCVData structure exists
+				// Sources will contain new references to new data
+				// next iteration
+				// data.putAll(sources.getData()); not needed :)
+
+				// has to be 2 tests for publishDisplay
+				// one inside the filter loop - to set the display to a new
+				// filter
+				// and this one to publish - if it is left "unset" then the
+				// input becomes the
+				// display filter
+				if (publishDisplay) {
+					SerializableImage display = new SerializableImage(data.getDisplayBufferedImage(),
+							data.getDisplayFilterName(), frameIndex);
+					invoke("publishDisplay", display);
+				}
+
+				// publish accumulated data
+				if (publishOpenCVData) {
+					invoke("publishOpenCVData", data);
+				}
+
+				// this has to be before record as
+				// record uses the queue - this has the "issue" if
+				// the consumer does not pickup-it will get stale
+				// if (blockingData.size() == 0) {
+				// blockingData.add(data);
+				// }
+
+			} catch (Exception e) {
+				Logging.logError(e);
+				log.error("stopping capture");
+				stopVideoProcessing();
+			}
+
+			if (Logging.performanceTiming)
+				Logging.logTime("finished pass");
+		} // while capturing
+
 	}
 
-	/**
-	 * new way of converting BufferedImages to IplImages
-	 * 
-	 * @param src
-	 * @return
-	 */
-	public static IplImage BufferedImageToIplImage(BufferedImage src) {
-		OpenCVFrameConverter.ToIplImage grabberConverter = new OpenCVFrameConverter.ToIplImage();
-		Java2DFrameConverter jconverter = new Java2DFrameConverter();
-		return grabberConverter.convert(jconverter.convert(src));
+	// when containers are published the <T>ypes are unknown to the publishing
+	// function
+	public ArrayList<?> publish(ArrayList<?> polygons) {
+		return polygons;
 	}
 
-	/**
-	 * new way of converting BufferedImages to IplImages
-	 * 
-	 * @param src
-	 * @return
-	 */
-	public static Frame BufferedImageToFrame(BufferedImage src) {
-		Java2DFrameConverter jconverter = new Java2DFrameConverter();
-		return jconverter.convert(src);
+	public ColoredPoint[] publish(ColoredPoint[] points) {
+		return points;
+	}
+
+	public CvPoint publish(CvPoint point) {
+		return point;
+	}
+
+	// CPP interface does not use array - but hides implementation
+	public CvPoint2D32f publish(CvPoint2D32f features) {
+		return features;
+	}
+
+	public double[] publish(double[] data) {
+		return data;
+	}
+
+	public Point2Df publish(Point2Df point) {
+		return point;
+	}
+
+	public Rectangle publish(Rectangle rectangle) {
+		return rectangle;
+	}
+
+	public String publish(String value) {
+		return value;
+	}
+
+	public final void publishDisplay(Boolean b) {
+		publishDisplay = b;
 	}
 
 	/**
@@ -245,6 +622,48 @@ public class OpenCV extends Service implements VideoSource {
 	}
 
 	/**
+	 * publishing method for filters - used internally
+	 * 
+	 * @return FilterWrapper solves the problem of multiple types being resolved
+	 *         in the setFilterState(FilterWrapper data) method
+	 */
+	public FilterWrapper publishFilterState(FilterWrapper filterWrapper) {
+		return filterWrapper;
+	}
+
+	/**
+	 * publishing method for filters - uses string parameter for remote
+	 * invocation
+	 * 
+	 * @return FilterWrapper solves the problem of multiple types being resolved
+	 *         in the onFilterState(FilterWrapper data) callback
+	 */
+	public FilterWrapper publishFilterState(String name) {
+		OpenCVFilter filter = getFilter(name);
+		if (filter != null) {
+			return new FilterWrapper(name, filter);
+		} else {
+			log.error(String.format("publishFilterState %s does not exist ", name));
+		}
+
+		return null;
+	}
+
+	public IplImage publishIplImageTemplate(IplImage img) {
+		return img;
+	}
+
+	public void publishNoRecognizedFace() {
+
+	}
+
+	// the big switch <input>
+	// FIXME - test overloaded !!!!
+	public void publishOpenCVData(boolean b) {
+		publishOpenCVData = b;
+	}
+
+	/**
 	 * the publishing point of all OpenCV goodies ! type conversion is held off
 	 * until asked for - then its cached SMART ! :)
 	 * 
@@ -255,113 +674,8 @@ public class OpenCV extends Service implements VideoSource {
 		return data;
 	}
 
-	// the big switch <input>
-	public void publishOpenCVData(boolean b) {
-		videoProcessor.publishOpenCVData = b;
-	}
-
-	public Integer setCameraIndex(Integer index) {
-		videoProcessor.cameraIndex = index;
-		return index;
-	}
-
-	public String setInputFileName(String inputFile) {
-		videoProcessor.inputFile = inputFile;
-		return inputFile;
-	}
-
-	public String setInputSource(String inputSource) {
-		videoProcessor.inputSource = inputSource;
-		return inputSource;
-	}
-
-	public String setFrameGrabberType(String grabberType) {
-		videoProcessor.grabberType = grabberType;
-		return grabberType;
-	}
-
-	public void setDisplayFilter(String name) {
-		log.info("pre setDisplayFilter displayFilter{}", videoProcessor.displayFilterName);
-		videoProcessor.displayFilterName = name;
-		log.info("post setDisplayFilter displayFilter{}", videoProcessor.displayFilterName);
-	}
-
-	public OpenCVData add(SerializableImage image) {
-		Frame src = BufferedImageToFrame(image.getImage());
-		// IplImage src = IplImage.createFrom(image.getImage());
-		// return new SerializableImage(dst.getBufferedImage(),
-		// image.getSource());
-		return add(src);
-	}
-
-	/**
-	 * blocking safe exchange of data between different threads external thread
-	 * adds image data which can be retrieved from the blockingData queue
-	 * 
-	 * @param image
-	 */
-	public OpenCVData add(Frame image) {
-		FrameGrabber grabber = videoProcessor.getGrabber();
-		if (grabber == null || grabber.getClass() != BlockingQueueGrabber.class) {
-			error("can't add an image to the video processor - grabber must be not null and BlockingQueueGrabber");
-			return null;
-		}
-
-		BlockingQueueGrabber bqgrabber = (BlockingQueueGrabber) grabber;
-		bqgrabber.add(image);
-
-		try {
-			OpenCVData ret = (OpenCVData) videoProcessor.blockingData.take();
-			return ret;
-		} catch (InterruptedException e) {
-			return null;
-		}
-	}
-
-	/**
-	 * when the video image changes size this function will be called with the
-	 * new dimension
-	 * 
-	 * @param d
-	 * @return
-	 */
-	public Dimension sizeChange(Dimension d) {
-		return d;
-	}
-
-	public String publish(String value) {
+	public String publishRecognizedFace(String value) {
 		return value;
-	}
-
-	// CPP interface does not use array - but hides implementation
-	public CvPoint2D32f publish(CvPoint2D32f features) {
-		return features;
-	}
-
-	public double[] publish(double[] data) {
-		return data;
-	}
-
-	public CvPoint publish(CvPoint point) {
-		return point;
-	}
-
-	public Point2Df publish(Point2Df point) {
-		return point;
-	}
-
-	public Rectangle publish(Rectangle rectangle) {
-		return rectangle;
-	}
-
-	// when containers are published the <T>ypes are unknown to the publishing
-	// function
-	public ArrayList<?> publish(ArrayList<?> polygons) {
-		return polygons;
-	}
-
-	public ColoredPoint[] publish(ColoredPoint[] points) {
-		return points;
 	}
 
 	public SerializableImage publishTemplate(String source, BufferedImage img, int frameIndex) {
@@ -369,83 +683,76 @@ public class OpenCV extends Service implements VideoSource {
 		return si;
 	}
 
-	public IplImage publishIplImageTemplate(IplImage img) {
-		return img;
+	// FIXME - need to record on a specific record filter !!!
+	// maintain a default selected record filter selectedRecorder
+	@Deprecated
+	public void recordOutput(Boolean b) {
+		// recordOutput = b;
+		// FIXME - default name of recorder filter is recorder
+		// FIXME - need another method to set selectedRecorder
 	}
 
-	// publish functions end ---------------------------
-
-	public void stopCapture() {
-		videoProcessor.stop();
-		capturing = false;
-		broadcastState(); // let everyone know
+	public String recordSingleFrame() {
+		// WOOHOO Changed threads & thread safe !
+		// OpenCVData d = videoProcessor.getLastData();
+		OpenCVData d = getOpenCVData();
+		/*
+		 * if (d == null) { log.error(
+		 * "could not record frame last OpenCVData is null"); return null; }
+		 */
+		return d.writeDisplay();
+		// return d.writeInput();
 	}
 
-	public void capture() {
-		save();
-
-		if (streamerEnabled) {
-			streamer = (VideoStreamer) startPeer("streamer");
-			streamer.attach(this);
-		}
-		// stopCapture(); // restart?
-		videoProcessor.start();
-		// there's a nasty race condition,
-		// so we sleep here for 500 milliseconds to make sure
-		// the video stream is up and running before we publish our state.
-		sleep(500);
-		capturing = true;
-		broadcastState(); // let everyone know
-	}
-
-	public void stopRecording(String filename) {
-		// cvReleaseVideoWriter(outputFileStreams.get(filename).pointerByReference());
-	}
-
-	public void setMask(String name, IplImage mask) {
-		masks.put(name, mask);
-	}
-
-	public OpenCVFilter addFilter(OpenCVFilter filter) {
-		videoProcessor.addFilter(filter);
-		// broadcastState(); not needed as videoProcessor will send
-		// the broadcast state
-		return filter;
-	}
-
-	public OpenCVFilter addFilter(String filterName) {
-
-		OpenCVFilter filter = videoProcessor.addFilter(filterName, filterName);
-		// broadcastState(); // let everyone know - not needed as videoProcessor will
-		// send the broadcast state
-		return filter;
-	}
-
-	public OpenCVFilter addFilter(String name, String filterType) {
-
-		OpenCVFilter filter = videoProcessor.addFilter(name, filterType);
-		// broadcastState(); // let everyone know
-		// not needed as broadcast 
-		return filter;
-	}
-
-	// FIXME - rename removeFilters
-	public void removeFilters() {
-		videoProcessor.removeFilters();
-		// broadcastState(); not needed 
-	}
-
+	/**
+	 * remove a specific filter if not capturing remove it from the video
+	 * processor thread's filters if the video thread is capturing - must remove
+	 * it by adding it to a removeFilterQueue to be processed later
+	 * 
+	 * @param name
+	 */
 	public void removeFilter(String name) {
-		videoProcessor.removeFilter(name);
-		// broadcastState(); not needed
+		log.info("removing filter {} ", name);
+		if (!capturing) {
+			filters.remove(name);
+		} else {
+			removeFilterQueue.add(name);
+		}
 	}
 
-	public List<OpenCVFilter> getFiltersCopy() {
-		return videoProcessor.getFiltersCopy();
+	/**
+	 * remove filter by name if not capturing remove it from the video processor
+	 * thread's filters if the video thread is capturing - must remove it by
+	 * adding it to a removeFilterQueue to be processed later
+	 */
+	public void removeFilters() {
+		log.info("removeFilters");
+		if (!capturing) {
+			filters.clear();
+		} else {
+			List<OpenCVFilter> fl = getFiltersCopy();
+			for (OpenCVFilter filter : fl) {
+				removeFilter(filter.name);
+			}
+		}
 	}
 
-	public OpenCVFilter getFilter(String name) {
-		return videoProcessor.getFilter(name);
+	public void setCameraIndex(Integer index) {
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
+		} else {
+			selectedInputFilter.setCameraIndex(index);
+		}
+	}
+
+	// FIXME setSelectedFilter - one global concept of currently selected filter
+	// - not just for display
+	// FIXME - rename to setSelectedFilter
+	@Deprecated
+	public void setDisplayFilter(String name) {
+		// this.displayFilterName = name;
+		// FIXME set the dispaly on the default selected filter
+		// FIXME - change this to setSelectedFilter
 	}
 
 	/**
@@ -468,206 +775,32 @@ public class OpenCV extends Service implements VideoSource {
 
 	}
 
-	/**
-	 * Callback from the SwingGui to the appropriate filter funnel through here
-	 */
-	public void invokeFilterMethod(String filterName, String method, Object... params) {
-		OpenCVFilter filter = getFilter(filterName);
-		if (filter != null) {
-			Reflector.invokeMethod(filter, method, params);
+	public void setFrameGrabberType(String grabberType) {
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
 		} else {
-			log.error("invokeFilterMethod " + filterName + " does not exist");
+			selectedInputFilter.setFrameGrabberType(grabberType);
 		}
 	}
 
-	/**
-	 * publishing method for filters - used internally
-	 * 
-	 * @return FilterWrapper solves the problem of multiple types being resolved
-	 *         in the setFilterState(FilterWrapper data) method
-	 */
-	public FilterWrapper publishFilterState(FilterWrapper filterWrapper) {
-		return filterWrapper;
-	}
-
-	/**
-	 * publishing method for filters - uses string parameter for remote
-	 * invocation
-	 * 
-	 * @return FilterWrapper solves the problem of multiple types being resolved
-	 *         in the setFilterState(FilterWrapper data) method
-	 */
-	public FilterWrapper publishFilterState(String name) {
-		OpenCVFilter filter = getFilter(name);
-		if (filter != null) {
-			return new FilterWrapper(name, filter);
+	public void setInputFileName(String inputFile) {
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
 		} else {
-			log.error(String.format("publishFilterState %s does not exist ", name));
+			selectedInputFilter.setInputFileName(inputFile);
 		}
-
-		return null;
 	}
 
-	public void recordOutput(Boolean b) {
-		videoProcessor.recordOutput(b);
-	}
-
-	public String recordSingleFrame() {
-		// WOOHOO Changed threads & thread safe !
-		// OpenCVData d = videoProcessor.getLastData();
-		OpenCVData d = getOpenCVData();
-		/*
-		 * if (d == null) { log.error(
-		 * "could not record frame last OpenCVData is null"); return null; }
-		 */
-		return d.writeDisplay();
-		// return d.writeInput();
-	}
-
-	// filter dynamic data exchange end ------------------
-	public static Rectangle cvToAWT(CvRect rect) {
-		Rectangle boundingBox = new Rectangle();
-		boundingBox.x = rect.x();
-		boundingBox.y = rect.y();
-		boundingBox.width = rect.width();
-		boundingBox.height = rect.height();
-		return boundingBox;
-
-	}
-
-	public OpenCVData getOpenCVData() {
-		return getOpenCVData(500);
-	}
-
-	// FIXME - don't try catch - expose the Exceptions - performance enhancement
-	public OpenCVData getOpenCVData(Integer timeout) {
-		OpenCVData data = null;
-		try {
-
-			// making fresh when blocking with a queue
-			videoProcessor.blockingData.clear();
-
-			// DEPRECATE always "publish"
-			boolean oldPublishOpenCVData = videoProcessor.publishOpenCVData;
-			videoProcessor.publishOpenCVData = true;
-			// videoProcessor.useBlockingData = true;
-			// timeout ? - change to polling
-
-			if (timeout == null || timeout < 1) {
-				data = (OpenCVData) videoProcessor.blockingData.take();
-			} else {
-				data = (OpenCVData) videoProcessor.blockingData.poll(timeout, TimeUnit.MILLISECONDS);
-			}
-			// value parameter
-			videoProcessor.publishOpenCVData = oldPublishOpenCVData;
-			// videoProcessor.useBlockingData = false;
-			return data;
-
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
-	public OpenCVData getGoodFeatures() {
-		addFilter(FILTER_GOOD_FEATURES_TO_TRACK, FILTER_GOOD_FEATURES_TO_TRACK);
-		OpenCVData d = getOpenCVData();
-		removeFilter(FILTER_GOOD_FEATURES_TO_TRACK);
-		return d;
-	}
-
-	public OpenCVData getFaceDetect() {
-		OpenCVFilterFaceDetect fd = new OpenCVFilterFaceDetect();
-		addFilter(fd);
-		OpenCVData d = getOpenCVData();
-		removeFilter(fd.name);
-		return d;
-	}
-
-	public static Point2Df findPoint(ArrayList<Point2Df> data, String direction, Double minValue) {
-
-		double distance = 0;
-		int index = 0;
-		double targetDistance = 0.0f;
-
-		if (data == null || data.size() == 0) {
-			log.error("no data");
-			return null;
-		}
-
-		if (minValue == null) {
-			minValue = 0.0;
-		}
-
-		if (DIRECTION_CLOSEST_TO_CENTER.equals(direction)) {
-			targetDistance = 1;
+	public void setInputSource(String inputSource) {
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
 		} else {
-			targetDistance = 0;
+			selectedInputFilter.setInputSource(inputSource);
 		}
-
-		for (int i = 0; i < data.size(); ++i) {
-			Point2Df point = data.get(i);
-
-			if (DIRECTION_FARTHEST_FROM_CENTER.equals(direction)) {
-				distance = (float) Math.sqrt(Math.pow((0.5 - point.x), 2) + Math.pow((0.5 - point.y), 2));
-				if (distance > targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			} else if (DIRECTION_CLOSEST_TO_CENTER.equals(direction)) {
-				distance = (float) Math.sqrt(Math.pow((0.5 - point.x), 2) + Math.pow((0.5 - point.y), 2));
-				if (distance < targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			} else if (DIRECTION_FARTHEST_LEFT.equals(direction)) {
-				distance = point.x;
-				if (distance < targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			} else if (DIRECTION_FARTHEST_RIGHT.equals(direction)) {
-				distance = point.x;
-				if (distance > targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			} else if (DIRECTION_FARTHEST_TOP.equals(direction)) {
-				distance = point.y;
-				if (distance < targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			} else if (DIRECTION_FARTHEST_BOTTOM.equals(direction)) {
-				distance = point.y;
-				if (distance > targetDistance && point.value >= minValue) {
-					targetDistance = distance;
-					index = i;
-				}
-			}
-
-		}
-
-		Point2Df p = data.get(index);
-		log.info(String.format("findPointFarthestFromCenter %s", p));
-		return p;
 	}
 
-	public SerializableImage getDisplay() {
-		OpenCVData d = getOpenCVData();
-		SerializableImage ret = new SerializableImage(d.getBufferedImage(), d.getSelectedFilterName());
-		return ret;
-	}
-
-	public int getCameraIndex() {
-		return videoProcessor.cameraIndex;
-	}
-
-	public void setPipeline(String pipeline) {
-		videoProcessor.pipelineSelected = pipeline;
-		videoProcessor.inputSource = "pipeline";
-		videoProcessor.grabberType = "org.myrobotlab.opencv.PipelineFrameGrabber";
+	public void setMask(String name, IplImage mask) {
+		masks.put(name, mask);
 	}
 
 	/**
@@ -676,33 +809,56 @@ public class OpenCV extends Service implements VideoSource {
 	 * @param time
 	 */
 	public void setMinDelay(int time) {
-		videoProcessor.setMinDelay(time);
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
+		} else {
+			selectedInputFilter.setMinDelay(time);
+		}
 	}
 
-	public String setRecordingSource(String source) {
-		videoProcessor.recordingSource = source;
-		return source;
+	public void setPipeline(String pipeline) {
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
+		} else {
+			selectedInputFilter.setPipeline(pipeline);
+		}
+	}
+
+	public void setRecordingSource(String source) {
+		this.recordingSource = source;
+	}
+
+	public void setStreamerEnabled(boolean streamerEnabled) {
+		this.streamerEnabled = streamerEnabled;
 	}
 
 	public void showFrameNumbers(boolean b) {
-		videoProcessor.showFrameNumbers(b);
+		this.showFrameNumbers(b);
 	}
 
 	public void showTimestamp(boolean b) {
-		videoProcessor.showTimestamp(b);
+		this.showTimestamp = b;
 	}
 
-	public void captureFromResourceFile(String filename) throws IOException {
-		FileIO.extractResource(filename, filename);
-		captureFromImageFile(filename);
+	public void stopCapture() {
+		stopVideoProcessing();
+		// FIXME -
+		capturing = false;// change this to an event .. publishCapturing()
+		// invoke("publishCapturing", false);
+		broadcastState();
 	}
 
-	public void captureFromImageFile(String filename) {
-		stopCapture();
-		setFrameGrabberType("org.myrobotlab.opencv.ImageFileFrameGrabber");
-		setInputSource(INPUT_SOURCE_IMAGE_FILE);
-		setInputFileName(filename);
-		capture();
+	// FIXME - implement
+	public void stopRecording(String filename) {
+		// cvReleaseVideoWriter(outputFileStreams.get(filename).pointerByReference());
+	}
+
+	@Override
+	public void stopService() {
+		// shut down video
+		stopVideoProcessing();
+		// shut down service
+		super.stopService();
 	}
 
 	public boolean undockDisplay(boolean b) {
@@ -711,16 +867,40 @@ public class OpenCV extends Service implements VideoSource {
 		return b;
 	}
 
-	static public String[] getPossibleFilters() {
-		return POSSIBLE_FILTERS;
+	public String getInputSource() {
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
+			return null;
+		} else {
+			return selectedInputFilter.getInputSource();
+		}
 	}
 
-	public String publishRecognizedFace(String value) {
-		return value;
+	public Queue<OpenCVFilter> getAddFilterQueue() {
+		return addFilterQueue;
 	}
 
-	public void publishNoRecognizedFace() {
+	public String getPipelineSelected() {
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
+			return null;
+		} else {
+			return selectedInputFilter.getPipelineSelected();
+		}
+	}
 
+	public String getDisplayFilterName() {
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
+			return null;
+		} else {
+			return selectedInputFilter.getDisplayFilterName();
+		}
+	}
+
+	@Override
+	public VideoProcessWorker getWorker() {
+		return worker;
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -763,10 +943,10 @@ public class OpenCV extends Service implements VideoSource {
 
 		OpenCVFilterPyramidDown pyramid = new OpenCVFilterPyramidDown("pyramid");
 		opencv.addFilter(pyramid);
-		
+
 		OpenCVFilterDilate dilate = new OpenCVFilterDilate();
 		opencv.addFilter(dilate);
-		
+
 		OpenCVFilterFaceDetect2 facedetect2 = new OpenCVFilterFaceDetect2("facedetect2");
 		opencv.addFilter(facedetect2);
 		// OpenCVFilterFaceRecognizer("facerec");
@@ -854,36 +1034,35 @@ public class OpenCV extends Service implements VideoSource {
 
 	}
 
-	/**
-	 * This static method returns all the details of the class without it having
-	 * to be constructed. It has description, categories, dependencies, and peer
-	 * definitions.
-	 * 
-	 * @return ServiceType - returns all the data
-	 * 
-	 */
-	static public ServiceType getMetaData() {
-
-		ServiceType meta = new ServiceType(OpenCV.class.getCanonicalName());
-		meta.addDescription("OpenCV (computer vision) service wrapping many of the functions and filters of OpenCV");
-		meta.addCategory("video", "vision", "sensor");
-		// meta.addPeer("streamer", "VideoStreamer", "video streaming service
-		// for
-		// webgui.");
-
-		meta.sharePeer("streamer", "streamer", "VideoStreamer", "Shared Video Streamer");
-		// meta.addDependency("org.bytedeco.javacpp","1.1");
-		meta.addDependency("org.bytedeco.javacv", "1.1");
-		meta.addDependency("pl.sarxos.webcam", "0.3.10");
-		return meta;
+	public String getGrabberType() {
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
+			return null;
+		} else {
+			return selectedInputFilter.getGrabberType();
+		}
 	}
 
-	public boolean isStreamerEnabled() {
-		return streamerEnabled;
+	public String getInputFile() {
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
+			return null;
+		} else {
+			return selectedInputFilter.getInputFile();
+		}
 	}
 
-	public void setStreamerEnabled(boolean streamerEnabled) {
-		this.streamerEnabled = streamerEnabled;
+	public int getCameraIndex() {
+		if (selectedInputFilter == null) {
+			error("please select an input filter");
+			return -1;
+		} else {
+			return selectedInputFilter.getCameraIndex();
+		}
+	}
+
+	public Queue<String> getRemoveFilters() {
+		return removeFilterQueue;
 	}
 
 }

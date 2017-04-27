@@ -43,15 +43,20 @@ public class SerialTest {
   static String vport = "vport";
 
   static Set<Thread> startThreads;
+  
+  static int systemPortCount = 0;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     LoggingFactory.init(Level.INFO);
 
     log.info("setUpBeforeClass");
+    
+   
 
     // Runtime.start("gui", "SwingGui");
     serial = (Serial) Runtime.start("serial", "Serial");
+    systemPortCount = serial.getPortNames().size();
     catcher = (TestCatcher) Runtime.start("catcher", "TestCatcher");
     virtual = (VirtualDevice) Runtime.start("virtual", "VirtualDevice");
     virtual.createVirtualSerial(vport);
@@ -464,9 +469,10 @@ public class SerialTest {
   @Test
   public final void testGetPortNames() {
     List<String> ports = serial.getPortNames();
-    log.info(String.format("number of ports %d", ports.size()));
+    log.info(String.format("number of ports %d", ports.size() + systemPortCount));
     // should only be 2 ports - 1 virtual & 1 virtual uart
-    assertEquals(2, ports.size());
+    // GroG says: unless the computer has more :P
+    assertEquals(2 + systemPortCount, ports.size());
   }
 
   @Test

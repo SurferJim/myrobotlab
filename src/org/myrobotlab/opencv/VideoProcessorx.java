@@ -39,11 +39,11 @@ import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Runtime;
 import org.slf4j.Logger;
 
-public class VideoProcessor implements Runnable, Serializable {
+public class VideoProcessorx implements Runnable, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(VideoProcessor.class);
+	public final static Logger log = LoggerFactory.getLogger(VideoProcessorx.class);
 
 	int frameIndex = 0;
 	public boolean capturing = false;
@@ -88,18 +88,13 @@ public class VideoProcessor implements Runnable, Serializable {
 	// BEWARE !!!!
 	// FIXME - use for RECORDING & another one for Blocking for data !!!
 	transient public BlockingQueue<Object> blockingData = new LinkedBlockingQueue<Object>();
-
-	private transient OpenCV opencv;
-	private transient FrameGrabber grabber = null;
+	transient OpenCV opencv;
+	transient FrameGrabber grabber = null;
 	transient Thread videoThread = null;
-
-	transient private Map<String, OpenCVFilter> filters = new LinkedHashMap<String, OpenCVFilter>();
-
+	transient Map<String, OpenCVFilter> filters = new LinkedHashMap<String, OpenCVFilter>();
 	transient private List<OpenCVFilter> addFilterQueue = new ArrayList<OpenCVFilter>();
 	transient private List<String> removeFilterQueue = new ArrayList<String>();
-
 	transient SimpleDateFormat sdf = new SimpleDateFormat();
-
 	transient HashMap<String, FrameRecorder> outputFileStreams = new HashMap<String, FrameRecorder>();
 
 	public static final String INPUT_KEY = "input";
@@ -146,10 +141,12 @@ public class VideoProcessor implements Runnable, Serializable {
 		}
 	}
 
-	public VideoProcessor() {
+	public VideoProcessorx() {
 		cvInitFont(font, CV_FONT_HERSHEY_PLAIN, 1, 1);
-		OpenCVData data = new OpenCVData(boundServiceName, 0);
+		// INPUT_KEY = 
 		lastSourceKey = INPUT_KEY;
+		
+		OpenCVData data = new OpenCVData(boundServiceName, 0);
 		data.put(INPUT_KEY);
 	}
 	
@@ -658,5 +655,9 @@ public class VideoProcessor implements Runnable, Serializable {
 		log.debug("stopping capture");
 		capturing = false;
 		videoThread = null;
+	}
+	
+	public List<OpenCVFilter> getAddFilterQueue(){
+		return addFilterQueue;
 	}
 }

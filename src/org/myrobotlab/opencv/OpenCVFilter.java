@@ -34,6 +34,7 @@ import org.bytedeco.javacpp.opencv_core.CvSize;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.service.interfaces.VideoProcessor;
 import org.slf4j.Logger;
 
 public abstract class OpenCVFilter implements Serializable {
@@ -58,7 +59,7 @@ public abstract class OpenCVFilter implements Serializable {
 
   public String sourceKey;
 
-  transient protected VideoProcessor vp;
+  transient protected VideoProcessor processor;
 
   public OpenCVFilter() {
     this.name = this.getClass().getSimpleName().substring("OpenCVFilter".length());
@@ -85,11 +86,11 @@ public abstract class OpenCVFilter implements Serializable {
   public abstract void imageChanged(IplImage image);
 
   public void setVideoProcessor(VideoProcessor vp) {
-    this.vp = vp;
+    this.processor = vp;
   }
 
   public VideoProcessor getVideoProcessor() {
-    return vp;
+    return processor;
   }
 
   public OpenCVFilter setState(OpenCVFilter other) {
@@ -97,8 +98,7 @@ public abstract class OpenCVFilter implements Serializable {
   }
 
   public IplImage preProcess(int frameIndex, IplImage frame, OpenCVData data) {
-    // Logging.logTime(String.format("preProcess begin %s", data.filtername));
-    if (frame.width() != width || frame.nChannels() != channels) {
+    if (frame != null && (frame.width() != width || frame.nChannels() != channels)) {
       width = frame.width();
       channels = frame.nChannels();
       height = frame.height();
@@ -111,12 +111,12 @@ public abstract class OpenCVFilter implements Serializable {
   }
 
   public void invoke(String method, Object... params) {
-    vp.getOpencv().invoke(method, params);
+    processor.invoke(method, params);
   }
 
   public void broadcastFilterState() {
     FilterWrapper fw = new FilterWrapper(this.name, this);
-    vp.getOpencv().invoke("publishFilterState", fw);
+    processor.invoke("publishFilterState", fw);
   }
 
   public ArrayList<String> getPossibleSources() {
@@ -124,7 +124,21 @@ public abstract class OpenCVFilter implements Serializable {
     ret.add(name);
     return ret;
   }
+  
+  public void info(String format, Object... args){
+	  processor.info(format, args);
+  }
+  
+  public void warn(String format, Object... args){
+	  processor.warn(format, args);
+  }
 
+  public void error(String format, Object... args){
+	  processor.error(format, args);
+  }
+
+
+  @Deprecated // not used remove ..
   public void release() {
   }
 

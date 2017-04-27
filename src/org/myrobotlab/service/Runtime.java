@@ -49,6 +49,7 @@ import org.myrobotlab.framework.SystemResources;
 import org.myrobotlab.framework.repo.Repo;
 import org.myrobotlab.framework.repo.ServiceData;
 import org.myrobotlab.io.FileIO;
+import org.myrobotlab.io.Zip;
 import org.myrobotlab.logging.Appender;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -607,12 +608,18 @@ public class Runtime extends Service implements MessageListener, RepoInstallList
            * , t.getName(), e.getMessage())); // MyWorker worker = new
            * MyWorker(); // worker.start(); } });
            */
-
+           
           if (runtimeName == null) {
             runtimeName = "runtime";
           }
           runtime = new Runtime(runtimeName);
           Repo.getLocalInstance().addStatusListener(runtime);
+          
+          try {
+        	  Zip.extractFromSelf("resource", "resource");
+          } catch(Exception e){
+        	  log.error("extraction threw", e);
+          }
         }
       }
     }

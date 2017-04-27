@@ -349,7 +349,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
     if (controller == this) {
       error("controller can't attach to itself");
       return;
-    }
+    }	
     if (!controller.board.toLowerCase().contains("mega")) {
       error("You must connect to a Mega controller");
       return;
@@ -1779,7 +1779,8 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
         // inbox.setBlocking(true);
         serial.addByteListener(this);
 
-        FileIO.extractResource("Arduino","resource/Arduino", false); 
+        // FIXME - removing below .. it DOES NOT WORKY 
+        // FileIO.extractResource("Arduino","resource/Arduino", false); 
       }
     } catch (Exception e) {
       log.error("Arduino.startService threw", e);
@@ -1961,8 +1962,7 @@ public class Arduino extends Service implements Microcontroller, PinArrayControl
 
       String mrlCommFiles = null;
       if (FileIO.isJar()) {
-        mrlCommFiles = "resource/Arduino/MrlComm";
-        Zip.extractFromSelf("resource/Arduino/MrlComm", "resource/Arduino/MrlComm");
+        mrlCommFiles = "resource/Arduino/MrlComm";        
       } else {
         // running in IDE ?
         mrlCommFiles = "src/resource/Arduino/MrlComm";

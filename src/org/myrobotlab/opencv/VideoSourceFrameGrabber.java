@@ -60,7 +60,7 @@ public class VideoSourceFrameGrabber extends FrameGrabber {
           } catch (InterruptedException e) {
           } // must own the lock
         } else {
-          image = OpenCV.BufferedImageToFrame(imgq.removeLast().getImage());
+          image = OpenCVUtils.BufferedImageToFrame(imgq.removeLast().getImage());
           // image = IplImage.createFrom(imgq.removeLast().getImage());
         }
       }

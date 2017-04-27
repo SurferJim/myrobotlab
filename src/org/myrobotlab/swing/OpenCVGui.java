@@ -25,9 +25,10 @@
 
 package org.myrobotlab.swing;
 
-import static org.myrobotlab.opencv.VideoProcessor.INPUT_KEY;
+import static org.myrobotlab.opencv.VideoProcessorx.INPUT_KEY;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
@@ -38,6 +39,7 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -73,7 +75,6 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
-import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.SwingGui;
@@ -91,7 +92,6 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 
 	final static String PREFIX = "OpenCVFilter";
 	final static String FILTER_PACKAGE_NAME = "org.myrobotlab.swing.opencv.OpenCVFilter";
-
 	String prefixPath = "org.bytedeco.javacv.";
 
 	transient OpenCVFrameConverter.ToIplImage converter = new OpenCVFrameConverter.ToIplImage();
@@ -131,10 +131,8 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 	JComboBox<String> grabberTypeSelect = null;
 
 	JComboBox<Integer> cameraIndex = new JComboBox<Integer>(new Integer[] { 0, 1, 2, 3, 4, 5 });
-	
-	// ComboBoxModel2 sources = new ComboBoxModel2();
 
-	JPanel filterParameters = new JPanel();
+	JPanel filterParameters = new JPanel(new CardLayout());
 
 	LinkedHashMap<String, OpenCVFilterGui> guiFilters = new LinkedHashMap<String, OpenCVFilterGui>();
 
@@ -156,7 +154,6 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 			 * to set all the data of the gui just before the capture request is
 			 * sent
 			 */
-			VideoProcessor vp = myOpenCV.videoProcessor;
 
 			String selected = (String) grabberTypeSelect.getSelectedItem();
 
@@ -167,11 +164,16 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 				prefixPath = "org.bytedeco.javacv.";
 			}
 
-			vp.grabberType = prefixPath + (String) grabberTypeSelect.getSelectedItem() + "FrameGrabber";
+			// TODO !!! - input filter - stereo vision -> mesh
+
+			String grabberType = prefixPath + (String) grabberTypeSelect.getSelectedItem() + "FrameGrabber";
+			// String inputFile = null;
+			String inputSource = null;
+			Integer index = null;
+			String pipelineSelected = null;
 
 			if (fileRadio.isSelected()) {
 				String fileName = inputFile.getText();
-				vp.inputFile = fileName;
 				String extension = "";
 
 				int i = fileName.lastIndexOf('.');
@@ -179,39 +181,39 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 					extension = fileName.substring(i + 1);
 				}
 
-				File inputFile = new File(fileName);
+				File file = new File(fileName);
 
 				if (("jpg").equals(extension) || ("png").equals(extension)) {
-					vp.inputSource = OpenCV.INPUT_SOURCE_IMAGE_FILE;
-					vp.grabberType = "org.myrobotlab.opencv.ImageFileFrameGrabber";
+					inputSource = OpenCV.INPUT_SOURCE_IMAGE_FILE;
+					grabberType = "org.myrobotlab.opencv.ImageFileFrameGrabber";
 
-				} else if (inputFile.isDirectory()) {
+				} else if (file.isDirectory()) {
 					// this
 					// is
 					// a
 					// slide
 					// show.
-					vp.inputSource = OpenCV.INPUT_SOURCE_IMAGE_DIRECTORY;
-					vp.grabberType = "org.myrobotlab.opencv.SlideShowFrameGrabber";
+					inputSource = OpenCV.INPUT_SOURCE_IMAGE_DIRECTORY;
+					grabberType = "org.myrobotlab.opencv.SlideShowFrameGrabber";
 					send("setDirectory", inputFile);
 				} else {
-					vp.inputSource = OpenCV.INPUT_SOURCE_MOVIE_FILE;
+					inputSource = OpenCV.INPUT_SOURCE_MOVIE_FILE;
 				}
 
 			} else if (cameraRadio.isSelected()) {
-				vp.inputSource = OpenCV.INPUT_SOURCE_CAMERA;
-				vp.cameraIndex = (Integer) cameraIndex.getSelectedItem();
+				inputSource = OpenCV.INPUT_SOURCE_CAMERA;
+				index = (Integer) cameraIndex.getSelectedItem();
 			} else {
-				log.error("input source is " + vp.inputSource);
+				log.error("input source is " + inputSource);
 			}
 
 			if ("IPCamera".equals(selected)) {
-				vp.inputSource = OpenCV.INPUT_SOURCE_NETWORK;
+				inputSource = OpenCV.INPUT_SOURCE_NETWORK;
 			}
 
 			if ("Pipeline".equals(selected)) {
-				vp.inputSource = OpenCV.INPUT_SOURCE_PIPELINE;
-				vp.pipelineSelected = (String) pipelineHook.getSelectedItem();
+				inputSource = OpenCV.INPUT_SOURCE_PIPELINE;
+				pipelineSelected = (String) pipelineHook.getSelectedItem();
 			}
 
 			send("setState", myOpenCV);
@@ -358,8 +360,7 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 		frameGrabberList.add("ImageFile");
 		frameGrabberList.add("SlideShowFile");
 		frameGrabberList.add("Sarxos");
-		
-		
+
 		ComboBoxModel2.add(INPUT_KEY);
 
 		// CanvasFrame cf = new CanvasFrame("hello");
@@ -456,7 +457,7 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 
 		title = BorderFactory.createTitledBorder("filter parameters");
 		filterParameters.setBorder(title);
-		// filterParameters.setPreferredSize(new Dimension(340, 360));
+
 		// filterParameters.setPreferredSize(new Dimension(340, 400));
 		Box box = Box.createVerticalBox();
 		box.add(filterPanel);
@@ -534,7 +535,7 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 	}
 
 	public OpenCVFilterGui addFilterToGui(OpenCVFilter filter) {
-
+		
 		String name = filter.name;
 		String type = filter.getClass().getSimpleName();
 		type = type.substring(PREFIX.length());
@@ -569,6 +570,7 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 		filtergui.initFilterState(filter); // set the bound filter
 		guiFilters.put(name, filtergui);
 		currentFilters.setSelectedIndex(currentFilterListModel.size() - 1);
+		filterParameters.add(filtergui.getDisplay(), filtergui.toString());
 		return filtergui;
 	}
 
@@ -583,8 +585,8 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 		unsubscribe("publishOpenCVData");
 		unsubscribe("getKeys");
 	}
-	
-	public void onKeys(Set<String> sources){
+
+	public void onKeys(Set<String> sources) {
 		log.info("here");
 	}
 
@@ -627,34 +629,49 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 			@Override
 			public void run() {
 
-				VideoProcessor vp = opencv.videoProcessor;
+				// VideoProcessorx vp = opencv.videoProcessor;
 
 				// seems pretty destructive :P
-				currentFilterListModel.clear();
-				// add new filters from service into gui
+				// currentFilterListModel.clear();
+				
+				Map<String,OpenCVFilter> allFilters = new LinkedHashMap<String,OpenCVFilter>();
+				// get a copy of the current references
 				for (OpenCVFilter f : opencv.getFiltersCopy()) {
-					addFilterToGui(f);
+					allFilters.put(f.name, f);
 				}
+
+				// process the add queue
+				for (OpenCVFilter f : opencv.getAddFilterQueue()) {
+					allFilters.put(f.name, f);
+				}
+				
+				// process the remove queue
+				for (String f : opencv.getRemoveFilters()) {
+					allFilters.remove(f);
+				}
+				
+				// merge remaining
+				mergeFiltersWithGui(allFilters);
 
 				currentFilters.repaint();
 
 				for (int i = 0; i < grabberTypeSelect.getItemCount(); ++i) {
 					String currentObject = prefixPath + grabberTypeSelect.getItemAt(i) + "FrameGrabber";
-					if (currentObject.equals(vp.grabberType)) {
+					if (currentObject.equals(opencv.getGrabberType())) {
 						grabberTypeSelect.setSelectedIndex(i);
 						break;
 					}
 				}
 
-				if (vp.capturing) {
+				if (opencv.isCapturing()) {
 					capture.setText("stop");
 				} else {
 					capture.setText("capture");
 				}
 
-				inputFile.setText(vp.inputFile);
-				cameraIndex.setSelectedIndex(vp.cameraIndex);
-				String inputSource = opencv.videoProcessor.inputSource;
+				inputFile.setText(opencv.getInputFile());
+				cameraIndex.setSelectedIndex(opencv.getCameraIndex());
+				String inputSource = opencv.getInputSource();
 				if (OpenCV.INPUT_SOURCE_CAMERA.equals(inputSource)) {
 					cameraRadio.setSelected(true);
 				} else if (OpenCV.INPUT_SOURCE_CAMERA.equals(inputSource)) {
@@ -663,7 +680,7 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 					// grabberTypeSelect.removeActionListener(grabberTypeListener);
 					grabberTypeSelect.setSelectedItem("Pipeline");
 					// grabberTypeSelect.addActionListener(grabberTypeListener);
-					pipelineHook.setSelectedItem(vp.pipelineSelected);
+					pipelineHook.setSelectedItem(opencv.getPipelineSelected());
 				} else if (OpenCV.INPUT_SOURCE_IMAGE_FILE.equals(inputSource)
 						|| OpenCV.INPUT_SOURCE_IMAGE_DIRECTORY.equals(inputSource)) {
 					// the file input should be enabled if we are file or
@@ -672,7 +689,7 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 				}
 
 				currentFilters.removeListSelectionListener(self);
-				currentFilters.setSelectedValue(vp.displayFilterName, true);// .setSelectedIndex(index);
+				currentFilters.setSelectedValue(opencv.getDisplayFilterName(), true);// .setSelectedIndex(index);
 				currentFilters.addListSelectionListener(self);
 
 				if (opencv.undockDisplay == true) {
@@ -689,9 +706,39 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 				// which might need to re-pack & re-paint components ...
 				myService.pack();
 			} // end run()
+
+			
 		});
 
 	}
+
+	/**
+	 * 
+	 * @param allFilters
+	 */
+	private void mergeFiltersWithGui(Map<String,OpenCVFilter> allFilters) {
+		
+		int position = 0;
+		// the filters dictate what is in the gui
+		// iterate through all filters
+		for (String name: allFilters.keySet()){
+			// need to add to gui
+			if (position > currentFilterListModel.getSize() - 1){
+				addFilterToGui(allFilters.get(name));
+			} else if (!name.equals(currentFilterListModel.get(position).getName())){
+				// if the names don't match - its because the filters 
+				// have been reduced - remove the gui reference
+				// currentFilterListModel.removeElementAt(position);
+				removeFilterFromGui(name);
+				
+			} else {
+				// filters match - leave it...
+			}
+			++position;
+		}
+	}
+	
+
 
 	public void onOpenCVData(OpenCVData data) {
 		// Needed to avoid null pointer exception when
@@ -715,6 +762,7 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				currentFilterListModel.removeElement(name);
+				guiFilters.remove(name);
 			}
 		});
 	}
@@ -744,7 +792,6 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 				}
 			}
 		};
-
 		currentFilters.addMouseListener(mouseListener);
 	}
 
@@ -765,19 +812,11 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 			log.info("gui valuechange setting to {}", filter);
 			if (filter != null) {
 				send("setDisplayFilter", filter.toString());
-				filterParameters.removeAll();
-				filterParameters.add(filter.getDisplay());
-				filterParameters.repaint();
-				filterParameters.validate();
+				CardLayout cl = (CardLayout) (filterParameters.getLayout());
+				cl.show(filterParameters, filter.toString());
 
 			} else {
 				send("setDisplayFilter", INPUT_KEY);
-				// TODO - send message to OpenCV - that no filter should be sent
-				// to publish
-				filterParameters.removeAll();
-				filterParameters.add(new JLabel("no filter selected"));
-				filterParameters.repaint();
-				filterParameters.validate();
 			}
 
 			// TODO - if filterName = null - it has been "un"selected ctrl-click
