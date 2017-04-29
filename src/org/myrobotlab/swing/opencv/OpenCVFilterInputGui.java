@@ -54,7 +54,7 @@ public class OpenCVFilterInputGui extends OpenCVFilterGui implements ActionListe
 	JPanel captureCfg = new JPanel();
 	JRadioButton fileRadio = new JRadioButton();
 	JRadioButton cameraRadio = new JRadioButton();
-	JTextField inputFile = new JTextField("");
+	JTextField inputFile = new JTextField("http://localhost:8888/cgi/videostream");
 	JButton inputFileButton = new JButton("open file");
 
 	JComboBox<String> kinectImageOrDepth = new JComboBox<String>(new String[] { "image", "depth", "interleave" });

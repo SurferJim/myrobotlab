@@ -53,7 +53,6 @@ public abstract class OpenCVFilterGui {
 
 	FilterWrapper boundFilter = null;
 	
-
 	JComboBox<String> sources = new JComboBox<String>();
 	ComboBoxModel2 sourcesModel = new ComboBoxModel2(this);
 
