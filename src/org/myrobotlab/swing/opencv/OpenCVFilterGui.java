@@ -52,6 +52,7 @@ public abstract class OpenCVFilterGui {
 	final public GridBagConstraints gc = new GridBagConstraints();
 
 	FilterWrapper boundFilter = null;
+	
 
 	JComboBox<String> sources = new JComboBox<String>();
 	ComboBoxModel2 sourcesModel = new ComboBoxModel2(this);
