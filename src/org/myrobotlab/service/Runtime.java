@@ -614,16 +614,24 @@ public class Runtime extends Service implements MessageListener, RepoInstallList
           }
           runtime = new Runtime(runtimeName);
           Repo.getLocalInstance().addStatusListener(runtime);
-          
+          extract();
+        }
+      }
+    }
+    return runtime;
+  }
+
+  static public extract(){
+          // FIXME - check to see if this extract only once - it should !
+          // FIXME - make static function extract() and "force" it to overwrite
+          // FIXME - put in command line to -extract similar to -install
+          // FIXME - divide up resources so each service has its appropriate dependencies 
+          //         OR - bundle them as dependency resources into artifactory
           try {
         	  Zip.extractFromSelf("resource", "resource");
           } catch(Exception e){
         	  log.error("extraction threw", e);
           }
-        }
-      }
-    }
-    return runtime;
   }
 
   static public List<String> getJVMArgs() {

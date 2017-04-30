@@ -1318,10 +1318,14 @@ public class InMoov extends Service {
   }
   
   public InMoovEyelids startEyelids(String port) throws Exception {
-	    return startEyelids(port, null);
+	    return startEyelids(port, null, 22, 24);
+	  }
+  
+  public InMoovEyelids startEyelids(String port, int eyelidleftPin,int eyelidrightPin) throws Exception {
+	    return startEyelids(port, null, eyelidleftPin, eyelidrightPin);
 	  }
 
-  public InMoovEyelids startEyelids(String port, String type) throws Exception {
+  public InMoovEyelids startEyelids(String port, String type, int eyelidleftPin,int eyelidrightPin) throws Exception {
 	    // log.warn(InMoov.buildDNA(myKey, serviceClass))
 	    speakBlocking(String.format("starting eyelids on %s", port));
 
@@ -1332,7 +1336,7 @@ public class InMoov extends Service {
 	    }
 
 	    eyelids.arduino.setBoard(type);
-	    eyelids.connect(port);
+	    eyelids.connect(port,eyelidleftPin,eyelidrightPin);
 	    arduinos.put(port, eyelids.arduino);
 
 	    return eyelids;
@@ -1785,29 +1789,51 @@ public class InMoov extends Service {
 
     return meta;
   }
-
-  //vinmoov cosmetics
+  
+ 
+  //vinmoov cosmetics and optional vinmoov monitor idea ( poc i know nothing about jme... )
+  //just want to use jme as main screen and show some informations
+  //like batterie / errors / onreconized text etc ...
+  //i01.VinmoovMonitor=1 before to start vinmoov
+  
+  public Boolean VinmoovMonitor=false;
   public Boolean VinmoovFullScreen=false;
-
   public String VinmoovBackGroundColor="Grey";
   public int VinmoovWidth=800;
   public int VinmoovHeight=600;
+  private Boolean debugVinmoov=true;  
+  //show some infos to jme screen 
+  public void  setLeftArduinoConnected(boolean param)
+  {
+	  vinMoovApp.setLeftArduinoConnected(param);  	  
+  }
+  public void setRightArduinoConnected(boolean param)
+  {
+	  vinMoovApp.setRightArduinoConnected(param);  	  
+  }
   
-
+  //end vinmoov cosmetics and optional vinmoov monitor
 
   
   public InMoov3DApp startVinMoov() throws InterruptedException{
     if (vinMoovApp == null) {
       vinMoovApp = new InMoov3DApp();
+      if (VinmoovMonitor) {
+    	   //vinmoovFullScreen=true 
+    	   VinmoovBackGroundColor="Black";
+    	   debugVinmoov=false;
+    	   vinMoovApp.VinmoovMonitorActivated=true;
+    	  }
       vinMoovApp.BackGroundColor=VinmoovBackGroundColor;
       AppSettings settings = new AppSettings(true);
       settings.setResolution(VinmoovWidth,VinmoovHeight);
       settings.setFullscreen(VinmoovFullScreen);
       //settings.setEmulateMouse(false);
-      // settings.setUseJoysticks(false);
+      //settings.setUseJoysticks(false);
       settings.setUseInput(true);
       vinMoovApp.setSettings(settings);
       vinMoovApp.setShowSettings(false);
+      vinMoovApp.setDisplayStatView(debugVinmoov);
       vinMoovApp.setPauseOnLostFocus(false);
       vinMoovApp.setService(this);
       vinMoovApp.start();

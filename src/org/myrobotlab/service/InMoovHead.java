@@ -274,8 +274,8 @@ public class InMoovHead extends Service {
 
   public void enableAutoDisable(Boolean rotheadParam, Boolean neckParam, Boolean rollNeckParam) {
 	rothead.enableAutoDisable(rotheadParam);
-	rollNeck.enableAutoDisable(neckParam);
-	neck.enableAutoDisable(rollNeckParam);
+	rollNeck.enableAutoDisable(rollNeckParam);
+	neck.enableAutoDisable(neckParam);
 	
   }
   
@@ -290,8 +290,8 @@ public class InMoovHead extends Service {
   
   public void enableAutoEnable(Boolean rotheadParam, Boolean neckParam, Boolean rollNeckParam) {
 		rothead.enableAutoEnable(rotheadParam);
-		rollNeck.enableAutoEnable(neckParam);
-		neck.enableAutoEnable(rollNeckParam);
+		rollNeck.enableAutoEnable(rollNeckParam);
+		neck.enableAutoEnable(neckParam);
 		
 	  }
 	  
@@ -326,7 +326,7 @@ public class InMoovHead extends Service {
 	    eyeX.setMinMax(eyeXMin, eyeXMax);
 	    eyeY.setMinMax(eyeYMin, eyeYMax);
 	    jaw.setMinMax(jawMin, jawMax);
-	    rollNeck.setMinMax(jawMin, jawMax);
+	    rollNeck.setMinMax(rollNeckMin, rollNeckMax);
 	  }
 
   // ----- initialization end --------
@@ -414,7 +414,7 @@ public class InMoovHead extends Service {
     eyeX.moveTo(eyeX.getPos() + 2);
     eyeY.moveTo(eyeY.getPos() + 2);
     jaw.moveTo(jaw.getPos() + 2);
-    rollNeck.moveTo(neck.getPos() + 2);
+    rollNeck.moveTo(rollNeck.getPos() + 2);
   }
 
   /**
