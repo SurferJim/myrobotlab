@@ -655,7 +655,7 @@ public class WebGui extends Service implements AuthorizationProvider, Gateway, H
 			}
 
 			// FIXME - sloppy to convert to String here - should be done in the
-			// Encoder (if that happens)
+			// Encoder (if that happens).
 			String b = null;
 			if (body != null) {
 				b = new String(body);
@@ -1176,7 +1176,9 @@ public class WebGui extends Service implements AuthorizationProvider, Gateway, H
 			// Runtime.start("arduino", "Arduino");
 			// Runtime.start("srf05", "UltrasonicSensor");
 			// Runtime.setRuntimeName("george");
-			Runtime.start("webgui", "WebGui");
+			WebGui webgui = (WebGui)Runtime.start("webgui", "WebGui");
+			// webgui.setPort(6767);
+			webgui.start();
 
 		} catch (Exception e) {
 			Logging.logError(e);
