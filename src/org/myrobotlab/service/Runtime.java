@@ -621,7 +621,7 @@ public class Runtime extends Service implements MessageListener, RepoInstallList
     return runtime;
   }
 
-  static public extract(){
+  static public void extract(){
           // FIXME - check to see if this extract only once - it should !
           // FIXME - make static function extract() and "force" it to overwrite
           // FIXME - put in command line to -extract similar to -install
