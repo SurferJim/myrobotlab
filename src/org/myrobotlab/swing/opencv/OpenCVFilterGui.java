@@ -44,7 +44,6 @@ public abstract class OpenCVFilterGui {
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterGui.class);
 
 	final String name;
-
 	JPanel main = new JPanel(new BorderLayout());
 	JPanel display = new JPanel(new GridBagLayout());
 	final String boundServiceName;

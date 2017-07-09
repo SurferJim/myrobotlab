@@ -1,7 +1,7 @@
 package org.myrobotlab.opencv;
 
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvEncodeImage;
-import static org.myrobotlab.opencv.VideoProcessorx.INPUT_KEY;
+import static org.myrobotlab.service.OpenCV.INPUT_KEY;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -94,7 +94,7 @@ public class OpenCVData implements Serializable {
 	public static final String KEY_BUFFERED_IMAGE = "bufferedImage";
 
 	/**
-	 * return type - an ArrayList<Rectangles>
+	 * return type - an ArrayList&lt;Rectangles&gt;
 	 */
 	public static final String KEY_BOUNDING_BOXES = "boundingBoxes";
 
@@ -128,8 +128,6 @@ public class OpenCVData implements Serializable {
 
 	/**
 	 * constructed by the 'name'd service
-	 * 
-	 * @param name
 	 */
 	public OpenCVData() {
 		this(null, 0);
@@ -282,11 +280,10 @@ public class OpenCVData implements Serializable {
 
 	}
 
-	/**
+	/*
 	 * FIXME implement
 	 * 
-	 * @param name
-	 * @return
+	 * @return null
 	 */
 	public OpenCVFilter getFilter(String name) {
 		return null;
@@ -310,7 +307,7 @@ public class OpenCVData implements Serializable {
 	/**
 	 * parameterless tries to retrieve image based on current filtername
 	 * 
-	 * @return
+	 * @return - the image as represented by the currently selected filter.
 	 */
 	public IplImage getImage() {
 		return getImage(selectedFilter);
@@ -318,7 +315,7 @@ public class OpenCVData implements Serializable {
 
 	/**
 	 * OpenCV VideoProcessor will set this data collection to the last
-	 * filtername - when asked for an "image" it will give the last filter's
+	 * @param filtername - when asked for an "image" it will give the last filter's
 	 * 
 	 * @return the filter's IplImage
 	 */
@@ -335,7 +332,7 @@ public class OpenCVData implements Serializable {
 	/**
 	 * get the original "camera" image - or the image which started the pipeline
 	 * 
-	 * @return
+	 * @return the original image at the beginning of the video pipeline
 	 */
 	public IplImage getInputImage() {
 		return getImage(inputFilterName);

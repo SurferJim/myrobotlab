@@ -1,6 +1,6 @@
 package org.myrobotlab.opencv;
 
-import static org.myrobotlab.opencv.VideoProcessorx.INPUT_KEY;
+//import static org.myrobotlab.opencv.VideoProcessorx.INPUT_KEY;
 
 import java.lang.reflect.Constructor;
 import java.util.Queue;
@@ -37,7 +37,7 @@ public class OpenCVFilterInput extends OpenCVFilter {
 	String inputSource = OpenCV.INPUT_SOURCE_CAMERA;
 	int minDelay = 0;
 	String grabberType = getDefaultFrameGrabberType();
-	String displayFilterName = INPUT_KEY;
+	String displayFilterName = "input";
 	transient FrameGrabber grabber = null;
 	String pipelineSelected = "";
 

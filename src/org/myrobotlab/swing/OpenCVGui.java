@@ -25,8 +25,6 @@
 
 package org.myrobotlab.swing;
 
-import static org.myrobotlab.opencv.VideoProcessorx.INPUT_KEY;
-
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
@@ -361,7 +359,7 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 		frameGrabberList.add("SlideShowFile");
 		frameGrabberList.add("Sarxos");
 
-		ComboBoxModel2.add(INPUT_KEY);
+		ComboBoxModel2.add(OpenCV.INPUT_KEY);
 
 		// CanvasFrame cf = new CanvasFrame("hello");
 
@@ -610,7 +608,7 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 		return video0; // else return video1
 	}
 
-	/**
+	/*
 	 * onState is an interface function which allow the interface of the
 	 * SwingGui Bound service to update graphical portions of the SwingGui based
 	 * on data changes.
@@ -816,7 +814,7 @@ public class OpenCVGui extends ServiceGui implements ListSelectionListener, Vide
 				cl.show(filterParameters, filter.toString());
 
 			} else {
-				send("setDisplayFilter", INPUT_KEY);
+				send("setDisplayFilter", OpenCV.INPUT_KEY);
 			}
 
 			// TODO - if filterName = null - it has been "un"selected ctrl-click
