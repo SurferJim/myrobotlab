@@ -1,7 +1,10 @@
-package biomight.system.ai.nlp;
+package org.myrobotlab.beans;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import opennlp.tools.chunker.ChunkerME;
@@ -20,15 +23,35 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Sequence;
 import opennlp.tools.util.Span;
+import oracle.sql.DATE;
+
+
 
 public class RoboTalk {
+	
+
+	ArrayList responseList = new ArrayList();
+	
+	// Context Frames.  These java object represent their real world
+	// counterparts.  Each holds properties and methods that reflect 
+	// the real world use
+	private String[] contextModels = {
+			"org.myrobotlab.beans.ContextHello",
+			"org.myrobotlab.beans.ContextTime",
+			"org.myrobotlab.beans.ContextTrain",
+			"org.myrobotlab.beans.ContextBeach",
+			"org.myrobotlab.beans.ContextLunch"
+	};
 
 	
 	
-	public String processRequest(String myRequest)
-	{
-		String myResponse = "Hello";
-		
+	//***********************************************************************
+	//
+	// PROCESS REQUEST
+	//
+	//***********************************************************************
+	public ArrayList processRequest(String myRequest)
+	{	
 		System.out.println("Request is: " + myRequest + "\n");
 		
 		InputStream modelIn = null;
@@ -118,6 +141,7 @@ public class RoboTalk {
 				//**********************************************************
 				// Perform Lemmatization
 				//**********************************************************
+				/*
 				LemmatizerModel lemmaModel = null;
 				modelIn = new FileInputStream("en-lemmatizer.bin");
 			    lemmaModel = new LemmatizerModel(modelIn);
@@ -125,12 +149,12 @@ public class RoboTalk {
 			    
 			    String[] lemmas = lemmatizer.lemmatize(tokens, tags);
 				// Output the LEMMA probabilities
-				System.out.println("\nProbs...");
-				for (int i=0; i<probs.length; i++)
+				System.out.println("\nLemmas...");
+				for (int i=0; i<lemmas.length; i++)
 				{
-					System.out.println(i + ".  " + probs[i]);
+					System.out.println(i + ".  " + lemmas[i]);
 				}
-		
+				*/
 				
 				//**********************************************************
 				// Text Chunking
@@ -138,18 +162,12 @@ public class RoboTalk {
 				ChunkerModel chunkModel = null;
 
 				modelLocation = modelsPath + "en-chunker.bin";
-				System.out.println("Chunker Model has been loaded: " + modelLocation);
 				modelIn = new FileInputStream(modelLocation);
-				System.out.println("Chunker Model opened Stream...");
 				chunkModel = new ChunkerModel(modelIn);
-				System.out.println("Chunker Model intiaized...");
-				
 				
 				ChunkerME chunker = new ChunkerME(chunkModel);
-				System.out.println("Chunker ModelME has been loaded...");
 				
 				String chunks[] = chunker.chunk(tokens, tags);
-				
 				
 				// Output the Word Chunks
 				System.out.println("\nChunks...");
@@ -159,7 +177,9 @@ public class RoboTalk {
 				}
 		
 			
-				
+				// Try and determine what the user is talking about
+				 responseList = determineContext(tokens, tags);
+				 
 			}
 					
 		}
@@ -168,25 +188,111 @@ public class RoboTalk {
 			System.out.println("Talk Exception: " + e);
 		}
 
-		return(myResponse);
+		//myResponse = getTime();
+		return(responseList);
+		
+
+	}
+	
+
+	
+	//*****************************************************
+	// Determine Context 
+	// 
+	// This method will apply the various contexts against the 
+	// sentence to...
+	//*****************************************************
+	public ArrayList<String> determineContext(String[] tokens, String[] tags) {
+		
+		try 
+		{
+				
+			// Fire off the various context frames to see if anything sticks
+			for (int i=0; i<1; i++)
+			{
+				
+				Class clazz  = null;
+				Object runObject = null;
+				
+			
+				try {
+				 System.out.println("Loading ContextModel: " + contextModels[i]);
+				 Constructor cons = Class.forName(contextModels[i]).getDeclaredConstructor( new Class[]{String[].class, String[].class});
+				 
+				// System.out.println("Constructor method is identified! " + cons.getName() + "  " + cons.getParameterCount() );
+				// System.out.println("Constructor Params matched:  " + cons.getParameterTypes());
+				 
+				 if (cons == null) 
+				 {
+					 System.out.println("Constructor could not be created as obj is null"); 
+				 }
+				 else 
+				 {
+					 
+					 try {
+						 Object newInstance = cons.newInstance((Object)tokens, (Object)tags);
+						 System.out.println("NewInstance Context Object created via Constructor");
+						 
+						 Class noParams[] = {};
+						 Method method = newInstance.getClass().getDeclaredMethod("getMyResponse",  noParams);
+						 //System.out.println("Response method is identified! " + method.getName() + "  " + method.getParameterCount() );
+						 //System.out.println("Response Params matched:  " + method.getParameterTypes());
+						 
+						 //System.out.println("Calling Invoke on getMyResponse()");
+						 String myResponse =  (String) method.invoke(newInstance, null);
+						 
+						 if (!myResponse.isEmpty()) {
+							 System.out.println("Adding Response: " + myResponse);
+							 if (myResponse != null)
+								 responseList.add(myResponse);
+						 }
+						 
+					 }
+					 catch (Exception e)
+					{
+						System.out.println("Could not create Java Method reference " + contextModels[i] + " " + e);
+					}
+					 
+				 }
+				
+				 
+				}
+				catch (Exception e)
+				{
+					System.out.println("Could not create Java Class " + contextModels[i]);
+				}
+
+			}
+				
+		} 
+		catch (Exception e) 
+		{
+			System.out.println("ERROR in determining Context: " + e);	
+		}
+		
+		
+		return responseList;
 	}
 	
 	
+
 	
-	public String getResponse(String[] request)
-	{
-		String myResponse = "";	
-		return (myResponse);
+	// TIME CONTEXT
+	public String getTime() {
+		
+		String timeStr = "";
+
+		
+		try {
+			return ("The time is: " + DATE.getCurrentDate() );
+		}
+		catch (Exception e)
+		{
+			System.out.println("Talk Exception: " + e);
+		}
+		
+		return timeStr;
 	}
-	
-	
-	public void matchScenario() {  
-	
-			HashMap contextMap = new HashMap();
-			String[] tokList =  {"Hi", "Hello", "What's up?"};
-			contextMap.put("greet", tokList);	
-	}
-	
 	
 	
 
