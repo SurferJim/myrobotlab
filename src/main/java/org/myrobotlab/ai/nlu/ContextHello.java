@@ -1,4 +1,4 @@
-package biomight.system.ai.nlp.beans;
+package org.myrobotlab.beans;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,8 +10,8 @@ import org.apache.openejb.math.util.MathUtils;
 public class ContextHello {
 
 	int wordPhraseCount;
-	private HashMap wordMap = new HashMap<String, String>();
-	private ArrayList responseList = new ArrayList< String>();
+	private ArrayList<String[]> wordList = new ArrayList<String[]>();
+	private ArrayList<String> responseList = new ArrayList< String>();
 	
 	/******************************************************************************
 	 * CONSTRUCTORS
@@ -28,8 +28,8 @@ public class ContextHello {
 	public ContextHello(String[] tokens, String[] tags)
 	{
 		System.out.println("Executing ContextHello(TAGS) constructor...");
-		loadWordMap();
-		checkSyntax(tokens, tags);
+		loadVocab();
+		applyContext(tokens, tags);
 		loadresponseList();
 	}
 	
@@ -48,47 +48,37 @@ public class ContextHello {
 	
 	
 	/*************************************************************
-	 * CHECK SYNTAX
+	 * APPLY CONTEXT
 	 * 
 	 * @return
 	 *************************************************************/
 
-	public double checkSyntax(String[] tokens, String[] tags)
+	public double applyContext(String[] tokens, String[] tags)
 	{
 		double prob = 0.0;
 		
-		System.out.println("Checking for Hello Context with TAGS...");
+		System.out.println("Apply HelloContext.."); 
 		
-		// We will apply the tokens to the max of wordmap starting
-		// at largest phrases and matching to the smallest.  
-		String tokenPhrase = "";
-		for (int j=0; j<tokens.length; j++)
+		// Run through the tokens that we received as input
+		int tokenLength = tokens.length;
+		
+		// This will assemble phrases from the user's input
+		// The phrase starts at one word, and then appends words until
+		// entire phrase is consumed
+		String[] tokenPhrase = new String[tokenLength];
+
+		// Run once through every token in the user's input sentence
+		for (int j=0; j<tokenLength; j++)
 		{		
-			
-			// Collect up the tokens based on the token count
-			// in the phrase or utterance
-			
-			for (int i=j; i<(j+wordPhraseCount); i++)
+			int count = 0;
+			for (int i=j; i<tokens.length; i++)
 			{
-				if (i == (j+wordPhraseCount-1))
-				{
-					tokenPhrase+= tokens[i];
-					System.out.println("Last Word: " + j +  "  " + i + "   " + tokenPhrase);
-				}
-				else
-				{
-					tokenPhrase+= tokens[i];
-					tokenPhrase+= " ";
-					System.out.println("Need Spaces: " + j +  "  " + i + "   " + tokenPhrase);
-				}
+				tokenPhrase[count++] = tokens[i];
 				
-				System.out.println("Phrase with Count: " + j +  "  " + i + "   " + tokenPhrase);
-				
-				if ( wordMap.containsKey(tokenPhrase) ) {
-					prob = 100.00;
-					break;
-				}
-			}
+				listTokens("Apply Context to UserPhrase: ", tokenPhrase);
+			
+				prob = doMatch(tokenPhrase);
+			}	
 		
 		}
 		System.out.println("Prob of saying hello: " + prob);			
@@ -97,28 +87,48 @@ public class ContextHello {
 	}
 	
 	
-	public void loadWordMap()
-	{
-		wordMap.put("Hi", "Greet");	
-		wordMap.put("Hello", "Greet");
-		wordMap.put("Good Morning", "Greet");
-		wordMap.put("Good Day", "Greet");
-		wordMap.put("Hey", "Greet");
-		wordMap.put("What's up?", "Greet");
-		wordPhraseCount = 2;
-	}
+	/********************************************************************
+	 * DO MATCH
+	 * 
+	 * @param tokenPhrase
+	 * @return
+	 ********************************************************************/
 	
-	
-	public void loadresponseList()
+	public double doMatch(String[] tokenPhrase)
 	{
-		responseList.add("Hey man, what's up?");	
-		responseList.add("Hello back to you");
-		responseList.add("Good Day friend");
-		responseList.add("Hey Jim");
-		responseList.add("Hey");
-		responseList.add("Fk off, I'm busy");
-		responseList.add("What up punk?");
+		double prob = 0.00;
+		
+		// Run through the associated words and phrases for this context
+		// to see what matches up in the user's input request.  
+		for (int i=0; i<wordList.size(); i++)
+		{
+			String[] cannedPhrase = (String[]) wordList.get(i);
+			listTokens("DoMatch...Canned Phrase: ", cannedPhrase);
+			int tokPhraseLen = tokenPhrase.length;
+
+			for (int j=0; j<cannedPhrase.length; j++)
+			{
+				if (j<tokPhraseLen)
+				{
+					if (tokenPhrase[j] != null && cannedPhrase[j] != null)
+					{	
+						if (cannedPhrase[j].equalsIgnoreCase(tokenPhrase[j]))  
+						{
+							prob = 100.00;
+							System.out.println("Matched User tokens: " + tokenPhrase[j] + " canned: "  + cannedPhrase[j]);	
+						}
+						else
+							System.out.println("NoMatch User tokens: " + tokenPhrase[j] + " canned "  + cannedPhrase[j]);	
+					}	
+				}
+			}
+		}
+		
+		System.out.println("Prob of saying hello: " + prob);			
+		return prob;
 	}
+
+
 
 
 	// Just grab a random response, later we will 
@@ -133,6 +143,27 @@ public class ContextHello {
 		return (myResponse);
 		
 	}
+
+	
+	//*********************************************************************
+	// Output the token list
+	//*********************************************************************
+	public void listTokens(String msgHeader, String[] tokens)
+	{
+		System.out.println("\n");
+		System.out.println(msgHeader);
+		
+		for (int i=0; i<tokens.length; i++)
+		{
+			if (tokens[i] != null)
+			{
+				System.out.println("index: " + i + "   " + tokens[i]);
+			}
+		}	
+		System.out.println("\n");
+	}
+	
+	
 	
 	public ArrayList<String> getresponseList() {
 		return responseList;
@@ -144,7 +175,41 @@ public class ContextHello {
 	}
 	
 	
+	/***************************************************************************
+	 * LOAD VOCAB
+	 * 
+	 * A generic bunch of canned input phrases
+	 * 
+	 **************************************************************************/
+	public void loadVocab()
+	{
+ 		wordList.add( new String[] {"Hi"});	
+ 		wordList.add( new String[] {"Hello"});	
+ 		wordList.add( new String[] {"Good", "Morning"});	
+ 		wordList.add( new String[] {"Good", "Day"});
+ 		wordList.add( new String[] {"Good", "Afternoon"});
+ 		wordList.add( new String[] {"Good", "Evening"});
+ 		wordList.add( new String[] {"Hey"});
+ 		wordList.add( new String[] {"What's", "Up", "?"});
+	}
 	
 	
+	/***************************************************************************
+	 * LOAD RESPONSES
+	 * 
+	 * A generic bunch of canned responses.
+	 * 
+	 **************************************************************************/
+	public void loadresponseList()
+	{
+		responseList.add("Hey man, what's up?");	
+		responseList.add("Hello back to you");
+		responseList.add("Good Day friend");
+		responseList.add("Hey Jim");
+		responseList.add("Hey");
+		responseList.add("Fk off, I'm busy");
+		responseList.add("What up punk?");
+	}
+
 	
 }
