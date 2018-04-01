@@ -1,4 +1,4 @@
-package org.myrobotlab.beans;
+package org.myrobotlab.nlu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -205,10 +205,10 @@ public class ContextHello {
 		responseList.add("Hey man, what's up?");	
 		responseList.add("Hello back to you");
 		responseList.add("Good Day friend");
-		responseList.add("Hey Jim");
+		responseList.add("Hey Robo Maker");
 		responseList.add("Hey");
-		responseList.add("Fk off, I'm busy");
 		responseList.add("What up punk?");
+		responseList.add("Hello Creator");
 	}
 
 	
