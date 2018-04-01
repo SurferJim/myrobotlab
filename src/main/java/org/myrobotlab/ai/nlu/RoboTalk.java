@@ -1,4 +1,4 @@
-package org.myrobotlab.beans;
+package org.myrobotlab.ai.nlu;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -36,11 +36,11 @@ public class RoboTalk {
 	// counterparts.  Each holds properties and methods that reflect 
 	// the real world use
 	private String[] contextModels = {
-			"org.myrobotlab.beans.ContextHello",
-			"org.myrobotlab.beans.ContextTime",
-			"org.myrobotlab.beans.ContextTrain",
-			"org.myrobotlab.beans.ContextBeach",
-			"org.myrobotlab.beans.ContextLunch"
+			"org.myrobotlab.nlu.ContextHello",
+			"org.myrobotlab.nlu.ContextTime",
+			"org.myrobotlab.nlu.ContextTrain",
+			"org.myrobotlab.nlu.ContextBeach",
+			"org.myrobotlab.nlu.ContextLunch"
 	};
 
 	
